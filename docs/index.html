@@ -1,0 +1,4321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINDTIE Documentation</title>
+    <!-- Prism.js for VS Code-style syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        /* ===========================================
+           HOW TO CUSTOMIZE THIS DOCUMENTATION
+           ===========================================
+
+           1. COLORS: Change the golden theme by editing these CSS variables below
+           2. LOGO: Replace the SVG in the sidebar with your own image
+           3. CONTENT: Scroll down to the <main> section to edit/add content
+           4. NAVIGATION: Edit the sidebar links in the <nav> section
+           5. TABLE OF CONTENTS: Auto-generated from h2/h3 headings in content
+
+           Each section is clearly marked with comments!
+        =========================================== */
+
+        /* ============ COLOR THEME (LIGHT - DEFAULT) ============ */
+        :root {
+            --primary-gold: #b8860b;
+            --primary-gold-light: #daa520;
+            --primary-gold-dark: #8b6914;
+            --bg-dark: #ffffff;
+            --bg-darker: #f8f9fa;
+            --bg-card: #f1f3f4;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --code-bg: #f6f8fa;
+            --info-bg: #eff6ff;
+            --info-border: #3b82f6;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+            --success-bg: #ecfdf5;
+            --success-border: #10b981;
+        }
+
+        /* ============ COLOR THEME (DARK MODE) ============ */
+        [data-theme="dark"] {
+            --primary-gold: #daa520;
+            --primary-gold-light: #e8c684;
+            --primary-gold-dark: #b8860b;
+            --bg-dark: #121212;
+            --bg-darker: #0a0a0a;
+            --bg-card: #1e1e1e;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #707070;
+            --border-color: #333333;
+            --code-bg: #1a1a1a;
+            --info-bg: #1a2530;
+            --info-border: #3b82f6;
+            --warning-bg: #2a2010;
+            --warning-border: #f59e0b;
+            --success-bg: #102a1a;
+            --success-border: #10b981;
+        }
+
+        [data-theme="dark"] .top-header {
+            background: #0a0a0a;
+        }
+
+        [data-theme="dark"] .quick-start {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .quick-start-step code {
+            background: rgba(255,255,255,0.1);
+            color: var(--primary-gold-light);
+        }
+
+        [data-theme="dark"] .quick-start-link.primary {
+            background: var(--primary-gold);
+            color: #121212;
+        }
+
+        [data-theme="dark"] .search-results {
+            background: var(--bg-darker);
+        }
+
+        [data-theme="dark"] .next-step-card {
+            background: var(--bg-card);
+        }
+
+        /* ============ THEME TOGGLE ============ */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
+        }
+
+        .theme-toggle .sun-icon {
+            display: none;
+        }
+
+        .theme-toggle .moon-icon {
+            display: block;
+        }
+
+        [data-theme="dark"] .theme-toggle .sun-icon {
+            display: block;
+        }
+
+        [data-theme="dark"] .theme-toggle .moon-icon {
+            display: none;
+        }
+
+        /* ============ BASE STYLES ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        a {
+            color: var(--primary-gold);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--primary-gold-light);
+            text-decoration: underline;
+        }
+
+        /* ============ LAYOUT ============ */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ============ LEFT SIDEBAR (Navigation) ============ */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-darker);
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-dark));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .version-badge {
+            font-size: 12px;
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        /* Navigation Categories */
+        .nav-category {
+            margin-bottom: 18px;
+        }
+
+        .nav-category-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 2px;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 6px 10px;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: var(--bg-card);
+            color: var(--primary-gold);
+            text-decoration: none;
+        }
+
+        .nav-links a.active {
+            border-left: 2px solid var(--primary-gold);
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            margin-right: 240px;
+            padding: 40px 50px;
+        }
+
+        /* ============ RIGHT SIDEBAR (Table of Contents) ============ */
+        .toc-sidebar {
+            width: 240px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            padding: 40px 16px;
+            background-color: var(--bg-darker);
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .toc-sidebar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .toc-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 4px;
+        }
+
+        .toc-list a {
+            display: block;
+            padding: 3px 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-left: 2px solid transparent;
+            padding-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .toc-list a:hover,
+        .toc-list a.active {
+            color: var(--primary-gold);
+            border-left-color: var(--primary-gold);
+            text-decoration: none;
+        }
+
+        .toc-list .toc-h3 {
+            padding-left: 20px;
+            font-size: 11px;
+        }
+
+        /* ============ CONTENT SECTIONS ============ */
+        .section {
+            display: none;
+            padding-bottom: 40px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Headings */
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        h1::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 36px;
+            background: var(--primary-gold);
+            margin-right: 16px;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-gold);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--primary-gold-light);
+        }
+
+        /* Paragraphs */
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: var(--primary-gold-dark);
+        }
+
+        pre code {
+            color: #24292e;
+        }
+
+        /* Inline code */
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Copy button for code blocks */
+        .code-block {
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-gold);
+            color: #ffffff;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
+        }
+
+        .info-box.info {
+            background-color: var(--info-bg);
+            border-color: var(--info-border);
+        }
+
+        .info-box.warning {
+            background-color: var(--warning-bg);
+            border-color: var(--warning-border);
+        }
+
+        .info-box.success {
+            background-color: var(--success-bg);
+            border-color: var(--success-border);
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .info-box p {
+            margin-bottom: 8px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Next Steps Cards */
+        .next-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .next-step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .next-step-card:hover {
+            border-color: var(--primary-gold);
+            transform: translateY(-2px);
+        }
+
+        .next-step-card h4 {
+            color: var(--primary-gold);
+            margin-bottom: 4px;
+        }
+
+        .next-step-card p {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        /* ============ MOBILE RESPONSIVE ============ */
+        @media (max-width: 1200px) {
+            .toc-sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1001;
+                transition: transform 0.3s ease;
+                width: 280px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
+            }
+
+            /* Mobile overlay */
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 56px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+            }
+
+            .mobile-overlay.active {
+                display: block;
+            }
+
+            /* Hamburger button */
+            .mobile-menu-btn {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                position: fixed;
+                top: 10px;
+                left: 12px;
+                z-index: 1002;
+                background: var(--primary-gold);
+                border: none;
+                padding: 10px;
+                border-radius: 8px;
+                cursor: pointer;
+                width: 42px;
+                height: 42px;
+            }
+
+            .mobile-menu-btn span {
+                display: block;
+                width: 20px;
+                height: 2px;
+                background: white;
+                border-radius: 2px;
+                transition: all 0.3s ease;
+            }
+
+            .mobile-menu-btn.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .mobile-menu-btn.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-btn.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+
+            /* Mobile search */
+            .mobile-search-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: transparent;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 8px;
+                cursor: pointer;
+                color: var(--text-secondary);
+            }
+
+            .mobile-search-container {
+                display: none;
+                position: fixed;
+                top: 56px;
+                left: 0;
+                right: 0;
+                padding: 12px 16px;
+                background: var(--bg-darker);
+                border-bottom: 1px solid var(--border-color);
+                z-index: 999;
+            }
+
+            .mobile-search-container.active {
+                display: block;
+            }
+
+            .mobile-search-container .search-input {
+                width: 100%;
+            }
+
+            .mobile-search-container .search-results {
+                position: relative;
+                top: 8px;
+                max-height: 50vh;
+            }
+
+            /* Quick start responsive */
+            .quick-start-steps {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .quick-start-step {
+                flex: none;
+                padding-right: 0;
+            }
+
+            .quick-start-step::after {
+                display: none;
+            }
+
+            .quick-start-links {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .quick-start-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Code blocks responsive */
+            .code-block-header {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+
+            pre[class*="language-"] {
+                font-size: 12px;
+                padding: 12px !important;
+            }
+
+            /* Section headings */
+            .section h1 {
+                font-size: 1.75rem;
+            }
+
+            .section h2 {
+                font-size: 1.35rem;
+            }
+
+            /* Info boxes */
+            .info-box {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            /* Next steps cards */
+            .next-steps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-menu-btn,
+            .mobile-overlay,
+            .mobile-search-btn,
+            .mobile-search-container {
+                display: none !important;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            .header-logo span {
+                display: none;
+            }
+
+            .header-logo-icon {
+                margin-right: 0;
+            }
+
+            .main-content {
+                padding: 16px 12px;
+            }
+
+            .quick-start {
+                padding: 16px;
+            }
+
+            .section h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ============ BACK TO TOP BUTTON ============ */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: var(--primary-gold);
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background 0.2s ease;
+            z-index: 998;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-gold-dark);
+            transform: translateY(-2px);
+        }
+
+        .back-to-top svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* ============ SEARCH BAR ============ */
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+            margin: 0 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 16px 8px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-shortcut {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-darker);
+            color: var(--text-muted);
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 200;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-card);
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .search-result-category {
+            font-size: 12px;
+            color: var(--primary-gold);
+        }
+
+        .search-no-results {
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* ============ TOAST NOTIFICATION ============ */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast svg {
+            color: #10b981;
+        }
+
+        /* ============ QUICK START CARD ============ */
+        .quick-start {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0;
+            margin: 16px 0 24px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        .quick-start-hero {
+            background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .quick-start-hero-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-start-label {
+            display: none;
+        }
+
+        .quick-start-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .quick-start-title svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .quick-start-subtitle {
+            display: none;
+        }
+
+        .quick-start-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #b8860b;
+            background: #ffffff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .quick-start-badge svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .quick-start-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            padding: 0;
+        }
+
+        .quick-start-step {
+            padding: 12px 10px;
+            text-align: center;
+            position: relative;
+            border-right: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+
+        .quick-start-step:last-child {
+            border-right: none;
+        }
+
+        .quick-start-step:hover {
+            background: var(--bg-darker);
+        }
+
+        .quick-start-step-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-dark));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            color: #ffffff;
+        }
+
+        .quick-start-step-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .quick-start-step-title {
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .quick-start-step-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .quick-start-step code {
+            background: var(--bg-darker);
+            color: var(--primary-gold);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 500;
+        }
+
+        .quick-start-footer {
+            padding: 10px 14px;
+            background: var(--bg-darker);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .quick-start-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            transition: all 0.2s;
+        }
+
+        .quick-start-link svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .quick-start-link:hover {
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
+            text-decoration: none;
+        }
+
+        .quick-start-link.primary {
+            background: var(--primary-gold);
+            color: #ffffff;
+            border: none;
+        }
+
+        .quick-start-link.primary:hover {
+            background: var(--primary-gold-dark);
+        }
+
+        @media (max-width: 900px) {
+            .quick-start-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-start-step:nth-child(2) {
+                border-right: none;
+            }
+
+            .quick-start-step:nth-child(1),
+            .quick-start-step:nth-child(2) {
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .quick-start-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-start-step {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                gap: 10px;
+                padding: 10px 14px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .quick-start-step:last-child {
+                border-bottom: none;
+            }
+
+            .quick-start-step-icon {
+                margin: 0;
+                flex-shrink: 0;
+            }
+
+            .quick-start-step-content {
+                flex: 1;
+            }
+
+            .quick-start-footer {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .quick-start-link {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+        }
+
+        /* ============ ENHANCED CODE BLOCKS WITH PRISM ============ */
+        .code-block {
+            position: relative;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-block pre {
+            margin: 0 !important;
+            padding: 16px !important;
+            border-radius: 0 !important;
+            border: none !important;
+            background: #2d2d2d !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+        }
+
+        .code-block pre code {
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace !important;
+            font-size: 13px !important;
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e1e1e;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        .code-lang {
+            color: #888;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-lang::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ec9b0;
+        }
+
+        .code-lang.bash::before { background: #4ec9b0; }
+        .code-lang.config::before { background: #dcdcaa; }
+        .code-lang.python::before { background: #4fc1ff; }
+        .code-lang.yaml::before { background: #ce9178; }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .code-block .copy-btn {
+            position: static;
+            background: transparent;
+            border: 1px solid #555;
+            color: #888;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .code-block .copy-btn:hover {
+            background: var(--primary-gold);
+            border-color: var(--primary-gold);
+            color: #ffffff;
+        }
+
+        /* Line numbers */
+        .code-block pre.line-numbers {
+            padding-left: 3.5em !important;
+            counter-reset: linenumber;
+        }
+
+        .code-block pre.line-numbers > code {
+            position: relative;
+            white-space: inherit;
+        }
+
+        .line-numbers .line-numbers-rows {
+            position: absolute;
+            pointer-events: none;
+            top: 16px;
+            left: 0;
+            width: 3em;
+            letter-spacing: -1px;
+            border-right: 1px solid #3d3d3d !important;
+            user-select: none;
+        }
+
+        .line-numbers-rows > span {
+            display: block;
+            counter-increment: linenumber;
+        }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #555 !important;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+        /* Simple inline code (not in code-block) */
+        :not(pre) > code {
+            background: var(--code-bg);
+            color: var(--primary-gold-dark);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+        }
+
+        /* ============ TOP HEADER BAR ============ */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .header-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-dark));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .header-badge {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .header-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .github-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #24292e;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .github-btn:hover {
+            background: #1a1e22;
+            color: #ffffff;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .github-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Adjust layout for header */
+        .layout {
+            padding-top: 56px;
+        }
+
+        .sidebar {
+            top: 56px;
+            height: calc(100vh - 56px);
+        }
+
+        .toc-sidebar {
+            top: 56px;
+            height: calc(100vh - 56px);
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 0 16px;
+            }
+
+            .header-left .header-badge {
+                display: none;
+            }
+
+            .header-link span {
+                display: none;
+            }
+
+            .github-btn span {
+                display: none;
+            }
+
+            .github-btn {
+                padding: 8px 12px;
+            }
+
+            .sidebar {
+                top: 56px;
+                height: calc(100vh - 56px);
+            }
+
+            .search-container {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1000px) {
+            .search-container {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============ TOP HEADER BAR ============ -->
+    <header class="top-header">
+        <div class="header-left">
+            <div class="header-logo">
+                <div class="header-logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- DNA double helix representing genomics -->
+                        <path d="M12 6C12 6 16 12 24 12C32 12 36 6 36 6" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M12 18C12 18 16 24 24 24C32 24 36 18 36 18" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M12 30C12 30 16 36 24 36C32 36 36 30 36 30" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M12 42C12 42 16 36 24 36C32 36 36 42 36 42" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <!-- Vertical strands -->
+                        <line x1="12" y1="6" x2="12" y2="42" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="36" y1="6" x2="36" y2="42" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Connection nodes representing linkage -->
+                        <circle cx="24" cy="12" r="3" fill="white"/>
+                        <circle cx="24" cy="24" r="3" fill="white"/>
+                        <circle cx="24" cy="36" r="3" fill="white"/>
+                    </svg>
+                </div>
+                <span>LINDTIE</span>
+            </div>
+            <span class="header-badge">Documentation</span>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search documentation..." autocomplete="off">
+            <span class="search-shortcut">/</span>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="header-right">
+            <!-- Mobile Search Button -->
+            <button class="mobile-search-btn" onclick="toggleMobileSearch()" title="Search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            </button>
+            <a href="#changelog" class="header-link" onclick="event.preventDefault(); showSection('changelog'); history.pushState(null, null, '#changelog');">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                <span>v0.1.0</span>
+            </a>
+            <!-- Dark/Light Mode Toggle -->
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">
+                <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <a href="https://github.com/jiawei-tan/LINDTIE" target="_blank" class="github-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()" title="Back to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- Mobile Menu Button (Hamburger) -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Mobile Search Container -->
+    <div class="mobile-search-container" id="mobileSearch">
+        <input type="text" class="search-input" id="mobileSearchInput" placeholder="Search documentation...">
+        <div class="search-results" id="mobileSearchResults"></div>
+    </div>
+
+    <div class="layout">
+        <!-- ============================================================
+             LEFT SIDEBAR - NAVIGATION
+             To add a new section:
+             1. Add a new <li><a href="#your-section-id">Section Name</a></li>
+             2. Create matching section in main content with id="your-section-id"
+        ============================================================ -->
+        <aside class="sidebar" id="sidebar">
+            <!-- NAVIGATION LINKS -->
+            <nav>
+                <!-- Getting Started Category -->
+                <div class="nav-category">
+                    <div class="nav-category-title">Getting Started</div>
+                    <ul class="nav-links">
+                        <li><a href="#introduction" class="active">Introduction</a></li>
+                        <li><a href="#workflow">Pipeline Overview</a></li>
+                        <li><a href="#installation">Installation + Configuration</a></li>
+                        <li><a href="#references">Setting Up References</a></li>
+                    </ul>
+                </div>
+
+                <!-- Usage Category -->
+                <div class="nav-category">
+                    <div class="nav-category-title">Usage</div>
+                    <ul class="nav-links">
+                        <li><a href="#running">Running LINDTIE</a></li>
+                        <li><a href="#output">Output</a></li>
+                        <li><a href="#resume">Resume Your Run</a></li>
+                        <li><a href="#testing">Testing LINDTIE</a></li>
+                        <li><a href="#examples">Examples of Use</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Reference Category -->
+                <div class="nav-category">
+                    <div class="nav-category-title">Reference</div>
+                    <ul class="nav-links">
+                        <li><a href="#tools">Full Tool List</a></li>
+                        <li><a href="#glossary">Glossary</a></li>
+                        <li><a href="#benchmarking">Benchmarking</a></li>
+                        <li><a href="#troubleshooting">Troubleshooting</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#changelog">Changelog</a></li>
+                        <li><a href="#citing">Citing LINDTIE</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+        </aside>
+
+        <!-- ============================================================
+             MAIN CONTENT
+             To add new content:
+             1. Copy an existing <section> block
+             2. Give it a unique id (e.g., id="new-section")
+             3. Add matching navigation link in sidebar
+
+             Available components:
+             - <h1>, <h2>, <h3> for headings
+             - <p> for paragraphs
+             - <ul>/<ol> for lists
+             - <div class="code-block"><pre><code>...</code></pre></div> for code
+             - <div class="info-box info/warning/success">...</div> for callouts
+        ============================================================ -->
+        <main class="main-content">
+
+            <!-- ==================== INTRODUCTION ==================== -->
+            <section class="section" id="introduction">
+                <h1>Introduction</h1>
+
+                <p>LINDTIE is a tool designed to identify aberrant transcripts in cancer using long-read RNA-seq data generated by platforms such as Oxford Nanopore Technologies (ONT) and PacBio. It extends beyond canonical gene fusions to capture the full spectrum of cancer transcriptome rearrangements, including fusion, transcribed structural variant (TSV), and novel splice variants (NSV). The pipeline accepts raw transcriptome (RNA-seq) FASTQ files from case and control samples and produces TSV files containing the novel variants it identifies.</p>
+
+                <p>LINDTIE uses a reference-free approach that integrates de novo assembly with differential transcript expression analysis to uncover previously uncharacterized transcripts. The workflow consists of four core procedures: de novo assembly, quantification, differential expression analysis, and annotation.</p>
+
+                <p>LINDTIE is implemented in <a href="https://www.nextflow.io/docs/latest/index.html" target="_blank">Nextflow</a>, providing users with enhanced control over pipeline execution, including the ability to interrupt runs, adjust parameters from the command line, and resume analyses from previous checkpoints.</p>
+
+                <!-- Quick Start Card -->
+                <div class="quick-start">
+                    <div class="quick-start-hero">
+                        <div class="quick-start-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            Quick Start Guide
+                        </div>
+                        <span class="quick-start-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            ~10 min
+                        </span>
+                    </div>
+                    <div class="quick-start-steps">
+                        <div class="quick-start-step">
+                            <div class="quick-start-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </div>
+                            <div class="quick-start-step-content">
+                                <div class="quick-start-step-title">Install & Configure</div>
+                                <div class="quick-start-step-desc"><code>git clone https://github.com/jiawei-tan/LINDTIE.git</code> & modify <code>nextflow.config</code></div>
+                            </div>
+                        </div>
+                        <div class="quick-start-step">
+                            <div class="quick-start-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </div>
+                            <div class="quick-start-step-content">
+                                <div class="quick-start-step-title">Get References</div>
+                                <div class="quick-start-step-desc"><a href="https://zenodo.org/records/17823608" target="_blank">Zenodo</a> (1.1GB)</div>
+                            </div>
+                        </div>
+                        <div class="quick-start-step">
+                            <div class="quick-start-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                            </div>
+                            <div class="quick-start-step-content">
+                                <div class="quick-start-step-title">Add FASTQ / FASTA Files</div>
+                                <div class="quick-start-step-desc"><code>cases/</code> & <code>controls/</code></div>
+                            </div>
+                        </div>
+                        <div class="quick-start-step">
+                            <div class="quick-start-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                            <div class="quick-start-step-content">
+                                <div class="quick-start-step-title">Run LINDTIE with Nextflow</div>
+                                <div class="quick-start-step-desc"><code>nextflow run</code></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quick-start-footer">
+                        <a href="#installation" class="quick-start-link primary" onclick="event.preventDefault(); showSection('installation'); history.pushState(null, null, '#installation');">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            Install
+                        </a>
+                        <a href="#workflow" class="quick-start-link" onclick="event.preventDefault(); showSection('workflow'); history.pushState(null, null, '#workflow');">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                            How It Works
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="next-steps">
+                    <a href="#workflow" class="next-step-card">
+                        <h4>Pipeline Overview</h4>
+                        <p>See how LINDTIE works</p>
+                    </a>
+                    <a href="#installation" class="next-step-card">
+                        <h4>Installation</h4>
+                        <p>Get LINDTIE installed on your system</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== PIPELINE OVERVIEW ==================== -->
+            <section class="section" id="workflow">
+                <h1>Pipeline Overview</h1>
+
+                <p>LINDTIE employs a <strong>one-to-N case–control</strong> design and a four-stage analysis workflow to identify aberrant transcripts from long-read RNA-seq data. Understanding this workflow helps you interpret results and troubleshoot issues.</p>
+
+                <h2 id="workflow-diagram">Workflow Diagram</h2>
+
+                <!-- ASCII-style workflow diagram using styled divs -->
+                <div style="background: var(--code-bg); border-radius: 12px; padding: 24px; margin: 20px 0; font-family: monospace; overflow-x: auto;">
+                    <div style="display: flex; flex-direction: column; gap: 16px; min-width: 600px;">
+                        <!-- Input -->
+                        <div style="text-align: center;">
+                            <div style="display: inline-block; background: var(--bg-card); border: 2px solid var(--primary-gold); border-radius: 8px; padding: 12px 24px;">
+                                <div style="color: var(--primary-gold); font-weight: bold;">INPUT</div>
+                                <div style="color: var(--text-secondary); font-size: 13px;">FASTQ / FASTA files (1 Case + N Controls)</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
+
+                        <!-- Step 1 -->
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="background: var(--primary-gold); color: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</div>
+                            <div style="flex: 1; background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid var(--primary-gold);">
+                                <div style="color: var(--text-primary); font-weight: 600;">De Novo Assembly</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">RNA-Bloom2 assembles reads into contigs without reference bias</div>
+                                <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Tool: RNA-Bloom2</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
+
+                        <!-- Step 2 -->
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="background: var(--primary-gold); color: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</div>
+                            <div style="flex: 1; background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid var(--primary-gold);">
+                                <div style="color: var(--text-primary); font-weight: 600;">Quantification</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Map reads to contigs and quantify expression levels</div>
+                                <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Tools: minimap2, samtools, oarfish</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
+
+                        <!-- Step 3 -->
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="background: var(--primary-gold); color: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</div>
+                            <div style="flex: 1; background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid var(--primary-gold);">
+                                <div style="color: var(--text-primary); font-weight: 600;">Differential Transcript Expression Analysis</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Compare case vs control samples to find significantly different transcripts</div>
+                                <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Tool: edgeR</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
+
+                        <!-- Step 4 -->
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="background: var(--primary-gold); color: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">4</div>
+                            <div style="flex: 1; background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid var(--primary-gold);">
+                                <div style="color: var(--text-primary); font-weight: 600;">Annotation</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Classify variants and annotate with genomic context</div>
+                                <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Tool: custom scripts</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
+
+                        <!-- Output -->
+                        <div style="text-align: center;">
+                            <div style="display: inline-block; background: var(--success-bg); border: 2px solid var(--success-border); border-radius: 8px; padding: 12px 24px;">
+                                <div style="color: var(--success-border); font-weight: bold;">OUTPUT</div>
+                                <div style="color: var(--text-secondary); font-size: 13px;"> TSV files with aberrant transcripts identified</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#installation" class="next-step-card">
+                        <h4>Installation</h4>
+                        <p>Set up LINDTIE on your system</p>
+                    </a>
+                    <a href="#glossary" class="next-step-card">
+                        <h4>Glossary</h4>
+                        <p>Learn the terminology</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== INSTALLATION ==================== -->
+            <section class="section" id="installation">
+                <h1>Installation + Configuration</h1>
+
+                <h2 id="prerequisites">Prerequisites</h2>
+                <p>LINDTIE is built using <a href="https://www.nextflow.io/docs/latest/index.html" target="_blank">Nextflow</a>.</p>
+                <p>Before running the pipeline, ensure that the following are installed or available on your Linux-based system:</p>
+                <ul>
+                    <li><strong>Nextflow</strong></li>
+                    <li>A container engine: <strong>Singularity</strong> / <strong>Apptainer</strong> (recommended for HPCs) or <strong>Docker</strong></li>
+                </ul>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Note</div>
+                    <div class="info-box-content">
+                        <p>On the WEHI’s Milton HPC, Nextflow and Singularity are already installed and available as a module: <code>module load nextflow/25.04.2 singularity/4.1.5</code></p>
+                </div>
+                </div>
+
+                <h2 id="installing-github">Installing from GitHub</h2>
+                <p>Clone the LINDTIE repository:</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>git clone https://github.com/jiawei-tan/LINDTIE.git</code></pre>
+                </div>
+
+                <h2 id="configuration">Configuration</h2>
+                <p>Navigate to the <code>LINDTIE</code> base directory to begin configuring the pipeline:</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>cd LINDTIE</code></pre>
+                </div>
+
+                <p>Edit the Nextflow configuration file (<code>nextflow.config</code>), located in the <code>LINDTIE</code> base directory:</p>
+
+                <h3 id="process-config">i. Process Configuration (Executor, Queue, and Resource Profiles)</h3>
+                <p>Under the <code>process</code> block in <code>nextflow.config</code>, you can specify the executor used by your HPC system, the queue to submit jobs to, and resource profiles for different types of tasks.</p>
+
+                <h4 id="executor-queue">Select an HPC executor and queue: </h4>
+                <p>Choose an appropriate Nextflow executor (e.g., slurm, pbs, sge, lsf, local, etc.) supported by your compute environment. The default configuration supplied with LINDTIE is optimized for WEHI's Milton HPC, which uses the SLURM workload manager. 
+                    Refer to the <a href="https://www.nextflow.io/docs/latest/executor.html" target="_blank">Nextflow documentation </a> for the full list of available executors.</p>
+                <p>Example (default SLURM configuration):</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>// Process execution configuration – modify as required
+process {
+  executor = 'slurm'
+  queue  = 'regular'           // default SLURM queue
+  cache  = 'lenient'
+  errorStrategy = 'retry'      // default retry failed tasks
+}</code></pre>
+                </div>
+
+                <p>For further details on customizing Nextflow configuration files, see the <a href="https://www.nextflow.io/docs/latest/config.html" target="_blank">official documentation</a>.</p>
+
+                <h4 id="resource-profiles">Resource Profiles with Labels: </h4>
+                <p>LINDTIE assigns resource requirements to tasks using Nextflow labels. The default settings allocate resources appropriate for typical HPC environments, but you may reduce or increase these values depending on your system’s available resources.</p>
+                <p>Example (default label-specific resource settings):</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>// Configuration for short-running, lightweight tasks
+withLabel: 'process_short' {
+  cpus   = 1
+  memory = 4.GB              // 4 GB RAM
+  time   = 1.h               // 1-hour time limit
+}
+
+// Configuration for moderately intensive tasks
+withLabel: 'process_medium' {
+  cpus   = 8
+  memory = 16.GB             // 16 GB RAM
+  time   = 8.h               // 8-hour time limit
+}
+
+// Configuration for long-running, resource-heavy tasks
+withLabel: 'process_long' {
+  cpus   = 16
+  memory = 64.GB             // 64 GB RAM
+  time   = 16.h              // 16-hour time limit
+}</code></pre>
+                </div>
+
+                <h3 id="env-config">ii. Environment Configuration (JVM Memory Limits)</h3>
+                <p>Under the <code>env</code> block, you can adjust the Java Virtual Machine (JVM) heap size for Nextflow:</p>
+
+                <h4 id="jvm-memory-limits">Limit the JVM heap size:</h4>
+    
+                <p>The default setting allocates <strong>100 GB</strong> of heap memory, which you may reduce or increase depending on your system’s available resources.</p>
+                <p>Adjusting this value ensures that Nextflow does not exceed the memory limits enforced by your HPC scheduler.</p>
+                <p>Example (default JVM heap size):</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>env {
+  // JVM heap size (-Xmx sets the maximum heap memory) - default 100GB
+  NXF_JVM_ARGS = '-Xmx100g'
+}</code></pre>
+                </div>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Compute Requirements</div>
+                    <p><strong>Recommended requirements:</strong></p>
+                    <ul>
+                        <li>CPUs = 48</li>
+                        <li>Memory = 100GB</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#references" class="next-step-card">
+                        <h4>Setting Up References</h4>
+                        <p>Download and configure reference files</p>
+                    </a>
+                    <a href="#running" class="next-step-card">
+                        <h4>Running LINDTIE</h4>
+                        <p>Start your first analysis</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== REFERENCES ==================== -->
+            <section class="section" id="references">
+                <h1>Setting Up References</h1>
+
+                <p>Download the compressed pre-built reference package from <a href="https://zenodo.org/records/17823608" target="_blank">Zenodo</a> (1.1GB):</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>curl -O https://zenodo.org/records/17823608/files/LINDTIE_ref.tar.gz
+
+# decompress the tar.gz file and remove the tar.gz file                        
+tar xzf LINDTIE_ref.tar.gz && rm LINDTIE_ref.tar.gz</code></pre>
+                </div>
+
+                <p>This will generate a <code>ref</code> directory containing the seven required reference files. Ensure that the <code>ref</code> directory is placed inside the <code>LINDTIE</code> base directory:</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>LINDTIE/
+└── ref/
+    ├── chess3.0.fa
+    ├── chess3.0.gtf
+    ├── chess3.0.info
+    ├── hg38.fa
+    ├── hg38.fa.fai
+    ├── hg38_splice_junctions.bed
+    └── tx2gene.txt
+</code></pre>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#running" class="next-step-card">
+                        <h4>Running LINDTIE</h4>
+                        <p>Execute the pipeline with your data</p>
+                    </a>
+                    <a href="#output" class="next-step-card">
+                        <h4>Output</h4>
+                        <p>Understanding LINDTIE results</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== RUNNING ==================== -->
+            <section class="section" id="running">
+                <h1>Running LINDTIE</h1>
+
+                <p>In the directory where you will run LINDTIE, create the required cases and controls subdirectories:</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>mkdir -p cases
+mkdir -p controls</code></pre>
+                </div>
+
+                <h2 id="input-files">Input Files</h2>
+                <p>Allocate the long-read RNA-seq data in <strong>FASTQ</strong> or <strong>FASTA</strong> format (can be gzipped) into the appropriate directories for your case and control samples.</p>
+                <p><strong>Cases</strong> refer to the <strong>cancer samples</strong> in which you want to <strong>identify variants</strong>, while <strong>controls</strong> are used as the <strong>reference</strong> for comparison. Ideally, control samples should be benign tissue of the same type as the primary tumour. If this is not feasible, such as in blood cancers, acceptable alternatives include remission samples or samples from other individuals, ideally of the same cancer type.</p>
+                <p>Including more controls increases statistical power; aim for a minimum of <strong>2</strong>, with <strong>10 to 15</strong> being optimal.</p>
+
+
+                <h2 id="usage">Run LINDTIE with Nextflow</h2>
+                <p>Run LINDTIE with one of the following commands:</p>
+
+                <style>
+                    .tab-buttons {
+                        display: flex;
+                        gap: 4px;
+                        margin-bottom: -1px;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .tab-buttons button {
+                        padding: 8px 16px;
+                        background: var(--bg-card);
+                        border: 1px solid var(--border-color);
+                        border-bottom: none;
+                        border-radius: 8px 8px 0 0;
+                        cursor: pointer;
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: var(--text-secondary);
+                        transition: all 0.2s;
+                    }
+                    .tab-buttons button:hover {
+                        background: var(--bg-darker);
+                        color: var(--text-primary);
+                    }
+                    .tab-buttons button.active {
+                        background: #2d2d2d;
+                        color: var(--primary-gold);
+                        border-color: var(--border-color);
+                    }
+                    .tab-content {
+                        display: none;
+                    }
+                    .tab-content.active {
+                        display: block;
+                    }
+                    .tab-content .code-block {
+                        margin-top: 0;
+                        border-radius: 0 8px 8px 8px;
+                    }
+                </style>
+                    
+                <div class="tab-group">
+                    <div class="tab-buttons">
+                        <button class="active" onclick="switchTab(this, 'singularity')">Singularity</button>
+                        <button onclick="switchTab(this, 'docker')">Docker</button>
+                    </div>
+                    
+                <div id="singularity" class="tab-content active">
+                    <div class="code-block" data-enhanced="true">
+                        <div class="code-header">
+                            <span class="code-lang bash">bash</span>
+                            <div class="code-actions">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                        </div>
+                        <pre class="language-bash"><code class="language-bash">nextflow run LINDTIE/main.nf -params-file LINDTIE/params.yaml -profile singularity</code></pre>
+                    </div>
+                </div>
+                    
+                <div id="docker" class="tab-content">
+                    <div class="code-block" data-enhanced="true">
+                        <div class="code-header">
+                            <span class="code-lang bash">bash</span>
+                            <div class="code-actions">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                        </div>
+                        <pre class="language-bash"><code class="language-bash">nextflow run LINDTIE/main.nf -params-file LINDTIE/params.yaml -profile docker</code></pre>
+                    </div>
+                </div>
+                    
+                <script>
+                function switchTab(button, tabId) {
+                    // Find the parent tab-group
+                    const tabGroup = button.closest('.tab-group');
+                    
+                    // Remove active class from all buttons and tabs within this group only
+                    tabGroup.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
+                    tabGroup.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding tab
+                    button.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Re-run Prism highlighting for the newly shown code
+                    if (typeof Prism !== 'undefined') {
+                        Prism.highlightAll();
+                    }
+                }
+                
+                </script>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Note</div>
+                    <div class="info-box-content">
+                        <p>Choose the appropriate value for <code>-profile</code> based on the container engine supported by your system (<code>singularity</code> or <code>docker</code>).</p>
+                    </div>
+                </div>
+
+                <p>You can also run <code>nextflow run LINDTIE/main.nf --help</code> to see all available options and parameters.</p>
+
+                <h2 id="submitting-job">Submitting the Nextflow Script as a Job</h2>
+                <p>A more effective approach than launching the Nextflow driver job from the login node is to wrap the Nextflow run command in a script and submit the workflow as a job.</p>
+                <p>A <code>run_LINDTIE.sh</code> template bash script is provided in the <code>LINDTIE</code> base directory:</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>#!/bin/bash
+
+#SBATCH --job-name=run_LINDTIE
+#SBATCH --partition=regular
+#SBATCH --ntasks=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=8G
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=your-email@example.com
+#SBATCH --output=script_output/%x.out
+#SBATCH --error=script_output/%x.err
+
+module load nextflow/25.04.2 singularity/4.1.5
+
+# modify the path to the LINDTIE base directory
+LINDTIE_dir=/path/to/your/LINDTIE
+
+nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile singularity</code></pre>
+                </div>
+
+                <h2 id="parameters">Fine Tuning Parameters</h2>
+                <p>Adjust these parameters based on your sample characteristics and analysis requirements. Parameters marked with ⭐ are commonly modified.</p>
+
+                <style>
+                    .params-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 24px 0;
+                        font-size: 14px;
+                        border: 1px solid var(--border-color);
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    .params-table th, .params-table td {
+                        border: 1px solid var(--border-color);
+                        padding: 12px 16px;
+                        text-align: left;
+                        vertical-align: middle;
+                    }
+                    .params-table th {
+                        background-color: var(--bg-darker);
+                        font-weight: 600;
+                        color: var(--text-primary);
+                    }
+                    .params-table td {
+                        color: var(--text-secondary);
+                    }
+                    .params-table td:first-child {
+                        font-weight: 500;
+                        color: var(--text-primary);
+                    }
+                    .params-table code {
+                        font-size: 13px;
+                        padding: 3px 7px;
+                        border-radius: 5px;
+                        background-color: var(--code-bg);
+                        border: 1px solid var(--border-color);
+                        color: var(--primary-gold-dark);
+                    }
+                    .params-table .category-badge {
+                        display: inline-block;
+                        padding: 4px 10px;
+                        border-radius: 12px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        background-color: var(--bg-card);
+                        border: 1px solid var(--border-color);
+                        white-space: nowrap;
+                    }
+                </style>
+
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                            <th>Options/Format</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>⭐ <code>platform</code></td>
+                            <td>Sequencing platform</td>
+                            <td><code>ONT</code></td>
+                            <td><code>ONT</code> or <code>PacBio</code></td>
+                            <td><span class="category-badge">Platform</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>RUN_DE</code></td>
+                            <td>Perform differential expression</td>
+                            <td><code>true</code></td>
+                            <td><code>true</code> or <code>false</code></td>
+                            <td><span class="category-badge">DE Analysis</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>fdr</code></td>
+                            <td>FDR significance threshold</td>
+                            <td><code>0.05</code></td>
+                            <td>numeric (e.g., <code>0.05</code>)</td>
+                            <td><span class="category-badge">DE Analysis</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>min_cpm</code></td>
+                            <td>Minimum CPM threshold</td>
+                            <td><code>0.5</code></td>
+                            <td>numeric (e.g., <code>0.5</code>)</td>
+                            <td><span class="category-badge">DE Analysis</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>min_logfc</code></td>
+                            <td>Minimum log fold change</td>
+                            <td><code>2</code></td>
+                            <td>numeric (e.g., <code>2</code>)</td>
+                            <td><span class="category-badge">DE Analysis</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>min_clip</code></td>
+                            <td>Minimum clipped sequence length</td>
+                            <td><code>20</code></td>
+                            <td>integer (e.g., <code>20</code>)</td>
+                            <td><span class="category-badge">Detection</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>min_gap</code></td>
+                            <td>Minimum gap size for events</td>
+                            <td><code>7</code></td>
+                            <td>integer (e.g., <code>7</code>)</td>
+                            <td><span class="category-badge">Detection</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>min_match</code></td>
+                            <td>Minimum matching sequence</td>
+                            <td><code>30,0.3</code></td>
+                            <td>string (e.g., <code>"30,0.3"</code>)</td>
+                            <td><span class="category-badge">Detection</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>splice_motif_mismatch</code></td>
+                            <td>Allowed splice motif mismatches</td>
+                            <td><code>1</code></td>
+                            <td>integer (e.g., <code>1</code>)</td>
+                            <td><span class="category-badge">Detection</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>oarfish_num_bootstraps</code></td>
+                            <td>Bootstrap iterations</td>
+                            <td><code>10</code></td>
+                            <td>integer (e.g., <code>10</code>)</td>
+                            <td><span class="category-badge">Quantification</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>gene_filter</code></td>
+                            <td>Specific genes to include</td>
+                            <td><code>NULL</code></td>
+                            <td>comma-separated or <code>NULL</code> (e.g., <code>"TP53,BRCA2"</code>)</td>
+                            <td><span class="category-badge">Filtering</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>var_filter</code></td>
+                            <td>Variant types to include</td>
+                            <td><code>NULL</code></td>
+                            <td>comma-separated or <code>NULL</code> (e.g., <code>"DEL,INS"</code>)</td>
+                            <td><span class="category-badge">Filtering</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Configuration Methods</h3>
+                
+                <p>There are two ways to configure the parameters for LINDTIE:</p>
+
+                <p><strong>Option 1:</strong> Edit the <code>params.yaml</code> file before running</p>
+                <ul>
+                    <li>Open the <code>params.yaml</code> file located in the <code>LINDTIE</code> base directory.</li>
+                    <li>Modify any parameters as needed.</li>
+                    <li>Save the file and then run LINDTIE.</li>
+                </ul>
+                <p><strong>Option 2:</strong> Override parameters at runtime using command line arguments</p>
+                <ul>
+                    <li>Run LINDTIE with the desired parameters using the command line.</li>
+                </ul>
+
+                <div class="tab-group">
+                    <div class="tab-buttons">
+                        <button class="active" onclick="switchTab(this, 'params-yaml')">Option 1: Edit params.yaml</button>
+                        <button onclick="switchTab(this, 'cli-override')">Option 2: Command Line Override</button>
+                    </div>                    
+                    
+                <div id="params-yaml" class="tab-content active">
+                    <div class="code-block" data-enhanced="true">
+                        <div class="code-header">
+                            <span class="code-lang yaml">yaml</span>
+                            <div class="code-actions">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                        </div>
+                    
+                        <pre class="language-yaml"><code class="language-yaml"># Default parameters for the workflow
+RUN_DE: true                # true or false
+platform: 'ONT'             # 'ONT' or 'PacBio'
+fdr: 0.05                   # default 0.05
+min_cpm: 0.5                # default 0.5
+min_logfc: 2                # default 2
+min_clip: 20                # default 20
+min_gap: 7                  # default 7
+min_match: '30,0.3'         # default '30,0.3'
+splice_motif_mismatch: 1    # default 1
+oarfish_num_bootstraps: 10  # default 10
+gene_filter: NULL           # default NULL (e.g. "TP53,BRCA2")
+var_filter: NULL            # default NULL (e.g. "DEL,INS")</code></pre>
+                    </div>
+                </div>
+                    
+                <div id="cli-override" class="tab-content">
+                    <div class="code-block" data-enhanced="true">
+                        <div class="code-header">
+                            <span class="code-lang bash">bash</span>
+                            <div class="code-actions">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                        </div>
+                
+                        <pre class="language-bash"><code class="language-bash">nextflow run LINDTIE/main.nf \
+    -params-file LINDTIE/params.yaml \
+    -profile singularity \
+    --platform 'PacBio' \
+    --fdr 0.01 \
+    --gene_filter "TP53,BRCA2"</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Note</div>
+                    <div class="info-box-content">
+                        <p>For Option 2, use a single dash (-) for Nextflow runtime options; use a double dash (--) for pipeline parameters.</p>
+                    </div>
+                </div>
+
+
+                <div class="next-steps">
+                    <a href="#output" class="next-step-card">
+                        <h4>Output</h4>
+                        <p>Understand your results</p>
+                    </a>
+                    <a href="#resume" class="next-step-card">
+                        <h4>Resume</h4>
+                        <p>Resume interrupted runs</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== OUTPUT ==================== -->
+            <section class="section" id="output">
+
+                <h1>Output</h1>
+
+        <p>After running <strong>LINDTIE</strong>, a results directory (<code>&lt;caseName&gt;_output</code>) will be created. This directory is organized by analysis steps, with the final results for the sample stored in the <code>FinalOutput</code> folder:</p>
+
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>&lt;caseName&gt;_output/
+├── 01-Assembly
+├── 02-Quantification
+├── 03-DifferentialExpression
+├── 04-Annotation
+└── FinalOutput</code></pre>
+        </div>
+
+        <h2 id="final-output">FinalOutput Results</h2>
+        
+        <p>The final results produced by <strong>LINDTIE</strong> are located in <code>&lt;caseName&gt;_output/FinalOutput/</code>, which contains the following files:</p>
+
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>&lt;caseName&gt;_output/FinalOutput/
+├── log
+├── refined_annotated_contigs.bam
+├── refined_annotated_contigs.bam.bai
+├── refined_annotated_contigs.fasta
+├── refined_annotated_contigs.vcf
+├── &lt;caseName&gt;_all_variants_ranked_results.tsv
+├── &lt;caseName&gt;_discarded_results.tsv
+└── &lt;caseName&gt;_results.tsv</code></pre>
+        </div>
+
+        <h3 id="results-tsv">Primary Results: &lt;caseName&gt;_results.tsv</h3>
+        
+        <p>This file is the primary result table. Variants with multiple annotations are <em>collapsed</em>, meaning each contig appears as a single row with consolidated information.</p>
+
+        <h4>Output File Column Descriptions</h4>
+
+        <table class="params-table">
+            <thead>
+                <tr>
+                    <th>Column #</th>
+                    <th>Column name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>chr1</td>
+                    <td>Chromosome for end 1 of the variant.</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>pos1</td>
+                    <td>Genomic position for end 1 of the variant.</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>strand1</td>
+                    <td>Strand (+/–) for end 1 of the variant.</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>chr2</td>
+                    <td>Chromosome for end 2 of the variant.</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>pos2</td>
+                    <td>Genomic position for end 2 of the variant.</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>strand2</td>
+                    <td>Strand (+/–) for end 2 of the variant.</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>variant_type</td>
+                    <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>other_variant_type</td>
+                    <td>Consolidated variant annotations for the contig. Multiple types are separated by "|"</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>overlapping_genes</td>
+                    <td>Genes overlapped by the contig. If separated by colons (":"), each gene corresponds to a different soft/hard-clipped segment.</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>sample</td>
+                    <td>Sample to which this variant belongs.</td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>variant_id</td>
+                    <td>Assigned variant ID (matches the VCF file).</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>partner_id</td>
+                    <td>For fusions or junctions with two breakpoints, this identifies the paired variant.</td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>vars_in_contig</td>
+                    <td>Number of variants detected on the aligned contig.</td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td>varsize</td>
+                    <td>Size of the variant on the reference genome.</td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>contig_varsize</td>
+                    <td>Size of the variant on the contig sequence.</td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td>cpos</td>
+                    <td>Position of the variant on the contig (independent of alignment direction).</td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>TPM</td>
+                    <td>Length-corrected transcript-per-million estimate for the variant contig.</td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td>mean_WT_TPM</td>
+                    <td>Mean length-corrected TPM of all wild-type genes associated with this transcript.</td>
+                </tr>
+                <tr>
+                    <td>19</td>
+                    <td>VAF</td>
+                    <td>Approximate variant allele frequency estimate.</td>
+                </tr>
+                <tr>
+                    <td>20</td>
+                    <td>logFC</td>
+                    <td>Maximum log fold change of associated transcript(s) in the case sample vs. controls.</td>
+                </tr>
+                <tr>
+                    <td>21</td>
+                    <td>FDR</td>
+                    <td>Adjusted (multiple-testing corrected) p-value.</td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td>PValue</td>
+                    <td>Minimum p-value for transcripts associated with this variant vs. controls.</td>
+                </tr>
+                <tr>
+                    <td>23</td>
+                    <td>num_reads_case</td>
+                    <td>Total read counts for all transcripts associated with the contig in the case sample.</td>
+                </tr>
+                <tr>
+                    <td>24</td>
+                    <td>total_num_reads_controls</td>
+                    <td>Total read counts for all associated transcripts across control samples.</td>
+                </tr>
+                <tr>
+                    <td>25</td>
+                    <td>large_varsize</td>
+                    <td>Indicates whether the variant size exceeds the <em>min_clip</em> threshold (default: 30 bp).</td>
+                </tr>
+                <tr>
+                    <td>26</td>
+                    <td>is_contig_spliced</td>
+                    <td>Indicates whether the contig is spliced (i.e., contains alignment gaps).</td>
+                </tr>
+                <tr>
+                    <td>27</td>
+                    <td>spliced_exon</td>
+                    <td>Indicates a novel or extended exon variant with a corresponding junction.</td>
+                </tr>
+                <tr>
+                    <td>28</td>
+                    <td>overlaps_exon</td>
+                    <td>Indicates whether the variant overlaps any annotated reference exon.</td>
+                </tr>
+                <tr>
+                    <td>29</td>
+                    <td>overlaps_gene</td>
+                    <td>Indicates whether the variant overlaps any annotated reference gene.</td>
+                </tr>
+                <tr>
+                    <td>30</td>
+                    <td>motif</td>
+                    <td>Splice motif sequence.</td>
+                </tr>
+                <tr>
+                    <td>31</td>
+                    <td>valid_motif</td>
+                    <td>Indicates whether the variant contains a valid splice motif. Some variant types (e.g., TSVs or splice events at known boundaries) are not tested.</td>
+                </tr>
+                <tr>
+                    <td>32</td>
+                    <td>contig_id</td>
+                    <td>Contig name from the de novo assembly.</td>
+                </tr>
+                <tr>
+                    <td>33</td>
+                    <td>unique_contig_ID</td>
+                    <td>ID of the modified SuperTranscript used in visualization outputs.</td>
+                </tr>
+                <tr>
+                    <td>34</td>
+                    <td>contig_len</td>
+                    <td>Length of the contig sequence.</td>
+                </tr>
+                <tr>
+                    <td>35</td>
+                    <td>contig_cigar</td>
+                    <td>CIGAR string representing the contig's genome alignment (may contain two strings if soft/hard-clipped).</td>
+                </tr>
+                <tr>
+                    <td>36</td>
+                    <td>seq_loc1</td>
+                    <td>Location string for the first sequence region (e.g., contig123:100–140).</td>
+                </tr>
+                <tr>
+                    <td>37</td>
+                    <td>seq_loc2</td>
+                    <td>Location string for the second sequence region, if applicable.</td>
+                </tr>
+                <tr>
+                    <td>38</td>
+                    <td>seq1</td>
+                    <td>20 bp sequence around the main variant site.</td>
+                </tr>
+                <tr>
+                    <td>39</td>
+                    <td>seq2</td>
+                    <td>20 bp sequence around the second variant site (if applicable).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="all-variants-ranked">&lt;caseName&gt;_all_variants_ranked_results.tsv</h3>
+        
+        <p>This file is an expanded version of the <code>&lt;caseName&gt;_results.tsv</code> file. This table lists <strong>all</strong> variant annotations individually, without collapsing (i.e., a contig may appear in multiple rows if it has multiple annotations). It includes all columns present in <code>&lt;caseName&gt;_results.tsv</code>, plus <strong>three additional columns</strong>:</p>
+
+        <table class="params-table">
+            <thead>
+                <tr>
+                    <th>Column #</th>
+                    <th>Column name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>40</td>
+                    <td>variant_score</td>
+                    <td>Score used for variant prioritization (from the new scoring system).</td>
+                </tr>
+                <tr>
+                    <td>41</td>
+                    <td>rank_within_contig</td>
+                    <td>Rank of each annotation for a given contig based on its score; <strong>1 = highest-scoring annotation</strong>.</td>
+                </tr>
+                <tr>
+                    <td>42</td>
+                    <td>is_primary</td>
+                    <td>Indicates whether this annotation was selected as the <em>primary</em> variant for that contig (i.e., the entry included in <code>&lt;caseName&gt;_results.tsv</code>).</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="info-box info">
+            <div class="info-box-title">Note</div>
+            <div class="info-box-content">
+                <p>The <code>other_variant_type</code> column (col 8) is empty in this file because <em>each annotation is shown separately</em> rather than consolidated.</p>
+            </div>
+        </div>
+
+        <h3 id="discarded-results">&lt;caseName&gt;_discarded_results.tsv</h3>
+        
+        <p>This file contains variants filtered out due to low-complexity sequences. Specifically, variants are placed in this table if the seq1 or seq2 columns contain:</p>
+        <ul>
+            <li>a polyA or polyT stretch of <strong>≥ 10 bp</strong>, or</li>
+            <li>a perfect dinucleotide repeat of <strong>≥ 10 repeats</strong> (i.e., <strong>20 bp total</strong>).</li>
+        </ul>
+
+        <h3 id="visualization-files">Visualization Files</h3>
+        
+        <p>The following files are useful for inspection in IGV to visualize alignments and examine the refined contig sequences:</p>
+        <ul>
+            <li><strong><code>refined_annotated_contigs.bam</code></strong> / <strong><code>.bam.bai</code></strong>:</strong> BAM and BAM index files that contain the aligned refined transcript sequences for visualization.</li>
+            <li><strong><code>refined_annotated_contigs.fasta</code></strong>: A FASTA file that contains the refined transcript sequences used in the analysis.</li>
+            <li><strong><code>refined_annotated_contigs.vcf</code></strong>: A VCF file that lists the refined variant calls.</li>
+        </ul>
+
+        <h2 id="intermediate-files">Intermediate Files Generated at Each Step</h2>
+        
+        <p>LINDTIE produces several intermediate files throughout the pipeline. These files can be useful for troubleshooting, quality checks, or deeper inspection of specific steps.</p>
+
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>&lt;caseName&gt;_output/
+├── 01-Assembly
+│   └── rnabloom.transcripts.fa
+├── 02-Quantification
+│   ├── cases
+│   │   ├── &lt;caseName&gt;.infreps.pq
+│   │   ├── &lt;caseName&gt;.meta_info.json
+│   │   └── &lt;caseName&gt;.quant
+│   └── controls
+│       ├── &lt;controlName&gt;.infreps.pq
+│       ├── &lt;controlName&gt;.meta_info.json
+│       └── &lt;controlName&gt;.quant
+├── 03-DifferentialExpression
+│   ├── DE_contigs.fasta
+│   ├── DE_contigs_mapped_to_hg38.bam
+│   ├── DE_contigs_mapped_to_hg38.bam.bai
+│   ├── DE.log
+│   ├── DE_MD_plot.png
+│   ├── DE_MDS_plot.png
+│   ├── DE_QLDisp_plot.png
+│   ├── DE_transcript_full_results.txt
+│   └── DE_transcript_significant.txt
+└── 04-Annotation
+    ├── annotated_contigs.bam
+    ├── annotated_contigs.bam.bai
+    ├── annotated_contigs_info.tsv
+    ├── annotated_contigs.vcf
+    └── annotation.log</code></pre>
+        </div>
+        
+        <h3>01-Assembly</h3>
+        <ul>
+            <li><strong><code>rnabloom.transcripts.fa</code></strong>: A FASTA file that contains the assembled transcript sequences produced by RNA-Bloom2.</li>
+        </ul>
+
+        <h3>02-Quantification</h3>
+        <p>Files generated by Oarfish for both the case and control samples:</p>
+        <ul>
+            <li><strong><code>&lt;sampleName&gt;.quant</code></strong>: A tab-separated file that contains the quantified transcripts along with their lengths, metadata, and the estimated number of reads originating from each transcript.</li>
+            <li><strong><code>&lt;sampleName&gt;.meta_info.json</code></strong>: A JSON file that contains the parameters used to run Oarfish and other sample-level metadata excluding transcript quantifications.</li>
+            <li><strong><code>&lt;sampleName&gt;.infreps.pq</code></strong>: A Parquet file that contains estimated transcript counts, with each row representing a transcript and each column representing an inferential replicate.</li>
+        </ul>        
+
+        <h3>03-DifferentialExpression</h3>
+        <p>Files containing results from differential expression analysis of assembled transcripts:</p>
+        <ul>
+            <li><strong><code>DE_contigs.fasta</code></strong>: A FASTA file that contains the transcripts sequences identified as significantly differentially expressed.</li>
+            <li><strong><code>DE_contigs_mapped_to_hg38.bam</code></strong> / <strong><code>DE_contigs_mapped_to_hg38.bam.bai</code></strong>: BAM and BAM index files that contain the alignments of differentially expressed transcripts to the hg38 reference genome for visualization.</li>
+            <li><strong><code>DE.log</code></strong>: A log file that contains the log messages from the differential expression analysis.</li>
+            <li><strong><code>DE_MD_plot.png</code></strong>: A PNG file that contains the mean–difference (MD) plot of expression changes.</li>
+            <li><strong><code>DE_MDS_plot.png</code></strong>: A PNG file that contains the multidimensional scaling (MDS) plot showing sample relationships.</li>
+            <li><strong><code>DE_QLDisp_plot.png</code></strong>: A PNG file that contains the quasi-likelihood dispersion diagnostic plot.</li>
+            <li><strong><code>DE_transcript_full_results.txt</code></strong>: A text file that contains the complete statistical results for all transcripts tested.</li>
+            <li><strong><code>DE_transcript_significant.txt</code></strong>: A text file that contains the subset of transcripts identified as significantly differentially expressed.</li>
+        </ul>
+
+        <h3>04-Annotation</h3>
+        <p>Files containing structural and functional annotations of transcripts:</p>
+        <ul>
+            <li><strong><code>annotated_contigs.bam</code></strong> / <strong><code>annotated_contigs.bam.bai</code></strong>: BAM and BAM index files that contain the annotated transcript alignments generated from alignment-based analysis.</li>
+            <li><strong><code>annotated_contigs_info.tsv</code></strong>: A tab-separated file that contains metadata and functional annotations for each transcript.</li>
+            <li><strong><code>annotated_contigs.vcf</code></strong>: A VCF file that contains variant calls identified during the annotation process.</li>
+            <li><strong><code>annotation.log</code></strong>: A log file that contains log messages from the annotation workflow.</li>
+        </ul>        
+
+
+
+        <h2 id="classification-rules">LINDTIE's Variant Classification</h2>
+
+        <p>The following are the variant types identified and classified by LINDTIE:</p>
+
+        <table class="params-table">
+            <thead>
+                <tr>
+                    <th>Variant Type</th>
+                    <th>Full Name</th>
+                    <th>Description</th>
+                    <th>Condition</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>FUS</td>
+                    <td>Fusion</td>
+                    <td>Inter-chromosomal or distant intra-chromosomal rearrangement</td>
+                    <td>When two reads from the same contig map to different genomic locations with clipping events</td>
+                </tr>
+                <tr>
+                    <td>IGR</td>
+                    <td>Intra-Genic Rearrangement</td>
+                    <td>Rearrangement within the same gene</td>
+                    <td>When both parts of a fusion occur within the same gene(s)</td>
+                </tr>
+                <tr>
+                    <td>UN</td>
+                    <td>Unknown</td>
+                    <td>Soft-clipped sequence of unknown origin</td>
+                    <td>When soft-clipped sequence is present but not part of a fusion event</td>
+                </tr>
+                <tr>
+                    <td>INS</td>
+                    <td>Insertion</td>
+                    <td>Sequence inserted relative to the reference</td>
+                    <td>When CIGAR contains an insertion operation with size ≥ MIN_GAP</td>
+                </tr>
+                <tr>
+                    <td>DEL</td>
+                    <td>Deletion</td>
+                    <td>Sequence deleted relative to the reference</td>
+                    <td>When CIGAR contains a deletion operation with size ≥ MIN_GAP</td>
+                </tr>
+                <tr>
+                    <td>EE</td>
+                    <td>Extended Exon</td>
+                    <td>Extension of known exonic sequence</td>
+                    <td>When a novel block extends beyond existing exon boundaries (either left or right side)</td>
+                </tr>
+                <tr>
+                    <td>NE</td>
+                    <td>Novel Exon</td>
+                    <td>Completely novel exonic sequence</td>
+                    <td>When a novel block doesn't overlap any known exonic regions</td>
+                </tr>
+                <tr>
+                    <td>RI</td>
+                    <td>Retained Intron</td>
+                    <td>Intronic sequence retained in the transcript</td>
+                    <td>When a novel block spans between two exons (has both left and right exonic boundaries)</td>
+                </tr>
+                <tr>
+                    <td>AS</td>
+                    <td>Alternative Splicing</td>
+                    <td>Alternative splicing event using known splice sites</td>
+                    <td>When both ends of a junction match known splice sites but the combination is novel</td>
+                </tr>
+                <tr>
+                    <td>NEJ</td>
+                    <td>Novel Exon Junction</td>
+                    <td>Completely novel splice junction</td>
+                    <td>When neither end of a novel junction matches known splice sites</td>
+                </tr>
+                <tr>
+                    <td>PNJ</td>
+                    <td>Partial Novel Junction</td>
+                    <td>Junction with one known and one novel splice site</td>
+                    <td>When only one end of a novel junction matches known splice sites</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- style for the figure placeholder -->
+        <style>
+            .figure-placeholder {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            margin: 24px 0;
+            text-align: center;
+            background: var(--bg-card);
+        }
+
+        .figure-placeholder-icon {
+            font-size: 48px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .figure-placeholder-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .figure-placeholder-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .figure-placeholder code {
+            background: var(--bg-darker);
+            color: var(--primary-gold);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Actual figure styles when you add images */
+        .figure {
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .figure-caption {
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+    </style>
+
+        <p>LINDTIE's variant classification rules and filtering logic are based on the following criteria:</p>
+
+        <!-- classification diagram -->
+        <div class="figure">
+            <img src="/home/users/allstaff/tan.j/LINDTIE/docs/figure/classification-diagram.png" alt="LINDTIE Classification Rules and Filtering Logic">
+            <!-- <div class="figure-caption">Figure 1: LINDTIE Classification Rules and Filtering Logic</div> -->
+        </div>
+
+        <h2 id="variant-criteria">LINDTIE's Variant-Specific Criteria</h2>
+
+        <p>The following are the variant-specific criteria used by LINDTIE to classify the variants:</p>
+        <table class="params-table">
+            <thead>
+                <tr>
+                    <th>Variant Type</th>
+                    <th>Full name</th>
+                    <th>Category</th>
+                    <th>Clipping</th>
+                    <th>Spliced Contig<sup>1</sup></th>
+                    <th>Variant Size</th>
+                    <th>Overlaps Gene</th>
+                    <th>Overlaps Exon</th>
+                    <th>Spliced Exon<sup>2</sup></th>
+                    <th>Valid Motif<sup>3</sup></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>FUS</strong></td>
+                    <td><strong>Fusion</strong></td>
+                    <td>Fusion</td>
+                    <td>hard/soft</td>
+                    <td>-</td>
+                    <td>&gt;min_clip</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>IGR</strong></td>
+                    <td><strong>Intra-Genic Rearrangement</strong></td>
+                    <td>Fusion</td>
+                    <td>hard/soft</td>
+                    <td>-</td>
+                    <td>&gt;min_clip</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>UN</strong></td>
+                    <td><strong>Unknown</strong></td>
+                    <td>Unknown</td>
+                    <td>soft</td>
+                    <td>-</td>
+                    <td>&gt;min_clip</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>INS</strong></td>
+                    <td><strong>Insertion</strong></td>
+                    <td>TSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_gap</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>DEL</strong></td>
+                    <td><strong>Deletion</strong></td>
+                    <td>TSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_gap</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>RI</strong></td>
+                    <td><strong>Retained Intron</strong></td>
+                    <td>NSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_clip</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>EE</strong></td>
+                    <td><strong>Extended Exon</strong></td>
+                    <td>NSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_clip</td>
+                    <td>✅️</td>
+                    <td>❌</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                </tr>
+                <tr>
+                    <td><strong>NE</strong></td>
+                    <td><strong>Novel Exon</strong></td>
+                    <td>NSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_clip</td>
+                    <td>❌</td>
+                    <td>❌</td>
+                    <td>✅️</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>NEJ</strong></td>
+                    <td><strong>Novel Exon Junction</strong></td>
+                    <td>NSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_gap</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                    <td>✅️</td>
+                </tr>
+                <tr>
+                    <td><strong>PNJ</strong></td>
+                    <td><strong>Partial Novel Junction</strong></td>
+                    <td>NSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_gap</td>
+                    <td>✅️</td>
+                    <td>✅️</td>                    
+                    <td>✅️</td>
+                    <td>✅️</td>
+                </tr>
+
+                <tr>
+                    <td><strong>AS</strong></td>
+                    <td><strong>Alternative Splicing</strong></td>
+                    <td>NSV</td>
+                    <td>-</td>
+                    <td>✅️</td>
+                    <td>&gt;min_gap</td>
+                    <td>✅️</td>
+                    <td>✅️</td>                    
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                </table>
+
+                <p><strong>[1] Spliced Contig:</strong> Any alignment containing a splice (≥1 gap)</p>
+                <p><strong>[2] Spliced Exon:</strong> EE/NE variants that have adjacent supporting junctions, and for selected junction variants themselves.</p>
+                <p><strong>[3] Valid Motif:</strong> True when the 2-bp splice motifs at the relevant boundaries match canonical GT-AG (or CT-AC on the opposite strand) within the allowed mismatch tolerance</p>
+
+            <h2 id="scoring-system">LINDTIE’s Scoring System</h2>
+
+            <p>LINDTIE's scoring system is based on the following criteria:</p>
+            <!-- classification diagram -->
+            <div class="figure">
+                <img src="/home/users/allstaff/tan.j/LINDTIE/docs/figure/scoring-diagram.png" alt="LINDTIE Scoring System">
+                <!-- <div class="figure-caption">Figure 2: LINDTIE Scoring System</div> -->
+            </div>
+
+                <div class="next-steps">
+                    <a href="#resume" class="next-step-card">
+                        <h4>Resume</h4>
+                        <p>Learn how to resume runs</p>
+                    </a>
+                    <a href="#examples" class="next-step-card">
+                        <h4>Examples</h4>
+                        <p>See LINDTIE in action</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== RESUME ==================== -->
+            <section class="section" id="resume">
+                <h1>Resume Your Run</h1>
+
+                <p>You can easily resume your run in case of changes to the parameters or inputs using <code>-resume</code>. Nextflow will try to not recalculate steps that are already done:</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>nextflow run LINDTIE/main.nf -params-file LINDTIE/params.yaml -resume</code></pre>
+                </div>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Note</div>
+                    <div class="info-box-content">
+                        <p>Only one dash is needed for the resume flag.</p>
+                    </div>
+                </div>
+
+                <p>Nextflow will need access to the working directory where temporary calculations are stored. Per default, this is set to <code>work</code> but can be adjusted via <code>-w /path/to/any/workdir</code>. In addition, the <code>.nextflow.log</code> file is needed to resume a run, thus, this will only work if you resume the run from the same folder where you started it.</p>
+
+                <div class="next-steps">
+                    <a href="#best-practices" class="next-step-card">
+                        <h4>Best Practices</h4>
+                        <p>Optimize your analysis</p>
+                    </a>
+                    <a href="#troubleshooting" class="next-step-card">
+                        <h4>Troubleshooting</h4>
+                        <p>Common issues and solutions</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== TESTING ==================== -->
+            <section class="section" id="testing">
+                <h1>Testing LINDTIE</h1>
+
+                <p>Example test data is included to help you quickly verify that the pipeline is running correctly. The test set contains one case sample and two control samples, located in the <code>test_case</code> directory under the <code>LINDTIE</code> base directory:</p>
+                
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>LINDTIE/
+└──test_case/
+		├── cases
+		│   └── test-case.fastq.gz
+		├── controls
+		│   ├── test-control0.fastq.gz
+		│   └── test-control1.fastq.gz
+		└── run_LINDTIE.sh
+                    </code></pre>
+                </div>
+
+                <p>You can test LINDTIE either by running the following command directly in the terminal or by executing the provided <code>run_LINDTIE.sh</code> script (make sure to modify the path):</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code># modify the path to the LINDTIE base directory
+LINDTIE_dir=/path/to/your/LINDTIE
+
+nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile singularity
+cases/*.fastq.gz controls/*.fastq.gz</code></pre>
+                </div>
+
+                <p>Approximate run time: 5-6 minutes</p>
+
+                <p>Once LINDTIE has finished running, you should see output on the terminal similar to the following:</p>
+                    
+                <div class="figure">
+                    <img src="/home/users/allstaff/tan.j/LINDTIE/docs/figure/test-case-run-output.png" alt="LINDTIE Scoring System">
+                </div>
+
+                <p>View the collapsed results at: <code>test-case_output/FinalOutput/test-case_results.tsv</code></p>
+
+                <p>The table below summarizes the number of variants detected for each variant type in the test case:</p>
+
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Variant Type</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AS</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>    
+                            <td>DEL</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>EE</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>FUS</td>
+                            <td>21</td>
+                        </tr>
+                        <tr>
+                            <td>IGR</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>INS</td>
+                            <td>11</td>
+                        </tr>
+                        <tr>
+                            <td>NE</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>NEJ</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>PNJ</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>RI</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>UN</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TOTAL</strong></td>
+                            <td><strong>65</strong></td>
+                        </tr>
+                    </tbody>
+                </table>                
+
+                <div class="info-box info">
+                    <div class="info-box-title">Note</div>
+                    <p>The exact counts may vary between runs. The de novo assembly step (RNA-Bloom2) is not fully deterministic, so the assembled transcripts and therefore the final variants detected may differ slightly each time. However, the overall results should remain broadly consistent.</p>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#examples" class="next-step-card">
+                        <h4>Examples</h4>
+                        <p>See LINDTIE in action</p>
+                    </a>
+                    <a href="#troubleshooting" class="next-step-card">
+                        <h4>Troubleshooting</h4>
+                        <p>Common issues and solutions</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== EXAMPLES ==================== -->
+            <section class="section" id="examples">
+                <h1>Examples of Use</h1>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Coming Soon</div>
+                    <p>Detailed examples and use cases are currently being prepared. Check back soon for comprehensive tutorials and real-world applications of LINDTIE.</p>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#troubleshooting" class="next-step-card">
+                        <h4>Troubleshooting</h4>
+                        <p>Common issues and solutions</p>
+                    </a>
+                    <a href="#faq" class="next-step-card">
+                        <h4>FAQ</h4>
+                        <p>Frequently asked questions</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== BEST PRACTICES ==================== -->
+            <section class="section" id="best-practices">
+                <h1>Best Practices</h1>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Coming Soon</div>
+                    <p>Best practices will be added in future releases. Please check back for updates or visit the GitHub repository for the latest information.</p>
+                </div>
+                <!-- <p>Follow these recommendations to get the most accurate and reliable results from LINDTIE.</p> -->
+
+                <!-- <h2 id="sample-preparation">Sample Preparation</h2> -->
+
+                <!-- <h3 id="rna-quality">RNA Quality</h3> -->
+                <!-- <ul>
+                    <li><strong>RIN score:</strong> Aim for RNA Integrity Number (RIN) &ge; 7 for optimal results</li>
+                    <li><strong>DV200:</strong> For FFPE samples, target DV200 &ge; 30%</li>
+                    <li><strong>Quantity:</strong> Minimum 100ng total RNA for library preparation</li>
+                    <li><strong>Contamination:</strong> Ensure A260/A280 ratio between 1.8-2.0</li>
+                </ul> -->
+
+                <!-- <h3 id="library-prep">Library Preparation</h3>
+                <ul>
+                    <li>Use full-length cDNA protocols (e.g., ONT cDNA-PCR, PacBio Iso-Seq)</li>
+                    <li>Avoid excessive PCR amplification (keep cycles &le; 14)</li>
+                    <li>Include spike-in controls (e.g., ERCC) for QC</li>
+                </ul> -->
+
+                <!-- <h2 id="sequencing-recommendations">Sequencing Recommendations</h2> -->
+
+                <!-- <h3 id="platform-choice">Platform Choice</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                        <thead>
+                            <tr style="background: var(--bg-card); border-bottom: 2px solid var(--primary-gold);">
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Platform</th>
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Best For</th>
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Considerations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--primary-gold);">ONT (Oxford Nanopore)</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">Rapid turnaround, lower cost</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">Higher error rate (~5-10%); use R10 chemistry for better accuracy</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--primary-gold);">PacBio HiFi</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">High accuracy applications</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">Lower error rate (&lt;1%); higher cost per base</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> -->
+
+                <!-- Platform Accuracy Comparison Chart -->
+                <!-- <div style="margin: 32px 0; padding: 24px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 20px; color: var(--text-primary); font-size: 16px;">Sequencing Accuracy Comparison</h3>
+                    <div style="display: flex; flex-direction: column; gap: 20px;"> -->
+                        <!-- PacBio HiFi -->
+                        <!-- <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 13px; color: var(--text-primary); font-weight: 500;">PacBio HiFi</span>
+                                <span style="font-size: 13px; color: var(--success-border); font-weight: 600;">>99% accuracy</span>
+                            </div>
+                            <div style="height: 24px; background: var(--bg-darker); border-radius: 12px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 99%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 12px;"></div>
+                            </div>
+                            <p style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">Best for: High accuracy applications, variant calling</p>
+                        </div> -->
+
+                        <!-- ONT R10 -->
+                        <!-- <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 13px; color: var(--text-primary); font-weight: 500;">ONT R10 Chemistry</span>
+                                <span style="font-size: 13px; color: var(--primary-gold); font-weight: 600;">95-99% accuracy</span>
+                            </div>
+                            <div style="height: 24px; background: var(--bg-darker); border-radius: 12px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 97%; background: linear-gradient(90deg, #daa520, #e8c684); border-radius: 12px;"></div>
+                            </div>
+                            <p style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">Best for: Balanced accuracy and throughput</p>
+                        </div> -->
+
+                        <!-- ONT R9 -->
+                        <!-- <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 13px; color: var(--text-primary); font-weight: 500;">ONT R9 Chemistry</span>
+                                <span style="font-size: 13px; color: var(--warning-border); font-weight: 600;">90-95% accuracy</span>
+                            </div>
+                            <div style="height: 24px; background: var(--bg-darker); border-radius: 12px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 92%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 12px;"></div>
+                            </div>
+                            <p style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">Best for: Rapid turnaround, lower cost, structural analysis</p>
+                        </div>
+                    </div> -->
+
+                    <!-- <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 0;">
+                            <strong style="color: var(--text-secondary);">Recommendation:</strong> For cancer diagnostics requiring high confidence, PacBio HiFi or ONT R10 is recommended. For exploratory analysis or when cost is a factor, ONT R9 provides adequate accuracy for most aberrant transcript detection.
+                        </p>
+                    </div>
+                </div> -->
+
+                <!-- <h3 id="read-depth">Read Depth</h3>
+                <ul>
+                    <li><strong>Minimum:</strong> 1 million reads per sample</li>
+                    <li><strong>Recommended:</strong> 5-10 million reads per sample for comprehensive detection</li>
+                    <li><strong>Deep sequencing:</strong> 20+ million reads for low-abundance transcript detection</li>
+                </ul> -->
+
+                <!-- <div class="info-box info">
+                    <div class="info-box-title">Note on Read Depth</div>
+                    <p>Higher read depth improves sensitivity for low-abundance aberrant transcripts but has diminishing returns above 20 million reads. Balance depth with the number of samples for statistical power.</p>
+                </div> -->
+
+                <!-- <h2 id="control-samples">Control Sample Selection</h2> -->
+
+                <!-- <h3 id="control-number">Number of Controls</h3>
+                <ul>
+                    <li><strong>Minimum:</strong> 5 control samples (statistical baseline)</li>
+                    <li><strong>Recommended:</strong> 10-15 control samples (robust statistics)</li>
+                    <li><strong>Optimal:</strong> Match or exceed the number of case samples</li>
+                </ul> -->
+
+                <!-- <h3 id="control-type">Control Type Selection</h3>
+                <ol>
+                    <li><strong>Best:</strong> Matched normal tissue from the same tissue type as the tumor</li>
+                    <li><strong>Good:</strong> Normal tissue from the same organ (different patients)</li>
+                    <li><strong>Acceptable:</strong> Remission samples (for blood cancers)</li>
+                    <li><strong>Fallback:</strong> Tumors from other patients (same cancer type)</li>
+                </ol> -->
+
+                <!-- <div class="info-box warning">
+                    <div class="info-box-title">Control Sample Warning</div>
+                    <p>Using inappropriate controls (e.g., different tissue types) will result in many false positives from tissue-specific expression differences rather than cancer-specific aberrations.</p>
+                </div> -->
+
+                <!-- <h2 id="parameter-tuning">Parameter Tuning Guidelines</h2> -->
+
+                <!-- <h3 id="stringency-levels">Stringency Levels</h3> -->
+
+                <!-- <p><strong>High Stringency</strong> (fewer results, higher confidence):</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>--fdr 0.01 --min_logfc 3 --min_cpm 1</code></pre>
+                </div> -->
+
+                <!-- <p><strong>Standard</strong> (balanced, recommended for most analyses):</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>--fdr 0.05 --min_logfc 2 --min_cpm 0.5</code></pre>
+                </div> -->
+
+                <!-- <p><strong>Discovery Mode</strong> (more results, requires manual curation):</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>--fdr 0.1 --min_logfc 1 --min_cpm 0.1</code></pre>
+                </div> -->
+
+                <!-- <h2 id="result-interpretation">Result Interpretation</h2> -->
+
+                <!-- <h3 id="prioritization">Prioritizing Variants</h3>
+                <p>When reviewing results, prioritize variants based on:</p>
+                <ol>
+                    <li><strong>Statistical significance:</strong> Lower FDR values indicate higher confidence</li>
+                    <li><strong>Fold change magnitude:</strong> Higher |logFC| suggests stronger biological effect</li>
+                    <li><strong>Gene involvement:</strong> Known cancer genes (oncogenes, tumor suppressors)</li>
+                    <li><strong>Variant type:</strong> Fusions often have clinical actionability</li>
+                    <li><strong>VAF:</strong> Higher variant allele frequency suggests clonal events</li>
+                </ol> -->
+
+                <!-- <h3 id="validation">Validation Recommendations</h3>
+                <ul>
+                    <li>Validate top candidates with orthogonal methods (e.g. RT-PCR)</li>
+                    <li>Visualize variants in IGV using the BAM files</li>
+                    <li>Cross-reference with databases (COSMIC, ClinVar, OncoKB)</li>
+                </ul> -->
+
+                <div class="next-steps">
+                    <a href="#tools" class="next-step-card">
+                        <h4>Full Tool List</h4>
+                        <p>See all tools used in LINDTIE</p>
+                    </a>
+                    <a href="#glossary" class="next-step-card">
+                        <h4>Glossary</h4>
+                        <p>Learn the terminology</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== TOOLS ==================== -->
+            <section class="section" id="tools">
+                <h1>Full List of Tools Used in LINDTIE</h1>
+
+                <p>Listed below are all software tools and version numbers packaged within the Nextflow container used by LINDTIE:</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>bioconda::rnabloom=2.0.1
+bioconda::minimap2=2.30
+bioconda::samtools=1.22
+bioconda::oarfish=0.8.1
+bioconda::bio=1.8.0
+bioconda::pysam=0.23.3
+bioconda::pybedtools=0.12.0
+bioconda::bioconductor-edger=4.4.0
+bioconda::bioconductor-tximport=1.34.0
+conda-forge::pandas=2.3.0
+conda-forge::numpy=2.3.0
+conda-forge::intervaltree=3.1.0
+conda-forge::r-dplyr=1.1.4
+conda-forge::r-data.table=1.17.6
+conda-forge::r-jsonlite=2.0.0 
+conda-forge::r-readr=2.1.5 
+conda-forge::r-arrow=19.0.1</code></pre>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#glossary" class="next-step-card">
+                        <h4>Glossary</h4>
+                        <p>Learn the terminology</p>
+                    </a>
+                    <a href="#benchmarking" class="next-step-card">
+                        <h4>Benchmarking</h4>
+                        <p>Performance comparisons</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== GLOSSARY ==================== -->
+            <section class="section" id="glossary">
+                <h1>Glossary of Terms</h1>
+
+                <p>This glossary defines key terms used throughout the LINDTIE documentation and output files.</p>
+
+                <h2 id="general-terms">General Terms</h2>
+
+                <dl style="color: var(--text-secondary);">
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">Aberrant Transcript</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">A transcript that differs from the normal reference transcriptome, potentially caused by genomic rearrangements, novel splicing, or other alterations. In cancer, aberrant transcripts may drive tumor growth or serve as biomarkers.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">Contig</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">A contiguous sequence assembled from overlapping reads. In LINDTIE, contigs represent assembled transcript sequences that are then analyzed for variants.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">De Novo Assembly</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">The process of assembling reads into contigs without using a reference genome. This approach can detect novel sequences not present in the reference.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">Fusion Transcript</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">A chimeric RNA molecule containing sequences from two different genes, typically resulting from chromosomal rearrangements. Examples include BCR-ABL in CML and EML4-ALK in lung cancer.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">Long-read RNA-seq (lrRNA-seq)</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">RNA sequencing using technologies that produce reads thousands of bases long (ONT, PacBio), enabling full-length transcript sequencing and better detection of structural variants.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">Splice Motif</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">The conserved sequence at splice junctions. The canonical splice motif is GT-AG (GT at the 5' donor site, AG at the 3' acceptor site). LINDTIE validates splice junctions against known motifs.</dd>
+                </dl>
+
+                <h2 id="statistical-terms">Statistical Terms</h2>
+
+                <dl style="color: var(--text-secondary);">
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">CPM (Counts Per Million)</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">A normalization method that scales raw read counts to per-million reads, allowing comparison between samples with different sequencing depths. Formula: CPM = (read count / total reads) &times; 1,000,000</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">FDR (False Discovery Rate)</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">The expected proportion of false positives among all significant results. An FDR of 0.05 means 5% of significant results are expected to be false positives. Lower FDR = higher confidence.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">logFC (Log Fold Change)</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">The log2-transformed ratio of expression between case and control samples. A logFC of 2 means 4x higher expression in cases; logFC of -2 means 4x lower expression in cases.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">P-value</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">The probability of observing the data (or more extreme) if there is no true difference between groups. Lower p-values indicate stronger evidence against the null hypothesis.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">TPM (Transcripts Per Million)</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">A normalization method that accounts for both sequencing depth and transcript length, making values comparable across samples and genes. More appropriate than CPM for comparing expression levels of different transcripts.</dd>
+
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">VAF (Variant Allele Frequency)</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">The proportion of reads supporting the variant allele versus the total reads at that position. Higher VAF suggests the variant is present in more cells (clonal) rather than a subclonal event.</dd>
+                </dl>
+
+                <h2 id="output-terms">Output Field Terms</h2>
+
+                <dl style="color: var(--text-secondary);">
+                    <dt style="color: var(--primary-gold); font-weight: 600; margin-top: 16px;">CIGAR String</dt>
+                    <dd style="margin-left: 20px; margin-bottom: 12px;">A compact representation of how a sequence aligns to a reference. Characters include: M (match/mismatch), I (insertion), D (deletion), N (skipped region/intron), S (soft clip). Example: "100M50N100M" = 100 bases match, 50 base intron, 100 bases match.</dd>
+
+                <div class="next-steps">
+                    <a href="#benchmarking" class="next-step-card">
+                        <h4>Benchmarking</h4>
+                        <p>Performance comparisons</p>
+                    </a>
+                    <a href="#output" class="next-step-card">
+                        <h4>Output</h4>
+                        <p>Understanding results</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== BENCHMARKING ==================== -->
+            <section class="section" id="benchmarking">
+                <h1>Benchmarking &amp; Performance</h1>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Test Data</div>
+                    <p>Benchmarking data will be added in future releases. Please check back for updates or visit the GitHub repository for the latest information.</p>
+                </div>
+                
+                <!-- <p>This section provides performance benchmarks and comparisons to help you understand LINDTIE's capabilities and resource requirements.</p> -->
+
+                <!-- <h2 id="runtime-benchmarks">Runtime Benchmarks</h2> -->
+
+                <!-- <p>Typical runtime performance on standard HPC configurations (48 CPUs, 100GB RAM):</p> -->
+
+                <!-- <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                        <thead>
+                            <tr style="background: var(--bg-card); border-bottom: 2px solid var(--primary-gold);">
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Dataset Size</th>
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Samples</th>
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Approx. Runtime</th>
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Peak Memory</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Small (1M reads/sample)</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">1 case + 5 controls</td>
+                                <td style="padding: 12px; color: var(--primary-gold);">5-10 minutes</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">~16 GB</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Medium (5M reads/sample)</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">1 case + 10 controls</td>
+                                <td style="padding: 12px; color: var(--primary-gold);">30-60 minutes</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">~32 GB</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Large (10M reads/sample)</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">5 cases + 15 controls</td>
+                                <td style="padding: 12px; color: var(--primary-gold);">2-4 hours</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">~64 GB</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Very Large (20M+ reads/sample)</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">10+ cases + 20+ controls</td>
+                                <td style="padding: 12px; color: var(--primary-gold);">6-12 hours</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">~100 GB</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> -->
+
+                <!-- Runtime Performance Chart -->
+                <!-- <div style="margin: 32px 0; padding: 24px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3 style="color: var(--text-primary); font-size: 16px; margin: 0;">Runtime by Dataset Size</h3>
+                        <span style="font-size: 11px; color: var(--text-muted); background: var(--bg-darker); padding: 4px 10px; border-radius: 12px;">48 CPUs, 100GB RAM</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        Small Dataset -->
+                        <!-- <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 120px; flex-shrink: 0;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Small</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">1M reads/sample</div>
+                            </div>
+                            <div style="flex: 1; height: 32px; background: var(--bg-darker); border-radius: 8px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 5%; background: linear-gradient(90deg, #daa520, #e8c684); border-radius: 8px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; min-width: 70px;">
+                                    <span style="font-size: 12px; font-weight: 600; color: #fff;">~8 min</span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- Medium Dataset -->
+                        <!-- <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 120px; flex-shrink: 0;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Medium</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">5M reads/sample</div>
+                            </div>
+                            <div style="flex: 1; height: 32px; background: var(--bg-darker); border-radius: 8px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 15%; background: linear-gradient(90deg, #daa520, #e8c684); border-radius: 8px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; min-width: 80px;">
+                                    <span style="font-size: 12px; font-weight: 600; color: #fff;">~45 min</span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- Large Dataset -->
+                        <!-- <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 120px; flex-shrink: 0;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Large</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">10M reads/sample</div>
+                            </div>
+                            <div style="flex: 1; height: 32px; background: var(--bg-darker); border-radius: 8px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 40%; background: linear-gradient(90deg, #daa520, #e8c684); border-radius: 8px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; min-width: 80px;">
+                                    <span style="font-size: 12px; font-weight: 600; color: #fff;">~3 hours</span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- Very Large Dataset -->
+                        <!-- <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 120px; flex-shrink: 0;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Very Large</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">20M+ reads/sample</div>
+                            </div>
+                            <div style="flex: 1; height: 32px; background: var(--bg-darker); border-radius: 8px; overflow: hidden; position: relative;">
+                                <div style="height: 100%; width: 85%; background: linear-gradient(90deg, #daa520, #e8c684); border-radius: 8px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;">
+                                    <span style="font-size: 12px; font-weight: 600; color: #fff;">~9 hours</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <!-- Scale indicator -->
+                    <!-- <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                        <span style="font-size: 10px; color: var(--text-muted);">0</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">3h</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">6h</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">9h</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">12h</span>
+                    </div>
+                </div> -->
+
+                <!-- <div class="info-box info">
+                    <div class="info-box-title">Note</div>
+                    <p>Runtimes vary based on transcript complexity, sequencing depth, and available compute resources. The de novo assembly step typically consumes the most time and memory.</p>
+                </div> -->
+
+                <!-- <h2 id="tool-comparison">Comparison with Other Tools</h2> -->
+
+                <!-- <p>LINDTIE compared to other aberrant transcript detection tools:</p> -->
+
+                <!-- <div style="overflow-x: auto;"> -->
+                    <!-- <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                        <thead>
+                            <tr style="background: var(--bg-card); border-bottom: 2px solid var(--primary-gold);">
+                                <th style="padding: 12px; text-align: left; color: var(--text-primary);">Feature</th>
+                                <th style="padding: 12px; text-align: center; color: var(--primary-gold);">LINDTIE</th>
+                                <th style="padding: 12px; text-align: center; color: var(--text-primary);">JAFFA</th>
+                                <th style="padding: 12px; text-align: center; color: var(--text-primary);">Arriba</th>
+                                <th style="padding: 12px; text-align: center; color: var(--text-primary);">STAR-Fusion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Long-read support</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--warning-border);">Limited</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Reference-free detection</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">No</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Differential expression</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Built-in</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">No</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">No</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Novel splice detection</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--warning-border);">Limited</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--warning-border);">Limited</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">Structural variants</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--warning-border);">Limited</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Yes</td>
+                                <td style="padding: 12px; text-align: center; color: var(--text-muted);">Fusions only</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 12px; color: var(--text-secondary);">HPC/Cloud ready</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Nextflow</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Bpipe</td>
+                                <td style="padding: 12px; text-align: center; color: var(--warning-border);">Manual</td>
+                                <td style="padding: 12px; text-align: center; color: var(--success-border);">Docker</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>  -->
+
+                <!-- <h2 id="detection-sensitivity">Detection Sensitivity</h2>
+
+                <p>LINDTIE's ability to detect variants depends on several factors:</p>
+
+                <h3 id="vaf-sensitivity">VAF Sensitivity</h3>
+                <ul>
+                    <li><strong>High VAF (&gt;20%):</strong> Reliably detected with standard parameters</li>
+                    <li><strong>Medium VAF (5-20%):</strong> Detected with sufficient read depth (&gt;5M reads)</li>
+                    <li><strong>Low VAF (&lt;5%):</strong> May require deep sequencing (&gt;20M reads) and relaxed parameters</li>
+                </ul> -->
+
+                <!-- <h3 id="expression-sensitivity">Expression Level Sensitivity</h3>
+                <ul>
+                    <li><strong>High expression (&gt;10 TPM):</strong> Detected across all conditions</li>
+                    <li><strong>Medium expression (1-10 TPM):</strong> Requires adequate control samples</li>
+                    <li><strong>Low expression (&lt;1 TPM):</strong> May require increased read depth or lowered min_cpm threshold</li>
+                </ul> -->
+
+                <!-- <h2 id="resource-scaling">Resource Scaling</h2> -->
+
+                <!-- <p>How LINDTIE resource usage scales with data:</p> -->
+
+                <!-- <div class="info-box info">
+                    <div class="info-box-title">Scaling Guidelines</div>
+                    <ul>
+                        <li><strong>CPU:</strong> Assembly scales linearly; quantification parallelizes well across samples</li>
+                        <li><strong>Memory:</strong> Primarily driven by assembly; expect ~3-5 GB per million reads</li>
+                        <li><strong>Storage:</strong> Working directory requires ~10x input data size; final output is compact</li>
+                        <li><strong>Time:</strong> Scales sub-linearly with additional samples due to parallelization</li>
+                    </ul>
+                </div> -->
+
+                <div class="next-steps">
+                    <a href="#testing" class="next-step-card">
+                        <h4>Testing</h4>
+                        <p>Test your installation</p>
+                    </a>
+                    <a href="#best-practices" class="next-step-card">
+                        <h4>Best Practices</h4>
+                        <p>Optimize your analysis</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== TROUBLESHOOTING ==================== -->
+            <section class="section" id="troubleshooting">
+                <h1>Troubleshooting</h1>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Getting Help</div>
+                    <p>If you encounter issues not covered here, please:</p>
+                    <ol>
+                        <li>Check the GitHub issues page</li>
+                        <li>Review the Nextflow documentation</li>
+                        <li>Open a new issue on GitHub with detailed information about your problem</li>
+                    </ol>
+                    <p>Common troubleshooting tips and solutions will be added as they are identified by the community.</p>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#faq" class="next-step-card">
+                        <h4>FAQ</h4>
+                        <p>Frequently asked questions</p>
+                    </a>
+                    <a href="#citing" class="next-step-card">
+                        <h4>Citing LINDTIE</h4>
+                        <p>How to cite this work</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== FAQ ==================== -->
+            <section class="section" id="faq">
+                <h1>Frequently Asked Questions</h1>
+
+                <div class="info-box info">
+                    <div class="info-box-title">FAQ Section</div>
+                    <p>This section will be populated with frequently asked questions as they arise from the community. In the meantime, please refer to the documentation sections or open an issue on GitHub for specific questions.</p>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#changelog" class="next-step-card">
+                        <h4>Changelog</h4>
+                        <p>Version history</p>
+                    </a>
+                    <a href="#citing" class="next-step-card">
+                        <h4>Citing LINDTIE</h4>
+                        <p>How to cite this work</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== CHANGELOG ==================== -->
+            <section class="section" id="changelog">
+                <h1>Changelog</h1>
+
+                <p>This page documents all notable changes to LINDTIE. The format is based on <a href="https://keepachangelog.com/" target="_blank">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/" target="_blank">Semantic Versioning</a>.</p>
+
+                <!-- Version 0.1.0 -->
+                <h2 id="v0.1.0">v0.1.0 - Initial Release</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Released: 2025</p>
+
+                <h3 id="v0.1.0-added">Added</h3>
+                <ul>
+                    <li>Initial release of LINDTIE pipeline</li>
+                    <li>De novo assembly using RNA-Bloom for long-read data</li>
+                    <li>Quantification with Oarfish and minimap2 alignment</li>
+                    <li>Differential expression analysis between case and control samples</li>
+                    <li>Comprehensive variant annotation system</li>
+                    <li>Support for Oxford Nanopore Technologies (ONT) data</li>
+                    <li>Support for PacBio long-read data</li>
+                    <li>Nextflow-based workflow for HPC environments</li>
+                    <li>Docker and Singularity container support</li>
+                    <li>Configurable resource profiles (short, medium, long processes)</li>
+                    <li>TSV output with ranked variant results</li>
+                </ul>
+
+                <h3 id="v0.1.0-tools">Tool Versions</h3>
+                <ul>
+                    <li>RNA-Bloom: 2.0.1</li>
+                    <li>minimap2: 2.30</li>
+                    <li>samtools: 1.22</li>
+                    <li>Oarfish: 0.8.1</li>
+                    <li>pandas: 2.3.0</li>
+                </ul>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Upgrading</div>
+                    <p>When upgrading between versions, we recommend:</p>
+                    <ol>
+                        <li>Review the changelog for breaking changes</li>
+                        <li>Back up your current configuration files</li>
+                        <li>Pull the latest version from GitHub</li>
+                        <li>Re-run with a test dataset to verify functionality</li>
+                    </ol>
+                </div>
+
+                <!-- Template for future versions -->
+                <!--
+                <h2 id="vX.Y.Z">vX.Y.Z - Title</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Released: YYYY-MM-DD</p>
+
+                <h3>Added</h3>
+                <ul>
+                    <li>New feature description</li>
+                </ul>
+
+                <h3>Changed</h3>
+                <ul>
+                    <li>Changed behavior description</li>
+                </ul>
+
+                <h3>Fixed</h3>
+                <ul>
+                    <li>Bug fix description</li>
+                </ul>
+
+                <h3>Deprecated</h3>
+                <ul>
+                    <li>Feature that will be removed</li>
+                </ul>
+
+                <h3>Removed</h3>
+                <ul>
+                    <li>Removed feature description</li>
+                </ul>
+
+                <h3>Security</h3>
+                <ul>
+                    <li>Security fix description</li>
+                </ul>
+                -->
+
+                <h2 id="version-policy">Version Policy</h2>
+
+                <p>LINDTIE follows semantic versioning (MAJOR.MINOR.PATCH):</p>
+                <ul>
+                    <li><strong>MAJOR:</strong> Incompatible changes to input/output format or parameters</li>
+                    <li><strong>MINOR:</strong> New features added in a backward-compatible manner</li>
+                    <li><strong>PATCH:</strong> Bug fixes and minor improvements</li>
+                </ul>
+
+                <h2 id="migration-guides">Migration Guides</h2>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Coming Soon</div>
+                    <p>Migration guides will be provided here when new major versions are released. Each guide will detail any breaking changes and provide step-by-step instructions for updating your workflow.</p>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#citing" class="next-step-card">
+                        <h4>Citing LINDTIE</h4>
+                        <p>How to cite this work</p>
+                    </a>
+                    <a href="#introduction" class="next-step-card">
+                        <h4>Introduction</h4>
+                        <p>Back to the beginning</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ==================== CITING ==================== -->
+            <section class="section" id="citing">
+                <h1>Citing LINDTIE</h1>
+
+                <p>If you use LINDTIE in your research, please cite:</p>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Citation</div>
+                    <p>Citation information will be provided upon publication. Please check the GitHub repository or contact the authors for the most current citation information.</p>
+                </div>
+
+                <div class="next-steps">
+                    <a href="#introduction" class="next-step-card">
+                        <h4>Introduction</h4>
+                        <p>Back to the beginning</p>
+                    </a>
+                    <a href="#installation" class="next-step-card">
+                        <h4>Installation</h4>
+                        <p>Get started with LINDTIE</p>
+                    </a>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ============================================================
+             RIGHT SIDEBAR - TABLE OF CONTENTS
+             Auto-generated from h2/h3 headings in the current section
+        ============================================================ -->
+        <aside class="toc-sidebar" id="toc-sidebar">
+            <div class="toc-title">On This Page</div>
+            <ul class="toc-list" id="toc-list">
+                <!-- Auto-populated by JavaScript -->
+            </ul>
+        </aside>
+    </div>
+
+    <script>
+        // ============================================================
+        // JAVASCRIPT FUNCTIONALITY
+        // Page-based navigation - shows one section at a time
+        // ============================================================
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+
+            // Close mobile search if open
+            const mobileSearch = document.getElementById('mobileSearch');
+            if (mobileSearch) mobileSearch.classList.remove('active');
+        }
+
+        // Mobile search toggle
+        function toggleMobileSearch() {
+            const mobileSearch = document.getElementById('mobileSearch');
+            mobileSearch.classList.toggle('active');
+
+            if (mobileSearch.classList.contains('active')) {
+                document.getElementById('mobileSearchInput').focus();
+            }
+
+            // Close sidebar if open
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            menuBtn.classList.remove('active');
+        }
+
+        // ============ TOAST NOTIFICATION ============
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Copy code to clipboard with toast
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            const textToCopy = codeBlock.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('Copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy');
+            });
+        }
+
+        // ============ SEARCH FUNCTIONALITY ============
+        const searchData = [
+            { id: 'introduction', title: 'Introduction', category: 'Getting Started', keywords: 'lindtie aberrant transcripts cancer rna-seq long-read ont pacbio' },
+            { id: 'workflow', title: 'Pipeline Overview', category: 'Getting Started', keywords: 'workflow diagram assembly quantification differential expression annotation' },
+            { id: 'installation', title: 'Installation + Configuration', category: 'Getting Started', keywords: 'install setup nextflow docker singularity github clone config' },
+            { id: 'references', title: 'Setting Up References', category: 'Getting Started', keywords: 'zenodo download reference files hg38 chess' },
+            { id: 'running', title: 'Running LINDTIE', category: 'Usage', keywords: 'run execute pipeline params fastq cases controls slurm' },
+            { id: 'output', title: 'Output', category: 'Usage', keywords: 'results tsv output fields variants final' },
+            { id: 'resume', title: 'Resume Your Run', category: 'Usage', keywords: 'resume restart continue checkpoint' },
+            { id: 'testing', title: 'Testing LINDTIE', category: 'Usage', keywords: 'test testing validation' },
+            { id: 'examples', title: 'Examples of Use', category: 'Usage', keywords: 'examples tutorials use cases' },
+            { id: 'best-practices', title: 'Best Practices', category: 'Usage', keywords: 'best practices recommendations samples controls parameters' },
+            { id: 'tools', title: 'Full Tool List', category: 'Reference', keywords: 'tools rnabloom minimap2 samtools oarfish pandas' },
+            { id: 'glossary', title: 'Glossary', category: 'Reference', keywords: 'glossary terms definitions fdr logfc tpm vaf cigar' },
+            { id: 'benchmarking', title: 'Benchmarking', category: 'Reference', keywords: 'benchmark performance comparison runtime memory' },
+            { id: 'troubleshooting', title: 'Troubleshooting', category: 'Reference', keywords: 'troubleshoot problems issues errors help' },
+            { id: 'faq', title: 'FAQ', category: 'Reference', keywords: 'faq questions answers frequently asked' },
+            { id: 'changelog', title: 'Changelog', category: 'Reference', keywords: 'changelog version history updates releases' },
+            { id: 'citing', title: 'Citing LINDTIE', category: 'Reference', keywords: 'cite citation reference paper publication' }
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        function performSearch(query) {
+            if (!query.trim()) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            const lowerQuery = query.toLowerCase();
+            const results = searchData.filter(item =>
+                item.title.toLowerCase().includes(lowerQuery) ||
+                item.keywords.toLowerCase().includes(lowerQuery) ||
+                item.category.toLowerCase().includes(lowerQuery)
+            );
+
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+            } else {
+                searchResults.innerHTML = results.map(item => `
+                    <div class="search-result-item" onclick="goToSection('${item.id}')">
+                        <div class="search-result-title">${item.title}</div>
+                        <div class="search-result-category">${item.category}</div>
+                    </div>
+                `).join('');
+            }
+            searchResults.classList.add('active');
+        }
+
+        function goToSection(sectionId) {
+            showSection(sectionId);
+            history.pushState(null, null, '#' + sectionId);
+            searchResults.classList.remove('active');
+            searchInput.value = '';
+            searchInput.blur();
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim()) {
+                performSearch(searchInput.value);
+            }
+        });
+
+        // Press Enter to go to first search result
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstResult = searchResults.querySelector('.search-result-item');
+                if (firstResult) {
+                    firstResult.click();
+                }
+            }
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Keyboard shortcut: "/" to focus search
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            if (e.key === 'Escape') {
+                searchResults.classList.remove('active');
+                searchInput.blur();
+                // Also close mobile search
+                const mobileSearch = document.getElementById('mobileSearch');
+                if (mobileSearch) mobileSearch.classList.remove('active');
+            }
+        });
+
+        // Mobile search functionality
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const mobileSearchResults = document.getElementById('mobileSearchResults');
+
+        if (mobileSearchInput && mobileSearchResults) {
+            mobileSearchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                if (query.length < 2) {
+                    mobileSearchResults.innerHTML = '';
+                    return;
+                }
+
+                const results = [];
+                document.querySelectorAll('.section').forEach(section => {
+                    const sectionId = section.id;
+                    const headings = section.querySelectorAll('h1, h2, h3');
+                    headings.forEach(heading => {
+                        if (heading.textContent.toLowerCase().includes(query)) {
+                            results.push({
+                                title: heading.textContent,
+                                section: sectionId,
+                                type: heading.tagName
+                            });
+                        }
+                    });
+                });
+
+                if (results.length > 0) {
+                    mobileSearchResults.innerHTML = results.slice(0, 8).map(r =>
+                        `<div class="search-result-item" onclick="showSection('${r.section}'); document.getElementById('mobileSearch').classList.remove('active'); history.pushState(null, null, '#${r.section}');">
+                            <span class="search-result-title">${r.title}</span>
+                            <span class="search-result-section">${r.section}</span>
+                        </div>`
+                    ).join('');
+                } else {
+                    mobileSearchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+                }
+            });
+
+            mobileSearchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const firstResult = mobileSearchResults.querySelector('.search-result-item');
+                    if (firstResult) firstResult.click();
+                }
+            });
+        }
+
+        // ============ CODE BLOCK ENHANCEMENT WITH PRISM ============
+        function enhanceCodeBlocks() {
+            document.querySelectorAll('.code-block').forEach(block => {
+                const pre = block.querySelector('pre');
+                const code = block.querySelector('code');
+                const existingCopyBtn = block.querySelector('.copy-btn');
+
+                if (!code || block.dataset.enhanced) return;
+                block.dataset.enhanced = 'true';
+
+                // Get the code content
+                const codeText = code.textContent;
+                const lines = codeText.split('\n');
+
+                // Determine language from code content
+                let lang = 'bash';
+                let prismLang = 'bash';
+                const lowerCode = codeText.toLowerCase();
+
+                if (lowerCode.includes('process {') || lowerCode.includes('withlabel') || lowerCode.includes('executor =')) {
+                    lang = 'config';
+                    prismLang = 'javascript'; // Use JS highlighting for config
+                } else if (lowerCode.includes('import ') || lowerCode.includes('def ')) {
+                    lang = 'python';
+                    prismLang = 'python';
+                } else if (lowerCode.includes('#sbatch') || lowerCode.includes('#!/bin/bash')) {
+                    lang = 'bash';
+                    prismLang = 'bash';
+                } else if (lowerCode.includes('yaml') || lowerCode.includes(': true') || lowerCode.includes(': false')) {
+                    lang = 'yaml';
+                    prismLang = 'yaml';
+                }
+
+                // Add Prism language class
+                code.className = `language-${prismLang}`;
+                pre.className = `language-${prismLang}`;
+
+                // Add line numbers for longer code blocks
+                if (lines.length > 3 && lines.filter(l => l.trim()).length > 3) {
+                    pre.classList.add('line-numbers');
+                }
+
+                // Add header with language and copy button
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                header.innerHTML = `
+                    <span class="code-lang ${lang}">${lang}</span>
+                    <div class="code-actions">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                `;
+                block.insertBefore(header, pre);
+
+                // Remove old copy button if it exists
+                if (existingCopyBtn) existingCopyBtn.remove();
+            });
+
+            // Run Prism highlighting
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+        }
+
+        // Toggle dark/light theme
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize theme from localStorage (default to light)
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Initialize theme immediately
+        initTheme();
+
+        // Show a specific section (page-based navigation)
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show the target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                // Scroll to top of content area
+                document.querySelector('.main-content').scrollTop = 0;
+                window.scrollTo(0, 0);
+
+            }
+
+            // Update navigation highlighting
+            updateActiveNav(sectionId);
+
+            // Update table of contents
+            updateTOC(sectionId);
+        }
+
+        // Generate Table of Contents for current section
+        function updateTOC(sectionId) {
+            const tocList = document.getElementById('toc-list');
+            const currentSection = document.getElementById(sectionId);
+
+            if (!currentSection) return;
+
+            // Get all h2 and h3 headings in current section
+            const headings = currentSection.querySelectorAll('h2[id], h3[id]');
+
+            tocList.innerHTML = '';
+            headings.forEach(heading => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#' + heading.id;
+                a.textContent = heading.textContent;
+                if (heading.tagName === 'H3') {
+                    a.classList.add('toc-h3');
+                }
+                // TOC links scroll within the page, not navigate
+                a.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.getElementById(heading.id);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+        }
+
+        // Highlight active navigation link
+        function updateActiveNav(sectionId) {
+            const navLinks = document.querySelectorAll('.nav-links a');
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + sectionId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Handle navigation clicks (sidebar links)
+        document.querySelectorAll('.nav-links a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('href').substring(1);
+                showSection(sectionId);
+                history.pushState(null, null, '#' + sectionId);
+
+                // Close mobile sidebar, overlay, and reset hamburger
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('mobileOverlay').classList.remove('active');
+                document.getElementById('mobileMenuBtn').classList.remove('active');
+            });
+        });
+
+        // Handle "Next Steps" card clicks
+        document.querySelectorAll('.next-step-card[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('href').substring(1);
+                showSection(sectionId);
+                history.pushState(null, null, '#' + sectionId);
+            });
+        });
+
+        // ============ BACK TO TOP BUTTON ============
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide back to top button based on scroll position
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            const mainContent = document.querySelector('.main-content');
+
+            if (!backToTopBtn || !mainContent) return;
+
+            mainContent.addEventListener('scroll', () => {
+                if (mainContent.scrollTop > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+
+            // Also listen to window scroll for mobile
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else if (mainContent.scrollTop <= 300) {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Enhance all code blocks with line numbers and headers
+            enhanceCodeBlocks();
+
+            // Initialize back to top button
+            initBackToTop();
+
+            // Get section from URL hash, default to 'introduction'
+            const hash = window.location.hash.substring(1) || 'introduction';
+            showSection(hash);
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', () => {
+            const hash = window.location.hash.substring(1) || 'introduction';
+            showSection(hash);
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</body>
+</html>
