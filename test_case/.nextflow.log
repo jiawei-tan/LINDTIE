@@ -1,0 +1,224 @@
+Nov-21 11:49:32.853 [main] DEBUG nextflow.cli.Launcher - $> /stornext/System/data/software/rhel/9/base/tools/nextflow/25.04.2/nextflow-25.04.2 run /vast/scratch/users/tan.j/LINDTIE/main.nf -params-file /vast/scratch/users/tan.j/LINDTIE/params.yaml
+Nov-21 11:49:33.040 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 25.04.2
+Nov-21 11:49:33.075 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/users/allstaff/tan.j/.nextflow/plugins; core-plugins: nf-amazon@2.15.0,nf-azure@1.16.0,nf-cloudcache@0.4.3,nf-codecommit@0.2.3,nf-console@1.2.1,nf-google@1.21.0,nf-k8s@1.0.0,nf-tower@1.11.2,nf-wave@1.12.1
+Nov-21 11:49:33.109 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Nov-21 11:49:33.111 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Nov-21 11:49:33.115 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Nov-21 11:49:33.138 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Nov-21 11:49:33.180 [main] DEBUG nextflow.config.ConfigBuilder - Found config home: /home/users/allstaff/tan.j/.nextflow/config
+Nov-21 11:49:33.187 [main] DEBUG nextflow.config.ConfigBuilder - Found config base: /vast/scratch/users/tan.j/LINDTIE/nextflow.config
+Nov-21 11:49:33.194 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/users/allstaff/tan.j/.nextflow/config
+Nov-21 11:49:33.195 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /vast/scratch/users/tan.j/LINDTIE/nextflow.config
+Nov-21 11:49:33.271 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/users/allstaff/tan.j/.nextflow/secrets/store.json
+Nov-21 11:49:33.295 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@35e478f] - activable => nextflow.secret.LocalSecretsProvider@35e478f
+Nov-21 11:49:33.375 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Nov-21 11:49:34.181 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Nov-21 11:49:34.520 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declaration
+Nov-21 11:49:34.542 [main] DEBUG nextflow.cli.CmdRun - Launching `/vast/scratch/users/tan.j/LINDTIE/main.nf` [admiring_bartik] DSL2 - revision: 7285bde7c9
+Nov-21 11:49:34.545 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Nov-21 11:49:34.545 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Nov-21 11:49:34.624 [main] DEBUG nextflow.Session - Session UUID: 47ece324-020a-488a-833f-abe5d8c8614a
+Nov-21 11:49:34.625 [main] DEBUG nextflow.Session - Run name: admiring_bartik
+Nov-21 11:49:34.626 [main] DEBUG nextflow.Session - Executor pool size: 2
+Nov-21 11:49:34.637 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Nov-21 11:49:34.645 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=10; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Nov-21 11:49:34.677 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 25.04.2 build 5947
+  Created: 13-05-2025 21:58 UTC (14-05-2025 07:58 AEDT)
+  System: Linux 5.14.0-362.24.1.el9_3.x86_64
+  Runtime: Groovy 4.0.26 on OpenJDK 64-Bit Server VM 18.0.2+9-61
+  Encoding: UTF-8 (UTF-8)
+  Process: 1543832@il-n13.hpc.wehi.edu.au [10.11.3.188]
+  CPUs: 2 - Mem: 503 GB (99.8 GB) - Swap: 0 (0)
+Nov-21 11:49:34.729 [main] DEBUG nextflow.Session - Work-dir: /vast/scratch/users/tan.j/nextflow/work [nfs]
+Nov-21 11:49:34.730 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /vast/scratch/users/tan.j/LINDTIE/bin
+Nov-21 11:49:34.744 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Nov-21 11:49:34.757 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Nov-21 11:49:34.782 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Nov-21 11:49:34.821 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Nov-21 11:49:34.835 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 3; maxThreads: 1000
+Nov-21 11:49:34.981 [main] DEBUG nextflow.Session - Session start
+Nov-21 11:49:34.985 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: /vast/scratch/users/tan.j/LINDTIE/test_LINDTIE/runInfo/execution_trace_2025-11-21_11-49-34.txt
+Nov-21 11:49:36.000 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Nov-21 11:49:37.896 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name decompress_case_reads
+Nov-21 11:49:37.918 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:37.919 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:37.933 [main] DEBUG nextflow.executor.Executor - [warm up] executor > slurm
+Nov-21 11:49:37.943 [main] DEBUG n.processor.TaskPollingMonitor - Creating task monitor for executor 'slurm' > capacity: 100; pollInterval: 10s; dumpInterval: 5m 
+Nov-21 11:49:37.945 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: slurm)
+Nov-21 11:49:37.947 [main] DEBUG n.processor.TaskPollingMonitor - Creating submit rate limit of 10 submissions per 1 seconds
+Nov-21 11:49:37.951 [main] DEBUG n.executor.AbstractGridExecutor - Creating executor 'slurm' > queue-stat-interval: 10s
+Nov-21 11:49:37.981 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'decompress_case_reads': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.045 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name decompress_control_reads
+Nov-21 11:49:38.048 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.049 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.051 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'decompress_control_reads': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.062 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:long` matches labels `long` for process with name assembly
+Nov-21 11:49:38.066 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.066 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.067 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'assembly': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.103 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name merge_refTrans_assembly
+Nov-21 11:49:38.107 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.107 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.108 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'merge_refTrans_assembly': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.137 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:long` matches labels `long` for process with name case_align_quant
+Nov-21 11:49:38.142 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.143 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.144 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'case_align_quant': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.175 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:long` matches labels `long` for process with name control_align_quant
+Nov-21 11:49:38.179 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.179 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.180 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'control_align_quant': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.212 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name build_transcript_matrix
+Nov-21 11:49:38.214 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.214 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.215 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'build_transcript_matrix': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.273 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name compare_transcript_oarfish
+Nov-21 11:49:38.278 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.279 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.280 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'compare_transcript_oarfish': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.293 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name filter_de_contigs
+Nov-21 11:49:38.295 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.295 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.296 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'filter_de_contigs': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.313 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:long` matches labels `long` for process with name align_contigs_to_genome
+Nov-21 11:49:38.316 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.316 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.317 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'align_contigs_to_genome': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.343 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name annotate_contigs
+Nov-21 11:49:38.352 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.352 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.353 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'annotate_contigs': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.393 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name refine_annotation
+Nov-21 11:49:38.397 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.398 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.399 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'refine_annotation': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.412 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name filter_refined_annotated_contigs_fasta
+Nov-21 11:49:38.415 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.415 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.416 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'filter_refined_annotated_contigs_fasta': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.442 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name estimate_vaf
+Nov-21 11:49:38.444 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.445 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.446 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'estimate_vaf': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.487 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:short` matches labels `short` for process with name post_process
+Nov-21 11:49:38.491 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Nov-21 11:49:38.491 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Nov-21 11:49:38.492 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'post_process': maxForks=0; fair=false; array=0
+Nov-21 11:49:38.498 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: merge_refTrans_assembly, refine_annotation, case_align_quant, decompress_control_reads, decompress_case_reads, align_contigs_to_genome, annotate_contigs, post_process, build_transcript_matrix, estimate_vaf, control_align_quant, compare_transcript_oarfish, assembly, filter_de_contigs, filter_refined_annotated_contigs_fasta
+Nov-21 11:49:38.501 [main] DEBUG nextflow.Session - Igniting dataflow network (27)
+Nov-21 11:49:38.512 [PathVisitor-1] DEBUG nextflow.file.PathVisitor - files for syntax: glob; folder: ./cases/; pattern: *.{fasta,fasta.gz,fa,fa.gz,fastq,fastq.gz,fq,fq.gz}; options: [:]
+Nov-21 11:49:38.517 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > decompress_case_reads
+Nov-21 11:49:38.517 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > decompress_control_reads
+Nov-21 11:49:38.517 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > assembly
+Nov-21 11:49:38.518 [PathVisitor-2] DEBUG nextflow.file.PathVisitor - files for syntax: glob; folder: ./controls/; pattern: *.{fasta,fasta.gz,fa,fa.gz,fastq,fastq.gz,fq,fq.gz}; options: [:]
+Nov-21 11:49:38.522 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > merge_refTrans_assembly
+Nov-21 11:49:38.522 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > case_align_quant
+Nov-21 11:49:38.522 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > control_align_quant
+Nov-21 11:49:38.522 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > build_transcript_matrix
+Nov-21 11:49:38.535 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > compare_transcript_oarfish
+Nov-21 11:49:38.535 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > filter_de_contigs
+Nov-21 11:49:38.536 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > align_contigs_to_genome
+Nov-21 11:49:38.536 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > annotate_contigs
+Nov-21 11:49:38.537 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > refine_annotation
+Nov-21 11:49:38.537 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > filter_refined_annotated_contigs_fasta
+Nov-21 11:49:38.538 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > estimate_vaf
+Nov-21 11:49:38.538 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > post_process
+Nov-21 11:49:38.546 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_f1b02fb8ffcb4258: /vast/scratch/users/tan.j/LINDTIE/modules/quantification.nf
+  Script_dff95379a36f54de: /vast/scratch/users/tan.j/LINDTIE/main.nf
+  Script_40bdbe372fd5508e: /vast/scratch/users/tan.j/LINDTIE/modules/assembly.nf
+  Script_9922273ac828d820: /vast/scratch/users/tan.j/LINDTIE/modules/annotation.nf
+  Script_e7675ae4c45de944: /vast/scratch/users/tan.j/LINDTIE/modules/differentialExpression.nf
+  Script_944052acf642f4b8: /vast/scratch/users/tan.j/LINDTIE/modules/decompress.nf
+Nov-21 11:49:38.546 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Nov-21 11:49:38.546 [main] DEBUG nextflow.Session - Session await
+Nov-21 11:49:38.865 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process decompress_control_reads (test-control0) > jobId: 24409301; workDir: /vast/scratch/users/tan.j/nextflow/work/14/227bfe46b707d3281ccde211342a1a
+Nov-21 11:49:38.865 [Task submitter] INFO  nextflow.Session - [14/227bfe] Submitted process > decompress_control_reads (test-control0)
+Nov-21 11:49:38.915 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process decompress_case_reads (test-case) > jobId: 24409302; workDir: /vast/scratch/users/tan.j/nextflow/work/bb/ee20980f5fa2bf292dbc218d80fa65
+Nov-21 11:49:38.915 [Task submitter] INFO  nextflow.Session - [bb/ee2098] Submitted process > decompress_case_reads (test-case)
+Nov-21 11:49:38.955 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process decompress_control_reads (test-control1) > jobId: 24409303; workDir: /vast/scratch/users/tan.j/nextflow/work/8b/3f23c75c374e5160617fb4cc0239cd
+Nov-21 11:49:38.956 [Task submitter] INFO  nextflow.Session - [8b/3f23c7] Submitted process > decompress_control_reads (test-control1)
+Nov-21 11:49:47.965 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409301; id: 2; name: decompress_control_reads (test-control0); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/14/227bfe46b707d3281ccde211342a1a started: 1763686187957; exited: 2025-11-21T00:49:39.951224331Z; ]
+Nov-21 11:49:47.966 [Task monitor] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'TaskFinalizer' minSize=10; maxSize=10; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Nov-21 11:49:47.973 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409302; id: 1; name: decompress_case_reads (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/bb/ee20980f5fa2bf292dbc218d80fa65 started: 1763686187970; exited: 2025-11-21T00:49:39.810592502Z; ]
+Nov-21 11:49:47.980 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409303; id: 3; name: decompress_control_reads (test-control1); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/8b/3f23c75c374e5160617fb4cc0239cd started: 1763686187977; exited: 2025-11-21T00:49:39.878244369Z; ]
+Nov-21 11:49:48.126 [Actor Thread 6] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/rnabloom:2.0.1--1a308388e7330445; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-rnabloom-2.0.1--1a308388e7330445.img
+Nov-21 11:49:48.269 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process assembly (test-case) > jobId: 24409305; workDir: /vast/scratch/users/tan.j/nextflow/work/a1/b03f52edff560c7bd5e7799e00de40
+Nov-21 11:49:48.269 [Task submitter] INFO  nextflow.Session - [a1/b03f52] Submitted process > assembly (test-case)
+Nov-21 11:50:17.957 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409305; id: 4; name: assembly (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/a1/b03f52edff560c7bd5e7799e00de40 started: 1763686197956; exited: 2025-11-21T00:50:11.502986835Z; ]
+Nov-21 11:50:17.999 [TaskFinalizer-4] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'PublishDir' minSize=10; maxSize=10; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Nov-21 11:50:18.019 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process merge_refTrans_assembly (test-case) > jobId: 24409308; workDir: /vast/scratch/users/tan.j/nextflow/work/c6/2609ca7dc647da14a8def93dc62669
+Nov-21 11:50:18.020 [Task submitter] INFO  nextflow.Session - [c6/2609ca] Submitted process > merge_refTrans_assembly (test-case)
+Nov-21 11:50:27.959 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409308; id: 5; name: merge_refTrans_assembly (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/c6/2609ca7dc647da14a8def93dc62669 started: 1763686227956; exited: 2025-11-21T00:50:20.411654715Z; ]
+Nov-21 11:50:27.975 [Actor Thread 4] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/minimap2_oarfish_samtools:7a3485aa349f407d; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-minimap2_oarfish_samtools-7a3485aa349f407d.img
+Nov-21 11:50:27.981 [Actor Thread 4] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/minimap2_oarfish_qualimap_samtools:90c13d0a92fc925a; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-minimap2_oarfish_qualimap_samtools-90c13d0a92fc925a.img
+Nov-21 11:50:28.053 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process control_align_quant (test-case/test-control1) > jobId: 24409309; workDir: /vast/scratch/users/tan.j/nextflow/work/cb/31c6f1b9934847af1fa73dd7e29b94
+Nov-21 11:50:28.053 [Task submitter] INFO  nextflow.Session - [cb/31c6f1] Submitted process > control_align_quant (test-case/test-control1)
+Nov-21 11:50:28.090 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process control_align_quant (test-case/test-control0) > jobId: 24409310; workDir: /vast/scratch/users/tan.j/nextflow/work/a2/ecc6b885c399bb897e465babf21601
+Nov-21 11:50:28.091 [Task submitter] INFO  nextflow.Session - [a2/ecc6b8] Submitted process > control_align_quant (test-case/test-control0)
+Nov-21 11:50:28.174 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process case_align_quant (test-case) > jobId: 24409311; workDir: /vast/scratch/users/tan.j/nextflow/work/39/a214cd5f6f6f76f9e127a0aca784c5
+Nov-21 11:50:28.174 [Task submitter] INFO  nextflow.Session - [39/a214cd] Submitted process > case_align_quant (test-case)
+Nov-21 11:50:47.959 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409309; id: 6; name: control_align_quant (test-case/test-control1); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/cb/31c6f1b9934847af1fa73dd7e29b94 started: 1763686237957; exited: 2025-11-21T00:50:46.77942479Z; ]
+Nov-21 11:50:47.964 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409310; id: 7; name: control_align_quant (test-case/test-control0); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/a2/ecc6b885c399bb897e465babf21601 started: 1763686237970; exited: 2025-11-21T00:50:47.291493267Z; ]
+Nov-21 11:50:47.971 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409311; id: 8; name: case_align_quant (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/39/a214cd5f6f6f76f9e127a0aca784c5 started: 1763686237973; exited: 2025-11-21T00:50:46.749889125Z; ]
+Nov-21 11:50:48.024 [Actor Thread 3] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/pandas:2.3.0--ca05b8eafb33dbea; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-pandas-2.3.0--ca05b8eafb33dbea.img
+Nov-21 11:50:48.086 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process build_transcript_matrix (test-case) > jobId: 24409315; workDir: /vast/scratch/users/tan.j/nextflow/work/a3/41bc7462d59db8b696958270491ff4
+Nov-21 11:50:48.086 [Task submitter] INFO  nextflow.Session - [a3/41bc74] Submitted process > build_transcript_matrix (test-case)
+Nov-21 11:50:57.961 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409315; id: 9; name: build_transcript_matrix (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/a3/41bc7462d59db8b696958270491ff4 started: 1763686257958; exited: 2025-11-21T00:50:51.178304169Z; ]
+Nov-21 11:50:57.979 [Actor Thread 6] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/bioconductor-edger_r-arrow_r-data.table_r-dplyr_pruned:5cb8cbf534468a05; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-bioconductor-edger_r-arrow_r-data.table_r-dplyr_pruned-5cb8cbf534468a05.img
+Nov-21 11:50:58.114 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process compare_transcript_oarfish (test-case) > jobId: 24409316; workDir: /vast/scratch/users/tan.j/nextflow/work/01/ede99b1a24720826137f2676ef1de3
+Nov-21 11:50:58.114 [Task submitter] INFO  nextflow.Session - [01/ede99b] Submitted process > compare_transcript_oarfish (test-case)
+Nov-21 11:51:07.960 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409316; id: 10; name: compare_transcript_oarfish (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/01/ede99b1a24720826137f2676ef1de3 started: 1763686267957; exited: 2025-11-21T00:51:04.115856554Z; ]
+Nov-21 11:51:07.964 [TaskFinalizer-10] DEBUG nextflow.processor.TaskProcessor - Process `compare_transcript_oarfish (test-case)` is unable to find [UnixPath]: `/vast/scratch/users/tan.j/nextflow/work/01/ede99b1a24720826137f2676ef1de3/DE_transcript_full_results.txt ` (pattern: `DE_transcript_full_results.txt `)
+Nov-21 11:51:08.061 [TaskFinalizer-10] DEBUG nextflow.processor.TaskProcessor - Process compare_transcript_oarfish > Skipping output binding because one or more optional files are missing: fileoutparam<2:1>
+Nov-21 11:51:08.070 [Actor Thread 7] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/bio_pandas:7fb76c90a9b5a085; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-bio_pandas-7fb76c90a9b5a085.img
+Nov-21 11:51:08.140 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process filter_de_contigs (test-case) > jobId: 24409318; workDir: /vast/scratch/users/tan.j/nextflow/work/47/a81c9045b40103fd7819e193b71c36
+Nov-21 11:51:08.141 [Task submitter] INFO  nextflow.Session - [47/a81c90] Submitted process > filter_de_contigs (test-case)
+Nov-21 11:51:17.961 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409318; id: 11; name: filter_de_contigs (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/47/a81c9045b40103fd7819e193b71c36 started: 1763686277958; exited: 2025-11-21T00:51:12.940398696Z; ]
+Nov-21 11:51:17.978 [Actor Thread 1] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/minimap2_samtools:e98addfcfd60e8e7; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-minimap2_samtools-e98addfcfd60e8e7.img
+Nov-21 11:51:18.030 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process align_contigs_to_genome (test-case) > jobId: 24409319; workDir: /vast/scratch/users/tan.j/nextflow/work/62/2466b9efd339d4c36bea68b0090753
+Nov-21 11:51:18.030 [Task submitter] INFO  nextflow.Session - [62/2466b9] Submitted process > align_contigs_to_genome (test-case)
+Nov-21 11:52:57.959 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409319; id: 12; name: align_contigs_to_genome (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/62/2466b9efd339d4c36bea68b0090753 started: 1763686287957; exited: 2025-11-21T00:52:55.100457169Z; ]
+Nov-21 11:52:57.976 [Actor Thread 10] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/pysam_intervaltree_numpy_pandas:af06dba6fd8ba217; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-pysam_intervaltree_numpy_pandas-af06dba6fd8ba217.img
+Nov-21 11:52:58.065 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process annotate_contigs (test-case) > jobId: 24409325; workDir: /vast/scratch/users/tan.j/nextflow/work/61/776e7e61280bfb9d08b3bc1edfa093
+Nov-21 11:52:58.065 [Task submitter] INFO  nextflow.Session - [61/776e7e] Submitted process > annotate_contigs (test-case)
+Nov-21 11:53:37.960 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409325; id: 13; name: annotate_contigs (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/61/776e7e61280bfb9d08b3bc1edfa093 started: 1763686387957; exited: 2025-11-21T00:53:36.701919478Z; ]
+Nov-21 11:53:37.984 [Actor Thread 10] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/bio_pybedtools_pysam_samtools_pruned:704dfffe82e57426; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-bio_pybedtools_pysam_samtools_pruned-704dfffe82e57426.img
+Nov-21 11:53:38.056 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process filter_refined_annotated_contigs_fasta (test-case) > jobId: 24409328; workDir: /vast/scratch/users/tan.j/nextflow/work/fd/73d782ae9b7ac5fb209a8cf2a43d95
+Nov-21 11:53:38.056 [Task submitter] INFO  nextflow.Session - [fd/73d782] Submitted process > filter_refined_annotated_contigs_fasta (test-case)
+Nov-21 11:53:38.097 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process refine_annotation (test-case) > jobId: 24409329; workDir: /vast/scratch/users/tan.j/nextflow/work/00/4d7da659abdc08618dd5a21c8a4380
+Nov-21 11:53:38.097 [Task submitter] INFO  nextflow.Session - [00/4d7da6] Submitted process > refine_annotation (test-case)
+Nov-21 11:53:47.962 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409328; id: 14; name: filter_refined_annotated_contigs_fasta (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/fd/73d782ae9b7ac5fb209a8cf2a43d95 started: 1763686427959; exited: 2025-11-21T00:53:40.440823035Z; ]
+Nov-21 11:54:27.959 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409329; id: 15; name: refine_annotation (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/00/4d7da659abdc08618dd5a21c8a4380 started: 1763686427964; exited: 2025-11-21T00:54:27.896105634Z; ]
+Nov-21 11:54:27.985 [Actor Thread 9] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/bioconductor-tximport_r-data.table_r-dplyr:e41e296cf4f11db2; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-bioconductor-tximport_r-data.table_r-dplyr-e41e296cf4f11db2.img
+Nov-21 11:54:28.056 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process estimate_vaf (test-case) > jobId: 24409330; workDir: /vast/scratch/users/tan.j/nextflow/work/90/4c0b163bbc7e3c860937266bca8417
+Nov-21 11:54:28.056 [Task submitter] INFO  nextflow.Session - [90/4c0b16] Submitted process > estimate_vaf (test-case)
+Nov-21 11:54:47.958 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor slurm > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[jobId: 24409330; id: 16; name: estimate_vaf (test-case); status: RUNNING; exit: -; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/90/4c0b163bbc7e3c860937266bca8417 started: 1763686477958; exited: -; ]
+Nov-21 11:54:57.962 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409330; id: 16; name: estimate_vaf (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/90/4c0b163bbc7e3c860937266bca8417 started: 1763686477958; exited: 2025-11-21T00:54:51.349305652Z; ]
+Nov-21 11:54:57.977 [Actor Thread 13] DEBUG nextflow.container.SingularityCache - Singularity found local store for image=oras://community.wave.seqera.io/library/bio_pybedtools_pysam_intervaltree_pruned:b44948a3d69b5ec0; path=/vast/scratch/users/tan.j/nextflow/singularity_cache/community.wave.seqera.io-library-bio_pybedtools_pysam_intervaltree_pruned-b44948a3d69b5ec0.img
+Nov-21 11:54:58.063 [Task submitter] DEBUG nextflow.executor.GridTaskHandler - [SLURM] submitted process post_process (test-case) > jobId: 24409334; workDir: /vast/scratch/users/tan.j/nextflow/work/75/0ac4303be60f08277eba9a2f7031b3
+Nov-21 11:54:58.063 [Task submitter] INFO  nextflow.Session - [75/0ac430] Submitted process > post_process (test-case)
+Nov-21 11:55:07.964 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[jobId: 24409334; id: 17; name: post_process (test-case); status: COMPLETED; exit: 0; error: -; workDir: /vast/scratch/users/tan.j/nextflow/work/75/0ac4303be60f08277eba9a2f7031b3 started: 1763686507961; exited: 2025-11-21T00:55:02.512916821Z; ]
+Nov-21 11:55:07.967 [TaskFinalizer-7] DEBUG nextflow.processor.TaskProcessor - Process `post_process (test-case)` is unable to find [UnixPath]: `/vast/scratch/users/tan.j/nextflow/work/75/0ac4303be60f08277eba9a2f7031b3/test-case_discarded_results.tsv` (pattern: `test-case_discarded_results.tsv`)
+Nov-21 11:55:07.969 [TaskFinalizer-7] DEBUG nextflow.processor.TaskProcessor - Process post_process > Skipping output binding because one or more optional files are missing: fileoutparam<2:1>
+Nov-21 11:55:07.976 [main] DEBUG nextflow.Session - Session await > all processes finished
+Nov-21 11:55:17.960 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: slurm) - terminating tasks monitor poll loop
+Nov-21 11:55:17.961 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Nov-21 11:55:17.965 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'TaskFinalizer' shutdown completed (hard=false)
+Nov-21 11:55:17.966 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'PublishDir' shutdown completed (hard=false)
+Nov-21 11:55:17.968 [main] INFO  nextflow.Nextflow - Copying execution reports to sample output directories...
+Nov-21 11:55:17.970 [main] INFO  nextflow.Nextflow - Base directory: /vast/scratch/users/tan.j/LINDTIE/test_LINDTIE
+Nov-21 11:55:17.982 [main] INFO  nextflow.Nextflow - Found 1 sample output directory(ies): test-case_output
+Nov-21 11:55:17.988 [main] WARN  nextflow.Nextflow -   Report file not found: runInfo/execution_timeline_2025-11-21_11-49-34.html
+Nov-21 11:55:17.988 [main] WARN  nextflow.Nextflow -   Report file not found: runInfo/execution_report_2025-11-21_11-49-34.html
+Nov-21 11:55:17.999 [main] INFO  nextflow.Nextflow -   Copied runInfo/execution_trace_2025-11-21_11-49-34.txt to test-case_output/runInfo/test-case_execution_trace_2025-11-21_11-49-34.txt
+Nov-21 11:55:17.999 [main] INFO  nextflow.Nextflow - Execution reports successfully copied to all sample output directories
+Nov-21 11:55:18.004 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=17; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=2h 11m 42s; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=3; peakCpus=144; peakMemory=1.2 TB; ]
+Nov-21 11:55:18.005 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow completed -- saving trace file
+Nov-21 11:55:18.006 [main] DEBUG nextflow.trace.ReportObserver - Workflow completed -- rendering execution report
+Nov-21 11:55:18.752 [main] DEBUG nextflow.trace.TimelineObserver - Workflow completed -- rendering execution timeline
+Nov-21 11:55:18.893 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Nov-21 11:55:19.169 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Nov-21 11:55:19.170 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
