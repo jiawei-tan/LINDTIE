@@ -179,23 +179,10 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-dark));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            color: #ffffff;
-        }
-
         .logo-text {
             font-size: 20px;
             font-weight: 700;
-            color: var(--text-primary);
+            color: #b8860b;
         }
 
         .version-badge {
@@ -353,6 +340,8 @@
             padding-bottom: 8px;
             border-bottom: 2px solid var(--primary-gold);
             display: inline-block;
+            /* Add this line */
+            scroll-margin-top: 80px;
         }
 
         h3 {
@@ -361,6 +350,8 @@
             margin-top: 24px;
             margin-bottom: 12px;
             color: var(--primary-gold-light);
+            /* Add this line */
+            scroll-margin-top: 80px;
         }
 
         /* Paragraphs */
@@ -743,7 +734,10 @@
             }
 
             .header-logo-icon {
-                margin-right: 0;
+                width: 32px;         /* Standard size for the header */
+                height: 32px;
+                object-fit: contain; /* Ensures the logo fits without stretching */
+                border-radius: 6px;  /* Optional: keeps corners slightly rounded */
             }
 
             .main-content {
@@ -1325,7 +1319,7 @@
             gap: 10px;
             font-weight: 700;
             font-size: 18px;
-            color: var(--text-primary);
+            color: #b8860b;
         }
 
         .header-logo-icon {
@@ -1457,22 +1451,7 @@
     <header class="top-header">
         <div class="header-left">
             <div class="header-logo">
-                <div class="header-logo-icon">
-                    <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- DNA double helix representing genomics -->
-                        <path d="M12 6C12 6 16 12 24 12C32 12 36 6 36 6" stroke="white" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M12 18C12 18 16 24 24 24C32 24 36 18 36 18" stroke="white" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M12 30C12 30 16 36 24 36C32 36 36 30 36 30" stroke="white" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M12 42C12 42 16 36 24 36C32 36 36 42 36 42" stroke="white" stroke-width="3" stroke-linecap="round"/>
-                        <!-- Vertical strands -->
-                        <line x1="12" y1="6" x2="12" y2="42" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="36" y1="6" x2="36" y2="42" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                        <!-- Connection nodes representing linkage -->
-                        <circle cx="24" cy="12" r="3" fill="white"/>
-                        <circle cx="24" cy="24" r="3" fill="white"/>
-                        <circle cx="24" cy="36" r="3" fill="white"/>
-                    </svg>
-                </div>
+                <img src="figure/LINDTIE-logo.png" alt="LINDTIE Logo" class="header-logo-icon">
                 <span>LINDTIE</span>
             </div>
             <span class="header-badge">Documentation</span>
@@ -2353,8 +2332,9 @@ var_filter: NULL            # default NULL (e.g. "DEL,INS")</code></pre>
                     <tr>
                         <td>7</td>
                         <td>variant_type</td>
-                        <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
+                        <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules" onclick="event.preventDefault(); document.getElementById('classification-rules').scrollIntoView({behavior: 'smooth'});">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
                     </tr>
+
                     <tr>
                         <td>8</td>
                         <td>other_variant_type</td>
@@ -2791,174 +2771,179 @@ var_filter: NULL            # default NULL (e.g. "DEL,INS")</code></pre>
 
         <!-- classification diagram -->
         <div class="figure">
-            <img src="/home/users/allstaff/tan.j/LINDTIE/docs/figure/classification-diagram.png" alt="LINDTIE Classification Rules and Filtering Logic">
+            <img src="figure/classification-diagram.png" alt="LINDTIE Classification Rules and Filtering Logic">
             <!-- <div class="figure-caption">Figure 1: LINDTIE Classification Rules and Filtering Logic</div> -->
         </div>
 
         <h2 id="variant-criteria">LINDTIE's Variant-Specific Criteria</h2>
 
         <p>The following are the variant-specific criteria used by LINDTIE to classify the variants:</p>
-        <table class="params-table">
-            <thead>
-                <tr>
-                    <th>Variant Type</th>
-                    <th>Full name</th>
-                    <th>Category</th>
-                    <th>Clipping</th>
-                    <th>Spliced Contig<sup>1</sup></th>
-                    <th>Variant Size</th>
-                    <th>Overlaps Gene</th>
-                    <th>Overlaps Exon</th>
-                    <th>Spliced Exon<sup>2</sup></th>
-                    <th>Valid Motif<sup>3</sup></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>FUS</strong></td>
-                    <td><strong>Fusion</strong></td>
-                    <td>Fusion</td>
-                    <td>hard/soft</td>
-                    <td>-</td>
-                    <td>&gt;min_clip</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>IGR</strong></td>
-                    <td><strong>Intra-Genic Rearrangement</strong></td>
-                    <td>Fusion</td>
-                    <td>hard/soft</td>
-                    <td>-</td>
-                    <td>&gt;min_clip</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>UN</strong></td>
-                    <td><strong>Unknown</strong></td>
-                    <td>Unknown</td>
-                    <td>soft</td>
-                    <td>-</td>
-                    <td>&gt;min_clip</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>INS</strong></td>
-                    <td><strong>Insertion</strong></td>
-                    <td>TSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_gap</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>DEL</strong></td>
-                    <td><strong>Deletion</strong></td>
-                    <td>TSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_gap</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>RI</strong></td>
-                    <td><strong>Retained Intron</strong></td>
-                    <td>NSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_clip</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>EE</strong></td>
-                    <td><strong>Extended Exon</strong></td>
-                    <td>NSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_clip</td>
-                    <td>✅️</td>
-                    <td>❌</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                </tr>
-                <tr>
-                    <td><strong>NE</strong></td>
-                    <td><strong>Novel Exon</strong></td>
-                    <td>NSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_clip</td>
-                    <td>❌</td>
-                    <td>❌</td>
-                    <td>✅️</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><strong>NEJ</strong></td>
-                    <td><strong>Novel Exon Junction</strong></td>
-                    <td>NSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_gap</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                    <td>✅️</td>
-                </tr>
-                <tr>
-                    <td><strong>PNJ</strong></td>
-                    <td><strong>Partial Novel Junction</strong></td>
-                    <td>NSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_gap</td>
-                    <td>✅️</td>
-                    <td>✅️</td>                    
-                    <td>✅️</td>
-                    <td>✅️</td>
-                </tr>
+        
+        
+        <div style="overflow-x: auto;">
+            <table class="params-table">
+                <thead>
+                    <tr>
+                        <th>Variant Type</th>
+                        <th>Full name</th>
+                        <th>Category</th>
+                        <th>Clipping</th>
+                        <th>Spliced Contig<sup>1</sup></th>
+                        <th>Variant Size</th>
+                        <th>Overlaps Gene</th>
+                        <th>Overlaps Exon</th>
+                        <th>Spliced Exon<sup>2</sup></th>
+                        <th>Valid Motif<sup>3</sup></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FUS</strong></td>
+                        <td><strong>Fusion</strong></td>
+                        <td>Fusion</td>
+                        <td>hard/soft</td>
+                        <td>-</td>
+                        <td>&gt;min_clip</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IGR</strong></td>
+                        <td><strong>Intra-Genic Rearrangement</strong></td>
+                        <td>Fusion</td>
+                        <td>hard/soft</td>
+                        <td>-</td>
+                        <td>&gt;min_clip</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UN</strong></td>
+                        <td><strong>Unknown</strong></td>
+                        <td>Unknown</td>
+                        <td>soft</td>
+                        <td>-</td>
+                        <td>&gt;min_clip</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>INS</strong></td>
+                        <td><strong>Insertion</strong></td>
+                        <td>TSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_gap</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DEL</strong></td>
+                        <td><strong>Deletion</strong></td>
+                        <td>TSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_gap</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RI</strong></td>
+                        <td><strong>Retained Intron</strong></td>
+                        <td>NSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_clip</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EE</strong></td>
+                        <td><strong>Extended Exon</strong></td>
+                        <td>NSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_clip</td>
+                        <td>✅️</td>
+                        <td>❌</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NE</strong></td>
+                        <td><strong>Novel Exon</strong></td>
+                        <td>NSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_clip</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>✅️</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NEJ</strong></td>
+                        <td><strong>Novel Exon Junction</strong></td>
+                        <td>NSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_gap</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                        <td>✅️</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PNJ</strong></td>
+                        <td><strong>Partial Novel Junction</strong></td>
+                        <td>NSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_gap</td>
+                        <td>✅️</td>
+                        <td>✅️</td>                    
+                        <td>✅️</td>
+                        <td>✅️</td>
+                    </tr>
 
-                <tr>
-                    <td><strong>AS</strong></td>
-                    <td><strong>Alternative Splicing</strong></td>
-                    <td>NSV</td>
-                    <td>-</td>
-                    <td>✅️</td>
-                    <td>&gt;min_gap</td>
-                    <td>✅️</td>
-                    <td>✅️</td>                    
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
+                    <tr>
+                        <td><strong>AS</strong></td>
+                        <td><strong>Alternative Splicing</strong></td>
+                        <td>NSV</td>
+                        <td>-</td>
+                        <td>✅️</td>
+                        <td>&gt;min_gap</td>
+                        <td>✅️</td>
+                        <td>✅️</td>                    
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
                 </table>
+        </div>
 
                 <p><strong>[1] Spliced Contig:</strong> Any alignment containing a splice (≥1 gap)</p>
                 <p><strong>[2] Spliced Exon:</strong> EE/NE variants that have adjacent supporting junctions, and for selected junction variants themselves.</p>
                 <p><strong>[3] Valid Motif:</strong> True when the 2-bp splice motifs at the relevant boundaries match canonical GT-AG (or CT-AC on the opposite strand) within the allowed mismatch tolerance</p>
+        
 
             <h2 id="scoring-system">LINDTIE’s Scoring System</h2>
 
             <p>LINDTIE's scoring system is based on the following criteria:</p>
             <!-- classification diagram -->
             <div class="figure">
-                <img src="/home/users/allstaff/tan.j/LINDTIE/docs/figure/scoring-diagram.png" alt="LINDTIE Scoring System">
+                <img src="figure/scoring-diagram.png" alt="LINDTIE Scoring System">
                 <!-- <div class="figure-caption">Figure 2: LINDTIE Scoring System</div> -->
             </div>
 
