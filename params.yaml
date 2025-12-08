@@ -1,0 +1,24 @@
+# Parameters for the workflow
+RUN_DE: true                # true or false
+platform: 'ONT'             # 'ONT' or 'PacBio'
+fdr: 0.05                   # default 0.05
+min_cpm: 0.5                # default 0.5
+min_logfc: 2                # default 2
+min_clip: 20                # default 20
+min_gap: 7                  # default 7
+min_match: '30,0.3'         # default '30,0.3'
+splice_motif_mismatch: 1    # default 1
+oarfish_num_bootstraps: 10  # default 10
+gene_filter: NULL           # default NULL (e.g. "TP53,BRCA2")
+var_filter: NULL            # default NULL (e.g. "DEL,INS")
+
+# Paths to the input files (note: ${projectDir} refers to the directory containing main.nf)
+code_base: "${projectDir}/modules/code_base"
+cases_fastq_dir: './cases'
+controls_fastq_dir: './controls'
+trans_fasta: "${projectDir}/ref/chess3.0.fa"
+tx_annotation: "${projectDir}/ref/chess3.0.gtf"
+ann_info: "${projectDir}/ref/chess3.0.info"
+tx2gene: "${projectDir}/ref/tx2gene.txt"
+hg38_fasta: "${projectDir}/ref/hg38.fa"
+hg38_splice_junctions: "${projectDir}/ref/hg38_splice_junctions.bed"
