@@ -2067,103 +2067,105 @@ nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile
                 <h2 id="parameters">Fine Tuning Parameters</h2>
                 <p>Adjust these parameters based on your sample characteristics and analysis requirements. Parameters marked with ⭐ are commonly modified.</p>
             
-                <table class="params-table">
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            <th>Description</th>
-                            <th>Default</th>
-                            <th>Options/Format</th>
-                            <th>Category</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>⭐ <code>platform</code></td>
-                            <td>Sequencing platform</td>
-                            <td><code>ONT</code></td>
-                            <td><code>ONT</code> or <code>PacBio</code></td>
-                            <td><span class="category-badge">Platform</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>RUN_DE</code></td>
-                            <td>Perform differential expression</td>
-                            <td><code>true</code></td>
-                            <td><code>true</code> or <code>false</code></td>
-                            <td><span class="category-badge">DE Analysis</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>fdr</code></td>
-                            <td>FDR significance threshold</td>
-                            <td><code>0.05</code></td>
-                            <td>numeric (e.g., <code>0.05</code>)</td>
-                            <td><span class="category-badge">DE Analysis</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>min_cpm</code></td>
-                            <td>Minimum CPM threshold</td>
-                            <td><code>0.5</code></td>
-                            <td>numeric (e.g., <code>0.5</code>)</td>
-                            <td><span class="category-badge">DE Analysis</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>min_logfc</code></td>
-                            <td>Minimum log fold change</td>
-                            <td><code>2</code></td>
-                            <td>numeric (e.g., <code>2</code>)</td>
-                            <td><span class="category-badge">DE Analysis</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>min_clip</code></td>
-                            <td>Minimum clipped sequence length</td>
-                            <td><code>20</code></td>
-                            <td>integer (e.g., <code>20</code>)</td>
-                            <td><span class="category-badge">Detection</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>min_gap</code></td>
-                            <td>Minimum gap size for events</td>
-                            <td><code>7</code></td>
-                            <td>integer (e.g., <code>7</code>)</td>
-                            <td><span class="category-badge">Detection</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>min_match</code></td>
-                            <td>Minimum matching sequence</td>
-                            <td><code>30,0.3</code></td>
-                            <td>string (e.g., <code>"30,0.3"</code>)</td>
-                            <td><span class="category-badge">Detection</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>splice_motif_mismatch</code></td>
-                            <td>Allowed splice motif mismatches</td>
-                            <td><code>1</code></td>
-                            <td>integer (e.g., <code>1</code>)</td>
-                            <td><span class="category-badge">Detection</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>oarfish_num_bootstraps</code></td>
-                            <td>Bootstrap iterations</td>
-                            <td><code>10</code></td>
-                            <td>integer (e.g., <code>10</code>)</td>
-                            <td><span class="category-badge">Quantification</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>gene_filter</code></td>
-                            <td>Specific genes to include</td>
-                            <td><code>NULL</code></td>
-                            <td>comma-separated or <code>NULL</code> (e.g., <code>"TP53,BRCA2"</code>)</td>
-                            <td><span class="category-badge">Filtering</span></td>
-                        </tr>
-                        <tr>
-                            <td><code>var_filter</code></td>
-                            <td>Variant types to include</td>
-                            <td><code>NULL</code></td>
-                            <td>comma-separated or <code>NULL</code> (e.g., <code>"DEL,INS"</code>)</td>
-                            <td><span class="category-badge">Filtering</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div style="overflow-x: auto;">
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Description</th>
+                                <th>Default</th>
+                                <th>Options/Format</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>⭐ <code>platform</code></td>
+                                <td>Sequencing platform</td>
+                                <td><code>ONT</code></td>
+                                <td><code>ONT</code> or <code>PacBio</code></td>
+                                <td><span class="category-badge">Platform</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>RUN_DE</code></td>
+                                <td>Perform differential expression</td>
+                                <td><code>true</code></td>
+                                <td><code>true</code> or <code>false</code></td>
+                                <td><span class="category-badge">DE Analysis</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>fdr</code></td>
+                                <td>FDR significance threshold</td>
+                                <td><code>0.05</code></td>
+                                <td>numeric (e.g., <code>0.05</code>)</td>
+                                <td><span class="category-badge">DE Analysis</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>min_cpm</code></td>
+                                <td>Minimum CPM threshold</td>
+                                <td><code>0.5</code></td>
+                                <td>numeric (e.g., <code>0.5</code>)</td>
+                                <td><span class="category-badge">DE Analysis</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>min_logfc</code></td>
+                                <td>Minimum log fold change</td>
+                                <td><code>2</code></td>
+                                <td>numeric (e.g., <code>2</code>)</td>
+                                <td><span class="category-badge">DE Analysis</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>min_clip</code></td>
+                                <td>Minimum clipped sequence length</td>
+                                <td><code>20</code></td>
+                                <td>integer (e.g., <code>20</code>)</td>
+                                <td><span class="category-badge">Detection</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>min_gap</code></td>
+                                <td>Minimum gap size for events</td>
+                                <td><code>7</code></td>
+                                <td>integer (e.g., <code>7</code>)</td>
+                                <td><span class="category-badge">Detection</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>min_match</code></td>
+                                <td>Minimum matching sequence</td>
+                                <td><code>30,0.3</code></td>
+                                <td>string (e.g., <code>"30,0.3"</code>)</td>
+                                <td><span class="category-badge">Detection</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>splice_motif_mismatch</code></td>
+                                <td>Allowed splice motif mismatches</td>
+                                <td><code>1</code></td>
+                                <td>integer (e.g., <code>1</code>)</td>
+                                <td><span class="category-badge">Detection</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>oarfish_num_bootstraps</code></td>
+                                <td>Bootstrap iterations</td>
+                                <td><code>10</code></td>
+                                <td>integer (e.g., <code>10</code>)</td>
+                                <td><span class="category-badge">Quantification</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>gene_filter</code></td>
+                                <td>Specific genes to include</td>
+                                <td><code>NULL</code></td>
+                                <td>comma-separated or <code>NULL</code> (e.g., <code>"TP53,BRCA2"</code>)</td>
+                                <td><span class="category-badge">Filtering</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>var_filter</code></td>
+                                <td>Variant types to include</td>
+                                <td><code>NULL</code></td>
+                                <td>comma-separated or <code>NULL</code> (e.g., <code>"DEL,INS"</code>)</td>
+                                <td><span class="category-badge">Filtering</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <h3>Configuration Methods</h3>
                 
@@ -2290,244 +2292,248 @@ var_filter: NULL            # default NULL (e.g. "DEL,INS")</code></pre>
 
             <h4>Output File Column Descriptions</h4>
 
-            <table class="params-table">
-                <thead>
-                    <tr>
-                        <th>Column #</th>
-                        <th>Column name</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>chr1</td>
-                        <td>Chromosome for end 1 of the variant.</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>pos1</td>
-                        <td>Genomic position for end 1 of the variant.</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>strand1</td>
-                        <td>Strand (+/–) for end 1 of the variant.</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>chr2</td>
-                        <td>Chromosome for end 2 of the variant.</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>pos2</td>
-                        <td>Genomic position for end 2 of the variant.</td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>strand2</td>
-                        <td>Strand (+/–) for end 2 of the variant.</td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td>variant_type</td>
-                        <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules" onclick="event.preventDefault(); document.getElementById('classification-rules').scrollIntoView({behavior: 'smooth'});">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
-                    </tr>
+            <div style="overflow-x: auto;">
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Column #</th>
+                            <th>Column name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>chr1</td>
+                            <td>Chromosome for end 1 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>pos1</td>
+                            <td>Genomic position for end 1 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>strand1</td>
+                            <td>Strand (+/–) for end 1 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>chr2</td>
+                            <td>Chromosome for end 2 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>pos2</td>
+                            <td>Genomic position for end 2 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>strand2</td>
+                            <td>Strand (+/–) for end 2 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>variant_type</td>
+                            <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules" onclick="event.preventDefault(); document.getElementById('classification-rules').scrollIntoView({behavior: 'smooth'});">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
+                        </tr>
 
-                    <tr>
-                        <td>8</td>
-                        <td>other_variant_type</td>
-                        <td>Consolidated variant annotations for the contig. Multiple types are separated by "|"</td>
-                    </tr>
-                    <tr>
-                        <td>9</td>
-                        <td>overlapping_genes</td>
-                        <td>Genes overlapped by the contig. If separated by colons (":"), each gene corresponds to a different soft/hard-clipped segment.</td>
-                    </tr>
-                    <tr>
-                        <td>10</td>
-                        <td>sample</td>
-                        <td>Sample to which this variant belongs.</td>
-                    </tr>
-                    <tr>
-                        <td>11</td>
-                        <td>variant_id</td>
-                        <td>Assigned variant ID (matches the VCF file).</td>
-                    </tr>
-                    <tr>
-                        <td>12</td>
-                        <td>partner_id</td>
-                        <td>For fusions or junctions with two breakpoints, this identifies the paired variant.</td>
-                    </tr>
-                    <tr>
-                        <td>13</td>
-                        <td>vars_in_contig</td>
-                        <td>Number of variants detected on the aligned contig.</td>
-                    </tr>
-                    <tr>
-                        <td>14</td>
-                        <td>varsize</td>
-                        <td>Size of the variant on the reference genome.</td>
-                    </tr>
-                    <tr>
-                        <td>15</td>
-                        <td>contig_varsize</td>
-                        <td>Size of the variant on the contig sequence.</td>
-                    </tr>
-                    <tr>
-                        <td>16</td>
-                        <td>cpos</td>
-                        <td>Position of the variant on the contig (independent of alignment direction).</td>
-                    </tr>
-                    <tr>
-                        <td>17</td>
-                        <td>TPM</td>
-                        <td>Length-corrected transcript-per-million estimate for the variant contig.</td>
-                    </tr>
-                    <tr>
-                        <td>18</td>
-                        <td>mean_WT_TPM</td>
-                        <td>Mean length-corrected TPM of all wild-type genes associated with this transcript.</td>
-                    </tr>
-                    <tr>
-                        <td>19</td>
-                        <td>VAF</td>
-                        <td>Approximate variant allele frequency estimate.</td>
-                    </tr>
-                    <tr>
-                        <td>20</td>
-                        <td>logFC</td>
-                        <td>Maximum log fold change of associated transcript(s) in the case sample vs. controls.</td>
-                    </tr>
-                    <tr>
-                        <td>21</td>
-                        <td>FDR</td>
-                        <td>Adjusted (multiple-testing corrected) p-value.</td>
-                    </tr>
-                    <tr>
-                        <td>22</td>
-                        <td>PValue</td>
-                        <td>Minimum p-value for transcripts associated with this variant vs. controls.</td>
-                    </tr>
-                    <tr>
-                        <td>23</td>
-                        <td>num_reads_case</td>
-                        <td>Total read counts for all transcripts associated with the contig in the case sample.</td>
-                    </tr>
-                    <tr>
-                        <td>24</td>
-                        <td>total_num_reads_controls</td>
-                        <td>Total read counts for all associated transcripts across control samples.</td>
-                    </tr>
-                    <tr>
-                        <td>25</td>
-                        <td>large_varsize</td>
-                        <td>Indicates whether the variant size exceeds the <em>min_clip</em> threshold (default: 30 bp).</td>
-                    </tr>
-                    <tr>
-                        <td>26</td>
-                        <td>is_contig_spliced</td>
-                        <td>Indicates whether the contig is spliced (i.e., contains alignment gaps).</td>
-                    </tr>
-                    <tr>
-                        <td>27</td>
-                        <td>spliced_exon</td>
-                        <td>Indicates a novel or extended exon variant with a corresponding junction.</td>
-                    </tr>
-                    <tr>
-                        <td>28</td>
-                        <td>overlaps_exon</td>
-                        <td>Indicates whether the variant overlaps any annotated reference exon.</td>
-                    </tr>
-                    <tr>
-                        <td>29</td>
-                        <td>overlaps_gene</td>
-                        <td>Indicates whether the variant overlaps any annotated reference gene.</td>
-                    </tr>
-                    <tr>
-                        <td>30</td>
-                        <td>motif</td>
-                        <td>Splice motif sequence.</td>
-                    </tr>
-                    <tr>
-                        <td>31</td>
-                        <td>valid_motif</td>
-                        <td>Indicates whether the variant contains a valid splice motif. Some variant types (e.g., TSVs or splice events at known boundaries) are not tested.</td>
-                    </tr>
-                    <tr>
-                        <td>32</td>
-                        <td>contig_id</td>
-                        <td>Contig name from the de novo assembly.</td>
-                    </tr>
-                    <tr>
-                        <td>33</td>
-                        <td>unique_contig_ID</td>
-                        <td>ID of the modified SuperTranscript used in visualization outputs.</td>
-                    </tr>
-                    <tr>
-                        <td>34</td>
-                        <td>contig_len</td>
-                        <td>Length of the contig sequence.</td>
-                    </tr>
-                    <tr>
-                        <td>35</td>
-                        <td>contig_cigar</td>
-                        <td>CIGAR string representing the contig's genome alignment (may contain two strings if soft/hard-clipped).</td>
-                    </tr>
-                    <tr>
-                        <td>36</td>
-                        <td>seq_loc1</td>
-                        <td>Location string for the first sequence region (e.g., contig123:100–140).</td>
-                    </tr>
-                    <tr>
-                        <td>37</td>
-                        <td>seq_loc2</td>
-                        <td>Location string for the second sequence region, if applicable.</td>
-                    </tr>
-                    <tr>
-                        <td>38</td>
-                        <td>seq1</td>
-                        <td>20 bp sequence around the main variant site.</td>
-                    </tr>
-                    <tr>
-                        <td>39</td>
-                        <td>seq2</td>
-                        <td>20 bp sequence around the second variant site (if applicable).</td>
-                    </tr>
-                </tbody>
-            </table>
+                        <tr>
+                            <td>8</td>
+                            <td>other_variant_type</td>
+                            <td>Consolidated variant annotations for the contig. Multiple types are separated by "|"</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>overlapping_genes</td>
+                            <td>Genes overlapped by the contig. If separated by colons (":"), each gene corresponds to a different soft/hard-clipped segment.</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>sample</td>
+                            <td>Sample to which this variant belongs.</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>variant_id</td>
+                            <td>Assigned variant ID (matches the VCF file).</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>partner_id</td>
+                            <td>For fusions or junctions with two breakpoints, this identifies the paired variant.</td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td>vars_in_contig</td>
+                            <td>Number of variants detected on the aligned contig.</td>
+                        </tr>
+                        <tr>
+                            <td>14</td>
+                            <td>varsize</td>
+                            <td>Size of the variant on the reference genome.</td>
+                        </tr>
+                        <tr>
+                            <td>15</td>
+                            <td>contig_varsize</td>
+                            <td>Size of the variant on the contig sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>16</td>
+                            <td>cpos</td>
+                            <td>Position of the variant on the contig (independent of alignment direction).</td>
+                        </tr>
+                        <tr>
+                            <td>17</td>
+                            <td>TPM</td>
+                            <td>Length-corrected transcript-per-million estimate for the variant contig.</td>
+                        </tr>
+                        <tr>
+                            <td>18</td>
+                            <td>mean_WT_TPM</td>
+                            <td>Mean length-corrected TPM of all wild-type genes associated with this transcript.</td>
+                        </tr>
+                        <tr>
+                            <td>19</td>
+                            <td>VAF</td>
+                            <td>Approximate variant allele frequency estimate.</td>
+                        </tr>
+                        <tr>
+                            <td>20</td>
+                            <td>logFC</td>
+                            <td>Maximum log fold change of associated transcript(s) in the case sample vs. controls.</td>
+                        </tr>
+                        <tr>
+                            <td>21</td>
+                            <td>FDR</td>
+                            <td>Adjusted (multiple-testing corrected) p-value.</td>
+                        </tr>
+                        <tr>
+                            <td>22</td>
+                            <td>PValue</td>
+                            <td>Minimum p-value for transcripts associated with this variant vs. controls.</td>
+                        </tr>
+                        <tr>
+                            <td>23</td>
+                            <td>num_reads_case</td>
+                            <td>Total read counts for all transcripts associated with the contig in the case sample.</td>
+                        </tr>
+                        <tr>
+                            <td>24</td>
+                            <td>total_num_reads_controls</td>
+                            <td>Total read counts for all associated transcripts across control samples.</td>
+                        </tr>
+                        <tr>
+                            <td>25</td>
+                            <td>large_varsize</td>
+                            <td>Indicates whether the variant size exceeds the <em>min_clip</em> threshold (default: 30 bp).</td>
+                        </tr>
+                        <tr>
+                            <td>26</td>
+                            <td>is_contig_spliced</td>
+                            <td>Indicates whether the contig is spliced (i.e., contains alignment gaps).</td>
+                        </tr>
+                        <tr>
+                            <td>27</td>
+                            <td>spliced_exon</td>
+                            <td>Indicates a novel or extended exon variant with a corresponding junction.</td>
+                        </tr>
+                        <tr>
+                            <td>28</td>
+                            <td>overlaps_exon</td>
+                            <td>Indicates whether the variant overlaps any annotated reference exon.</td>
+                        </tr>
+                        <tr>
+                            <td>29</td>
+                            <td>overlaps_gene</td>
+                            <td>Indicates whether the variant overlaps any annotated reference gene.</td>
+                        </tr>
+                        <tr>
+                            <td>30</td>
+                            <td>motif</td>
+                            <td>Splice motif sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>31</td>
+                            <td>valid_motif</td>
+                            <td>Indicates whether the variant contains a valid splice motif. Some variant types (e.g., TSVs or splice events at known boundaries) are not tested.</td>
+                        </tr>
+                        <tr>
+                            <td>32</td>
+                            <td>contig_id</td>
+                            <td>Contig name from the de novo assembly.</td>
+                        </tr>
+                        <tr>
+                            <td>33</td>
+                            <td>unique_contig_ID</td>
+                            <td>ID of the modified SuperTranscript used in visualization outputs.</td>
+                        </tr>
+                        <tr>
+                            <td>34</td>
+                            <td>contig_len</td>
+                            <td>Length of the contig sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>35</td>
+                            <td>contig_cigar</td>
+                            <td>CIGAR string representing the contig's genome alignment (may contain two strings if soft/hard-clipped).</td>
+                        </tr>
+                        <tr>
+                            <td>36</td>
+                            <td>seq_loc1</td>
+                            <td>Location string for the first sequence region (e.g., contig123:100–140).</td>
+                        </tr>
+                        <tr>
+                            <td>37</td>
+                            <td>seq_loc2</td>
+                            <td>Location string for the second sequence region, if applicable.</td>
+                        </tr>
+                        <tr>
+                            <td>38</td>
+                            <td>seq1</td>
+                            <td>20 bp sequence around the main variant site.</td>
+                        </tr>
+                        <tr>
+                            <td>39</td>
+                            <td>seq2</td>
+                            <td>20 bp sequence around the second variant site (if applicable).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <h3 id="all-variants-ranked">&lt;caseName&gt;_all_variants_ranked_results.tsv</h3>
         
             <p>This file is an expanded version of the <code>&lt;caseName&gt;_results.tsv</code> file. This table lists <strong>all</strong> variant annotations individually, without collapsing (i.e., a contig may appear in multiple rows if it has multiple annotations). It includes all columns present in <code>&lt;caseName&gt;_results.tsv</code>, plus <strong>three additional columns</strong>:</p>
 
-            <table class="params-table">
-                <thead>
-                    <tr>
-                        <th>Column #</th>
-                        <th>Column name</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>40</td>
-                        <td>variant_score</td>
-                        <td>Score used for variant prioritization (from the new scoring system).</td>
-                    </tr>
-                    <tr>
-                        <td>41</td>
-                        <td>rank_within_contig</td>
-                        <td>Rank of each annotation for a given contig based on its score; <strong>1 = highest-scoring annotation</strong>.</td>
-                    </tr>
-                    <tr>
-                        <td>42</td>
-                        <td>is_primary</td>
-                        <td>Indicates whether this annotation was selected as the <em>primary</em> variant for that contig (i.e., the entry included in <code>&lt;caseName&gt;_results.tsv</code>).</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Column #</th>
+                            <th>Column name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>40</td>
+                            <td>variant_score</td>
+                            <td>Score used for variant prioritization (from the new scoring system).</td>
+                        </tr>
+                        <tr>
+                            <td>41</td>
+                            <td>rank_within_contig</td>
+                            <td>Rank of each annotation for a given contig based on its score; <strong>1 = highest-scoring annotation</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>42</td>
+                            <td>is_primary</td>
+                            <td>Indicates whether this annotation was selected as the <em>primary</em> variant for that contig (i.e., the entry included in <code>&lt;caseName&gt;_results.tsv</code>).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             
             <div class="info-box info">
                 <div class="info-box-title">Note</div>
@@ -2630,84 +2636,86 @@ var_filter: NULL            # default NULL (e.g. "DEL,INS")</code></pre>
 
             <p>The following are the variant types identified and classified by LINDTIE:</p>
 
-            <table class="params-table">
-                <thead>
-                    <tr>
-                        <th>Variant Type</th>
-                        <th>Full Name</th>
-                        <th>Description</th>
-                        <th>Condition</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>FUS</td>
-                        <td>Fusion</td>
-                        <td>Inter-chromosomal or distant intra-chromosomal rearrangement</td>
-                        <td>When two reads from the same contig map to different genomic locations with clipping events</td>
-                    </tr>
-                    <tr>
-                        <td>IGR</td>
-                        <td>Intra-Genic Rearrangement</td>
-                        <td>Rearrangement within the same gene</td>
-                        <td>When both parts of a fusion occur within the same gene(s)</td>
-                    </tr>
-                    <tr>
-                        <td>UN</td>
-                        <td>Unknown</td>
-                        <td>Soft-clipped sequence of unknown origin</td>
-                        <td>When soft-clipped sequence is present but not part of a fusion event</td>
-                    </tr>
-                    <tr>
-                        <td>INS</td>
-                        <td>Insertion</td>
-                        <td>Sequence inserted relative to the reference</td>
-                        <td>When CIGAR contains an insertion operation with size ≥ MIN_GAP</td>
-                    </tr>
-                    <tr>
-                        <td>DEL</td>
-                        <td>Deletion</td>
-                        <td>Sequence deleted relative to the reference</td>
-                        <td>When CIGAR contains a deletion operation with size ≥ MIN_GAP</td>
-                    </tr>
-                    <tr>
-                        <td>EE</td>
-                        <td>Extended Exon</td>
-                        <td>Extension of known exonic sequence</td>
-                        <td>When a novel block extends beyond existing exon boundaries (either left or right side)</td>
-                    </tr>
-                    <tr>
-                        <td>NE</td>
-                        <td>Novel Exon</td>
-                        <td>Completely novel exonic sequence</td>
-                        <td>When a novel block doesn't overlap any known exonic regions</td>
-                    </tr>
-                    <tr>
-                        <td>RI</td>
-                        <td>Retained Intron</td>
-                        <td>Intronic sequence retained in the transcript</td>
-                        <td>When a novel block spans between two exons (has both left and right exonic boundaries)</td>
-                    </tr>
-                    <tr>
-                        <td>AS</td>
-                        <td>Alternative Splicing</td>
-                        <td>Alternative splicing event using known splice sites</td>
-                        <td>When both ends of a junction match known splice sites but the combination is novel</td>
-                    </tr>
-                    <tr>
-                        <td>NEJ</td>
-                        <td>Novel Exon Junction</td>
-                        <td>Completely novel splice junction</td>
-                        <td>When neither end of a novel junction matches known splice sites</td>
-                    </tr>
-                    <tr>
-                        <td>PNJ</td>
-                        <td>Partial Novel Junction</td>
-                        <td>Junction with one known and one novel splice site</td>
-                        <td>When only one end of a novel junction matches known splice sites</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Variant Type</th>
+                            <th>Full Name</th>
+                            <th>Description</th>
+                            <th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FUS</td>
+                            <td>Fusion</td>
+                            <td>Inter-chromosomal or distant intra-chromosomal rearrangement</td>
+                            <td>When two reads from the same contig map to different genomic locations with clipping events</td>
+                        </tr>
+                        <tr>
+                            <td>IGR</td>
+                            <td>Intra-Genic Rearrangement</td>
+                            <td>Rearrangement within the same gene</td>
+                            <td>When both parts of a fusion occur within the same gene(s)</td>
+                        </tr>
+                        <tr>
+                            <td>UN</td>
+                            <td>Unknown</td>
+                            <td>Soft-clipped sequence of unknown origin</td>
+                            <td>When soft-clipped sequence is present but not part of a fusion event</td>
+                        </tr>
+                        <tr>
+                            <td>INS</td>
+                            <td>Insertion</td>
+                            <td>Sequence inserted relative to the reference</td>
+                            <td>When CIGAR contains an insertion operation with size ≥ MIN_GAP</td>
+                        </tr>
+                        <tr>
+                            <td>DEL</td>
+                            <td>Deletion</td>
+                            <td>Sequence deleted relative to the reference</td>
+                            <td>When CIGAR contains a deletion operation with size ≥ MIN_GAP</td>
+                        </tr>
+                        <tr>
+                            <td>EE</td>
+                            <td>Extended Exon</td>
+                            <td>Extension of known exonic sequence</td>
+                            <td>When a novel block extends beyond existing exon boundaries (either left or right side)</td>
+                        </tr>
+                        <tr>
+                            <td>NE</td>
+                            <td>Novel Exon</td>
+                            <td>Completely novel exonic sequence</td>
+                            <td>When a novel block doesn't overlap any known exonic regions</td>
+                        </tr>
+                        <tr>
+                            <td>RI</td>
+                            <td>Retained Intron</td>
+                            <td>Intronic sequence retained in the transcript</td>
+                            <td>When a novel block spans between two exons (has both left and right exonic boundaries)</td>
+                        </tr>
+                        <tr>
+                            <td>AS</td>
+                            <td>Alternative Splicing</td>
+                            <td>Alternative splicing event using known splice sites</td>
+                            <td>When both ends of a junction match known splice sites but the combination is novel</td>
+                        </tr>
+                        <tr>
+                            <td>NEJ</td>
+                            <td>Novel Exon Junction</td>
+                            <td>Completely novel splice junction</td>
+                            <td>When neither end of a novel junction matches known splice sites</td>
+                        </tr>
+                        <tr>
+                            <td>PNJ</td>
+                            <td>Partial Novel Junction</td>
+                            <td>Junction with one known and one novel splice site</td>
+                            <td>When only one end of a novel junction matches known splice sites</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- style for the figure placeholder -->
             <style>
@@ -3033,64 +3041,66 @@ cases/*.fastq.gz controls/*.fastq.gz</code></pre>
 
                 <p>The table below summarizes the number of variants detected for each variant type in the test case:</p>
 
-                <table class="params-table">
-                    <thead>
-                        <tr>
-                            <th>Variant Type</th>
-                            <th>Count</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>AS</td>
-                            <td>4</td>
-                        </tr>
-                        <tr>    
-                            <td>DEL</td>
-                            <td>5</td>
-                        </tr>
-                        <tr>
-                            <td>EE</td>
-                            <td>4</td>
-                        </tr>
-                        <tr>
-                            <td>FUS</td>
-                            <td>21</td>
-                        </tr>
-                        <tr>
-                            <td>IGR</td>
-                            <td>1</td>
-                        </tr>
-                        <tr>
-                            <td>INS</td>
-                            <td>11</td>
-                        </tr>
-                        <tr>
-                            <td>NE</td>
-                            <td>4</td>
-                        </tr>
-                        <tr>
-                            <td>NEJ</td>
-                            <td>4</td>
-                        </tr>
-                        <tr>
-                            <td>PNJ</td>
-                            <td>2</td>
-                        </tr>
-                        <tr>
-                            <td>RI</td>
-                            <td>4</td>
-                        </tr>
-                        <tr>
-                            <td>UN</td>
-                            <td>5</td>
-                        </tr>
-                        <tr>
-                            <td><strong>TOTAL</strong></td>
-                            <td><strong>65</strong></td>
-                        </tr>
-                    </tbody>
-                </table>                
+                <div style="overflow-x: auto;">
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Variant Type</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AS</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>    
+                                <td>DEL</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>EE</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <td>FUS</td>
+                                <td>21</td>
+                            </tr>
+                            <tr>
+                                <td>IGR</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>INS</td>
+                                <td>11</td>
+                            </tr>
+                            <tr>
+                                <td>NE</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <td>NEJ</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <td>PNJ</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>RI</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <td>UN</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TOTAL</strong></td>
+                                <td><strong>65</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>    
+                </div>
 
                 <div class="info-box info">
                     <div class="info-box-title">Note</div>
@@ -3736,11 +3746,23 @@ conda-forge::r-arrow=19.0.1</code></pre>
 
                 <h3 id="v0.1.0-tools">Tool Versions</h3>
                 <ul>
-                    <li>RNA-Bloom: 2.0.1</li>
+                    <li>RNA-Bloom2: 2.0.1</li>
                     <li>minimap2: 2.30</li>
                     <li>samtools: 1.22</li>
                     <li>Oarfish: 0.8.1</li>
                     <li>pandas: 2.3.0</li>
+                    <li>bio: 1.8.0</li>
+                    <li>pysam: 0.23.3</li>
+                    <li>pybedtools: 0.12.0</li>
+                    <li>edgeR: 4.4.0</li>
+                    <li>tximport: 1.34.0</li>
+                    <li>numpy: 2.3.0</li>
+                    <li>intervaltree: 3.1.0</li>
+                    <li>dplyr: 1.1.4</li>
+                    <li>data.table: 1.17.6</li>
+                    <li>jsonlite: 2.0.0</li>
+                    <li>readr: 2.1.5</li>
+                    <li>arrow: 19.0.1</li>
                 </ul>
 
                 <div class="info-box info">
