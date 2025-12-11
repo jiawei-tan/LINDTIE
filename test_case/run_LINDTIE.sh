@@ -9,8 +9,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=your-email@example.com
-#SBATCH --output=script_output/%x.out
-#SBATCH --error=script_output/%x.err
+#SBATCH --output=script_output/%x_%J.out
+#SBATCH --error=script_output/%x_%J.err
 
 module load nextflow/25.04.2 singularity/4.1.5
 
