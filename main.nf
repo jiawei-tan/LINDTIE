@@ -28,6 +28,7 @@ params.min_match = "30,0.3"
 params.splice_motif_mismatch = 1
 params.oarfish_num_bootstraps = 10
 params.help = false
+params.version = false
 
 if (params.help) {
     log.info """
@@ -59,7 +60,13 @@ Optional parameters (set via "--params" at runtime or edit the params.yaml file)
 --gene_filter               : List of genes to filter (default: NULL)
 --var_filter                : List of variant types to filter (default: NULL)
 --help                      : Show this help message
+--version                   : Show the version of LINDTIE
     """
+    exit 0
+}
+
+if (params.version) {
+    log.info "LINDTIE v0.1.0"
     exit 0
 }
 
