@@ -42,28 +42,22 @@ Example usage:
     nextflow run LINDTIE/main.nf \\
     -params-file LINDTIE/params.yaml \\
     -profile singularity \\
-    --fdr 0.05 \\    
-    --min_cpm 0.1 \\
-    --min_logfc 2 \\
-    --min_clip 20 \\
-    --min_gap 7 \\
-    --min_match "30,0.3" \\
-    --splice_motif_mismatch 1 \\
-    --oarfish_num_bootstraps 10 \\
-    --gene_filter "TP53,BRCA2" \\
-    --var_filter "DEL,INS"
+    --platform "PacBio" \\
+    --gene_filter "TP53,BRCA2"
 
 Optional parameters (set via "--params" at runtime or edit the params.yaml file):
---fdr                       : FDR threshold (e.g. 0.05)
---min_cpm                   : Minimum CPM (e.g. 0.1)
---min_logfc                 : Minimum logFC (e.g. 2)
---min_clip                  : Minimum clip length (e.g. 20)
---min_gap                   : Minimum gap (e.g. 7)
---min_match                 : Minimum match (e.g. "30,0.3")
---splice_motif_mismatch     : Splice motif mismatch (e.g. 1)
---oarfish_num_bootstraps    : Number of bootstraps for Oarfish (e.g. 10)
---gene_filter               : List of genes to filter (e.g. "TP53,BRCA2")
---var_filter                : List of variant types to filter (e.g. "DEL,INS")
+--RUN_DE                    : Run differential expression analysis (Option: true/false, default: true)
+--platform                  : Platform (Option: "ONT"/ "PacBio", default: "ONT")
+--fdr                       : False discovery rate (FDR) threshold (default: 0.05)
+--min_cpm                   : Minimum counts per million (CPM) (default: 0.1)
+--min_logfc                 : Minimum log fold change (default: 2)
+--min_clip                  : Minimum clip length (default: 20)
+--min_gap                   : Minimum gap (default: 7)
+--min_match                 : Minimum match (default: "30,0.3")
+--splice_motif_mismatch     : Maximum number of splice motif mismatches (default: 1)
+--oarfish_num_bootstraps    : Number of bootstraps for Oarfish (default: 10)
+--gene_filter               : List of genes to filter (default: NULL)
+--var_filter                : List of variant types to filter (default: NULL)
 --help                      : Show this help message
     """
     exit 0
