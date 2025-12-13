@@ -903,6 +903,34 @@
             color: var(--text-muted);
         }
 
+        .search-result-snippet {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .search-result-snippet strong {
+            color: var(--primary-gold-dark);
+            background: rgba(184, 134, 11, 0.15); /* Highlight color */
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+
+        /* Search Highlight Style */
+        mark.search-highlight {
+            background-color: rgba(255, 215, 0, 0.5); /* Golden yellow */
+            color: inherit;
+            padding: 0;
+            border-bottom: 2px solid var(--primary-gold);
+            border-radius: 2px;
+        }
+
         /* ============ TOAST NOTIFICATION ============ */
         .toast {
             position: fixed;
@@ -3938,151 +3966,238 @@ conda-forge::r-arrow=19.0.1</code></pre>
             });
         }
 
-        // ============ SEARCH FUNCTIONALITY ============
-        const searchData = [
-            { id: 'introduction', title: 'Introduction', category: 'Getting Started', keywords: 'lindtie aberrant transcripts cancer rna-seq long-read ont pacbio' },
-            { id: 'workflow', title: 'Pipeline Overview', category: 'Getting Started', keywords: 'workflow diagram assembly quantification differential expression annotation' },
-            { id: 'installation', title: 'Installation + Configuration', category: 'Getting Started', keywords: 'install setup nextflow docker singularity github clone config' },
-            { id: 'references', title: 'Setting Up References', category: 'Getting Started', keywords: 'zenodo download reference files hg38 chess' },
-            { id: 'running', title: 'Running LINDTIE', category: 'Usage', keywords: 'run execute pipeline params fastq cases controls slurm' },
-            { id: 'output', title: 'Output', category: 'Usage', keywords: 'results tsv output fields variants final' },
-            { id: 'resume', title: 'Resume Your Run', category: 'Usage', keywords: 'resume restart continue checkpoint' },
-            { id: 'testing', title: 'Testing LINDTIE', category: 'Usage', keywords: 'test testing validation' },
-            { id: 'examples', title: 'Examples of Use', category: 'Usage', keywords: 'examples tutorials use cases' },
-            { id: 'best-practices', title: 'Best Practices', category: 'Usage', keywords: 'best practices recommendations samples controls parameters' },
-            { id: 'tools', title: 'Full Tool List', category: 'Reference', keywords: 'tools rnabloom minimap2 samtools oarfish pandas' },
-            { id: 'glossary', title: 'Glossary', category: 'Reference', keywords: 'glossary terms definitions fdr logfc tpm vaf cigar' },
-            { id: 'benchmarking', title: 'Benchmarking', category: 'Reference', keywords: 'benchmark performance comparison runtime memory' },
-            { id: 'troubleshooting', title: 'Troubleshooting', category: 'Reference', keywords: 'troubleshoot problems issues errors help' },
-            { id: 'faq', title: 'FAQ', category: 'Reference', keywords: 'faq questions answers frequently asked' },
-            { id: 'changelog', title: 'Changelog', category: 'Reference', keywords: 'changelog version history updates releases' },
-            { id: 'citing', title: 'Citing LINDTIE', category: 'Reference', keywords: 'cite citation reference paper publication' }
-        ];
+        // ============ DYNAMIC SEARCH FUNCTIONALITY ============
+        let searchIndex = [];
 
+        // 1. Build the index when the page loads
+        function buildSearchIndex() {
+            searchIndex = []; // Reset
+            
+            // Map section IDs to their Sidebar Categories
+            const categoryMap = {};
+            document.querySelectorAll('.nav-category').forEach(cat => {
+                const catTitle = cat.querySelector('.nav-category-title')?.innerText || 'General';
+                cat.querySelectorAll('.nav-links a').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        categoryMap[href.substring(1)] = catTitle;
+                    }
+                });
+            });
+
+            // Scan every section for text content
+            document.querySelectorAll('.section').forEach(section => {
+                const id = section.id;
+                // Get the main heading, or fallback to the ID
+                const title = section.querySelector('h1')?.innerText || id;
+                // Get all text, collapsing multiple spaces into one
+                const content = section.innerText.replace(/\s+/g, ' ');
+                
+                searchIndex.push({
+                    id: id,
+                    title: title,
+                    category: categoryMap[id] || 'Reference',
+                    content: content
+                });
+            });
+        }
+        
+        // Helper: Safely highlight text without breaking HTML structure
+        function highlightText(sectionId, term) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            // 1. Clean up previous highlights in this section
+            const oldMarks = section.querySelectorAll('mark.search-highlight');
+            oldMarks.forEach(mark => {
+                const parent = mark.parentNode;
+                parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                parent.normalize(); // Merge adjacent text nodes
+            });
+
+            if (!term) return;
+
+            // 2. Highlight new term
+            const walk = document.createTreeWalker(section, NodeFilter.SHOW_TEXT, null, false);
+            const nodes = [];
+            while (walk.nextNode()) nodes.push(walk.currentNode);
+
+            nodes.forEach(node => {
+                // Skip if inside a script or style tag
+                if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(node.parentNode.tagName)) return;
+                
+                const text = node.nodeValue;
+                const index = text.toLowerCase().indexOf(term);
+
+                if (index >= 0) {
+                    const span = document.createElement('span');
+                    // Split text: before, match, after
+                    const before = text.substring(0, index);
+                    const match = text.substring(index, index + term.length);
+                    const after = text.substring(index + term.length);
+
+                    // Create the highlight element
+                    const mark = document.createElement('mark');
+                    mark.className = 'search-highlight';
+                    mark.textContent = match;
+
+                    // Rebuild the node structure
+                    const afterNode = document.createTextNode(after);
+                    node.nodeValue = before;
+                    node.parentNode.insertBefore(mark, node.nextSibling);
+                    node.parentNode.insertBefore(afterNode, mark.nextSibling);
+                }
+            });
+        }
+
+        function goToSection(sectionId, highlightTerm = null) {
+            showSection(sectionId);
+            history.pushState(null, null, '#' + sectionId);
+            
+            // Clear search UI
+            const searchResults = document.getElementById('searchResults');
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearch = document.getElementById('mobileSearch');
+            
+            if(searchResults) searchResults.classList.remove('active');
+            if(mobileSearch) mobileSearch.classList.remove('active');
+            
+            // Apply Highlighting if a term exists
+            if (highlightTerm) {
+                // Wait briefly for the section to become visible
+                setTimeout(() => {
+                    highlightText(sectionId, highlightTerm);
+                    
+                    // Optional: Scroll specifically to the first highlighted word
+                    const firstMark = document.querySelector(`#${sectionId} mark.search-highlight`);
+                    if (firstMark) {
+                        firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 10);
+            }
+
+            if(searchInput) {
+                searchInput.value = '';
+                searchInput.blur();
+            }
+        }
+
+        // Initialize index immediately
+        buildSearchIndex();
+
+        // 2. Search Logic with Snippets
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
         function performSearch(query) {
-            if (!query.trim()) {
-                searchResults.classList.remove('active');
+            const resultsContainer = searchResults; // Use the main container
+            
+            if (!query || query.trim().length < 2) {
+                resultsContainer.classList.remove('active');
                 return;
             }
 
-            const lowerQuery = query.toLowerCase();
-            const results = searchData.filter(item =>
-                item.title.toLowerCase().includes(lowerQuery) ||
-                item.keywords.toLowerCase().includes(lowerQuery) ||
-                item.category.toLowerCase().includes(lowerQuery)
+            const lowerQuery = query.toLowerCase().trim();
+            
+            // Filter the index
+            const results = searchIndex.filter(item => 
+                item.title.toLowerCase().includes(lowerQuery) || 
+                item.content.toLowerCase().includes(lowerQuery)
             );
 
             if (results.length === 0) {
-                searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+                resultsContainer.innerHTML = '<div class="search-no-results">No results found</div>';
             } else {
-                searchResults.innerHTML = results.map(item => `
-                    <div class="search-result-item" onclick="goToSection('${item.id}')">
-                        <div class="search-result-title">${item.title}</div>
-                        <div class="search-result-category">${item.category}</div>
-                    </div>
-                `).join('');
+                // Generate HTML for results
+                resultsContainer.innerHTML = results.map(item => {
+                    const snippet = getSnippet(item.content, lowerQuery);
+                    return `
+                        <div class="search-result-item" onclick="goToSection('${item.id}', '${lowerQuery.replace(/'/g, "\\'")}')")">
+                            <div class="search-result-title">${item.title}</div>
+                            <div class="search-result-category">${item.category}</div>
+                            <div class="search-result-snippet">${snippet}</div>
+                        </div>
+                    `;
+                }).join('');
             }
-            searchResults.classList.add('active');
+            
+            resultsContainer.classList.add('active');
         }
 
-        function goToSection(sectionId) {
-            showSection(sectionId);
-            history.pushState(null, null, '#' + sectionId);
-            searchResults.classList.remove('active');
-            searchInput.value = '';
-            searchInput.blur();
+        // 3. Helper to create the text snippet
+        function getSnippet(text, query) {
+            const index = text.toLowerCase().indexOf(query);
+            if (index === -1) return text.substring(0, 100) + '...'; // Fallback if matched in title only
+
+            // Grab 60 characters before and after the match
+            const start = Math.max(0, index - 60);
+            const end = Math.min(text.length, index + query.length + 60);
+            
+            let snippet = text.substring(start, end);
+            
+            // Add ellipses
+            if (start > 0) snippet = '...' + snippet;
+            if (end < text.length) snippet = snippet + '...';
+
+            // Highlight the term using regex (case-insensitive)
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return snippet.replace(regex, '<strong>$1</strong>');
         }
 
-        searchInput.addEventListener('input', (e) => {
-            performSearch(e.target.value);
-        });
+        // 4. Event Listeners (Desktop)
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+            
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+            });
 
-        searchInput.addEventListener('focus', () => {
-            if (searchInput.value.trim()) {
-                performSearch(searchInput.value);
-            }
-        });
-
-        // Press Enter to go to first search result
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const firstResult = searchResults.querySelector('.search-result-item');
-                if (firstResult) {
-                    firstResult.click();
+            // Press Enter to go to first result
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const firstResult = searchResults.querySelector('.search-result-item');
+                    if (firstResult) firstResult.click();
                 }
-            }
-        });
+            });
+        }
 
-        // Close search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-container')) {
-                searchResults.classList.remove('active');
-            }
-        });
-
-        // Keyboard shortcut: "/" to focus search
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '/' && document.activeElement !== searchInput) {
-                e.preventDefault();
-                searchInput.focus();
-            }
-            if (e.key === 'Escape') {
-                searchResults.classList.remove('active');
-                searchInput.blur();
-                // Also close mobile search
-                const mobileSearch = document.getElementById('mobileSearch');
-                if (mobileSearch) mobileSearch.classList.remove('active');
-            }
-        });
-
-        // Mobile search functionality
+        // Mobile search functionality reuse
         const mobileSearchInput = document.getElementById('mobileSearchInput');
         const mobileSearchResults = document.getElementById('mobileSearchResults');
 
         if (mobileSearchInput && mobileSearchResults) {
             mobileSearchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
+                // Temporarily point the global results container to mobile
+                // (A simple way to reuse the logic without rewriting it)
+                const originalContainer = searchResults; 
+                
+                // We manually run the logic but render into mobile container
+                const query = e.target.value;
+                const lowerQuery = query.toLowerCase().trim();
+                
                 if (query.length < 2) {
                     mobileSearchResults.innerHTML = '';
                     return;
                 }
 
-                const results = [];
-                document.querySelectorAll('.section').forEach(section => {
-                    const sectionId = section.id;
-                    const headings = section.querySelectorAll('h1, h2, h3');
-                    headings.forEach(heading => {
-                        if (heading.textContent.toLowerCase().includes(query)) {
-                            results.push({
-                                title: heading.textContent,
-                                section: sectionId,
-                                type: heading.tagName
-                            });
-                        }
-                    });
-                });
+                const results = searchIndex.filter(item => 
+                    item.title.toLowerCase().includes(lowerQuery) || 
+                    item.content.toLowerCase().includes(lowerQuery)
+                );
 
-                if (results.length > 0) {
-                    mobileSearchResults.innerHTML = results.slice(0, 8).map(r =>
-                        `<div class="search-result-item" onclick="showSection('${r.section}'); document.getElementById('mobileSearch').classList.remove('active'); history.pushState(null, null, '#${r.section}');">
-                            <span class="search-result-title">${r.title}</span>
-                            <span class="search-result-section">${r.section}</span>
-                        </div>`
-                    ).join('');
-                } else {
+                if (results.length === 0) {
                     mobileSearchResults.innerHTML = '<div class="search-no-results">No results found</div>';
-                }
-            });
-
-            mobileSearchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const firstResult = mobileSearchResults.querySelector('.search-result-item');
-                    if (firstResult) firstResult.click();
+                } else {
+                    mobileSearchResults.innerHTML = results.slice(0, 8).map(item => {
+                        // Shorter snippet for mobile
+                        const snippet = getSnippet(item.content, lowerQuery);
+                        return `
+                        <div class="search-result-item" onclick="goToSection('${item.id}', '${lowerQuery.replace(/'/g, "\\'")}')"; document.getElementById('mobileSearch').classList.remove('active'); history.pushState(null, null, '#${item.id}');">
+                            <div class="search-result-title">${item.title}</div>
+                            <div class="search-result-snippet">${snippet}</div>
+                        </div>`;
+                    }).join('');
                 }
             });
         }
