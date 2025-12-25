@@ -43,23 +43,13 @@ process case_align_quant {
     ## Create directories
     mkdir -p oarfish_output
 
-    ## 1) Align with minimap2, produce unsorted BAM
-    if [ "${params.platform}" == "ONT" ]; then
-      minimap2 -t ${task.cpus} -ax map-ont --eqx -N 100 \\
+    ## 1) Align with minimap2 using parameterized preset
+    minimap2 -t ${task.cpus} -ax ${params.minimap2_preset} --eqx -N 100 \\
         ${merged_ref} ${reads} | \\
         samtools view -@ ${task.cpus} -bS - \\
           > minimap_against_merged_refTrans_assembly_unsorted.bam
-    elif [ "${params.platform}" == "PacBio" ]; then
-      minimap2 -t ${task.cpus} -ax map-pb --eqx -N 100 \\
-        ${merged_ref} ${reads} | \\
-        samtools view -@ ${task.cpus} -bS - \\
-          > minimap_against_merged_refTrans_assembly_unsorted.bam
-    else
-      echo "Invalid platform: ${params.platform}"
-      exit 1
-    fi
 
-    ## 3) Oarfish quant
+    ## 2) Oarfish quant
     oarfish \\
       -j ${task.cpus} \\
       -a minimap_against_merged_refTrans_assembly_unsorted.bam \\
@@ -68,7 +58,7 @@ process case_align_quant {
       --filter-group no-filters \\
       --model-coverage
 
-    ## 4) Prepare declared outputs at process root so Nextflow tracks them
+    ## 3) Prepare declared outputs at process root so Nextflow tracks them
     cp -f oarfish_output/${sample_id}.quant ${sample_id}.quant
     cp -f oarfish_output/${sample_id}.infreps.pq ${sample_id}.infreps.pq
     cp -f oarfish_output/${sample_id}.meta_info.json ${sample_id}.meta_info.json
@@ -107,23 +97,13 @@ process control_align_quant {
     """
     echo "Processing control ${control_id} for sample ${sample_id}"
 
-    ## Align control FASTQ to merged ref
-    if [ "${params.platform}" == "ONT" ]; then
-      minimap2 -t ${task.cpus} -ax map-ont --eqx -N 100 \\
+    ## 1) Align control FASTQ to merged ref
+    minimap2 -t ${task.cpus} -ax ${params.minimap2_preset} --eqx -N 100 \\
         ${merged_ref} ${control_fastq} | \\
         samtools view -@ ${task.cpus} -bS - \\
           > ${control_id}_minimap_unsorted.bam
-    elif [ "${params.platform}" == "PacBio" ]; then
-      minimap2 -t ${task.cpus} -ax map-pb --eqx -N 100 \\
-        ${merged_ref} ${control_fastq} | \\
-        samtools view -@ ${task.cpus} -bS - \\
-          > ${control_id}_minimap_unsorted.bam
-    else
-      echo "Invalid platform: ${params.platform}"
-      exit 1
-    fi  
 
-    ## Oarfish quant
+    ## 2) Oarfish quant
     oarfish \\
       -j ${task.cpus} \\
       -a ${control_id}_minimap_unsorted.bam \\
