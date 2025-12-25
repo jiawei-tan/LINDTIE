@@ -2,7 +2,12 @@
 # Assembly Mode: 'hybrid', 'denovo', or 'ref_guided'
 assembly_mode: 'hybrid'
 
-# Tool Presets
+######################## Tool Presets ########################
+# rnabloom2 presets:
+#   ''      : Leave empty for ONT (default)
+#   'lrpb'  : For PacBio
+rnabloom2_preset: ''
+
 # minimap2 presets (passed to -ax):
 #   'map-ont' : Oxford Nanopore genomic reads (default)
 #   'map-pb'  : PacBio CLR genomic reads
@@ -10,11 +15,7 @@ assembly_mode: 'hybrid'
 #   'lr:hq'   : Nanopore Q20 genomic reads (v2.27+)
 minimap2_preset: 'map-ont'
 
-# rnabloom2 presets:
-#   ''       : Leave empty for ONT (default)
-#   '-lrpb'  : For PacBio
-rnabloom2_preset: ''
-
+######################## Filtering & Thresholds ########################
 RUN_DE: true                # true or false (default: true)
 fdr: 0.05                   # default 0.05
 min_cpm: 0.5                # default 0.5
