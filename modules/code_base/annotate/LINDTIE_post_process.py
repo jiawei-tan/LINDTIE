@@ -586,6 +586,17 @@ def validate_scoring_system(contigs_df):
     """
     logging.info("=== SCORING SYSTEM VALIDATION ===")
     
+    if contigs_df.empty:
+        logging.info("No contigs to validate (dataframe is empty).")
+        logging.info("=== SCORING SYSTEM VALIDATION COMPLETE ===")
+        return
+
+    # Check if column exists
+    if 'variant_of_interest' not in contigs_df.columns:
+        logging.warning("'variant_of_interest' column missing from dataframe. Skipping detailed validation.")
+        logging.info("=== SCORING SYSTEM VALIDATION COMPLETE ===")
+        return
+    
     # Check how many variants_of_interest were selected
     variants_of_interest = contigs_df[contigs_df['variant_of_interest'] == True]
     logging.info(f"Variants marked as 'variant_of_interest': {len(variants_of_interest)}")
@@ -852,6 +863,14 @@ def add_other_variant_types_by_contig(contigs):
     that considers biological significance, variant size, and evidence strength.
     """
     logging.info("Starting improved variant type consolidation using scoring system...")
+    
+    # FIX: Handle empty input gracefully to avoid KeyError later
+    if contigs.empty:
+        logging.info("Input contigs dataframe is empty. Skipping consolidation.")
+        contigs = contigs.copy()
+        contigs['other_variant_type'] = ''
+        return contigs
+
     original_count = len(contigs)
     
     # Apply the improved variant selection per contig
@@ -1103,6 +1122,10 @@ def main():
         contigs = pd.read_csv(args.contig_info, sep='\t', low_memory=False).fillna('')
         logging.info(f"Loaded contig information from {args.contig_info}.")
         
+        # Log warning if input file itself is empty
+        if contigs.empty:
+            logging.warning("Input contig information file is empty.")
+        
         de_results = pd.read_csv(args.de_results, sep='\t', low_memory=False)
         logging.info(f"Loaded differential expression results from {args.de_results}.")
 
@@ -1169,26 +1192,9 @@ def main():
         logging.info(f"Filtered contigs by gene list. Remaining: {len(contigs)}")
 
     if len(contigs) == 0:
-        logging.info('WARNING: no variants present after filtering. Exiting.')
-        # Ensure discard file is still written (even if empty)
-        if getattr(args, 'discard_out', ''):
-            try:
-                logging.info('Preparing discard output (empty or partial) with final columns before exit...')
-                discarded_full = add_de_info(discarded_contigs.copy(), de_results)
-                discarded_full = pd.merge(discarded_full, vafs, on='contig_id', how='left')
-                if 'other_variant_type' not in discarded_full.columns:
-                    discarded_full['other_variant_type'] = ''
-                short_gnames_disc = discarded_full.overlapping_genes.map(str).apply(get_short_gene_name)
-                disc_ids, disc_samples = discarded_full.contig_id, discarded_full['sample']
-                disc_names = ['|'.join([s, cid, sg]) for cid, s, sg in zip(disc_ids, disc_samples, short_gnames_disc)]
-                discarded_full['unique_contig_ID'] = disc_names
-                discarded_full = ensure_seq_columns(discarded_full)
-                discarded_final = reformat_fields(discarded_full)
-                discarded_final.to_csv(args.discard_out, index=False, sep='\t', na_rep='NA')
-                logging.info(f"Wrote discard file to {args.discard_out}")
-            except Exception as e:
-                logging.warning(f"Failed to write discard output before exit: {str(e)}")
+        logging.warning('No variants found after filtering. Generating empty output and exiting.')
         contigs.to_csv(sys.stdout, index=False, sep='\t', na_rep='NA')
+        logging.info("Post-processing completed successfully (no variants found).")
         sys.exit()
 
     # STEP 5: Add DE and VAF information
@@ -1211,7 +1217,7 @@ def main():
     contigs = reformat_fields(contigs)
 
     # If requested, produce a discard TSV with identical columns to final output
-    if getattr(args, 'discard_out', ''):
+    if getattr(args, 'discard_out', '') and not discarded_contigs.empty:
         try:
             logging.info('Preparing discard output with final columns...')
             # Add DE/VAF info
@@ -1235,7 +1241,7 @@ def main():
             logging.warning(f"Failed to write discard output: {str(e)}")
 
     # If requested, produce an all-variants ranked TSV with the same column order
-    if getattr(args, 'all_variants_out', ''):
+    if getattr(args, 'all_variants_out', '') and not all_variants.empty:
         try:
             # Compute ranking on the filtered set (pre-consolidation copy)
             ranked_all = rank_variants_per_contig(all_variants)
@@ -1292,15 +1298,8 @@ def main():
     for vtype, count in final_variant_counts.items():
         logging.info(f"  {vtype}: {count}")
     
-    # Special summary for structural variants
-    structural_variants = contigs[contigs['variant_type'].isin(['DEL', 'INS'])]
-    if len(structural_variants) > 0:
-        logging.info(f"Structural variants (DEL/INS): {len(structural_variants)}")
-        large_structural = structural_variants[structural_variants['varsize'] >= 50]
-        logging.info(f"Large structural variants (≥50bp): {len(large_structural)}")
-    
     contigs.to_csv(sys.stdout, index=False, sep='\t', na_rep='NA')
-    logging.info("Output written successfully with improved variant selection.")
+    logging.info("Post-processing completed successfully.")
 
 if __name__ == '__main__':
     main()

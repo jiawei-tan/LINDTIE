@@ -162,8 +162,12 @@ x <- x[, c("contig_id", "gene", "TPM", "WT", "mean_WT_TPM", "VAF")]
 x$TPM <- signif(as.numeric(x$TPM), 2)
 x$mean_WT_TPM <- signif(as.numeric(x$mean_WT_TPM), 2)
 x$VAF <- signif(as.numeric(x$VAF), 2)
+
 if (nrow(x) > 0) {
     write.table(x, file = outfile, row.names = FALSE, quote = FALSE, sep = "\t")
 } else {
-    stop("ERROR: no variants to output. Please double-check your reference files.")
+    # Log a warning but do NOT stop/error
+    cat("WARNING: No variants found for VAF estimation. Writing empty output file.\n")
+    # Write just the headers
+    write.table(x, file = outfile, row.names = FALSE, quote = FALSE, sep = "\t")
 }
