@@ -19,7 +19,7 @@ process align_raw_reads_to_hg38 {
     tag "${sample_id}"
     label 'process_long'
 
-    publishDir "${sample_id}_output/01-Assembly/", mode: 'copy'
+    publishDir "${sample_id}_output/01-Assembly/", mode: 'copy', pattern: '*.log'
 
     container 'oras://community.wave.seqera.io/library/minimap2_samtools:e98addfcfd60e8e7'
 
@@ -31,8 +31,7 @@ process align_raw_reads_to_hg38 {
       tuple val(sample_id), path("confident_mapped.bam"), emit: confident_mapped_bam
       tuple val(sample_id), path("reads_all_sorted.bam"), emit: all_mapped_bam
       tuple val(sample_id), path("rescued.fastq"), emit: rescued_fastq
-      tuple val(sample_id), path("log_flagstat_all.txt"), emit: log_flagstat_all
-      tuple val(sample_id), path("log_routing_stats.txt"), emit: log_read_counts_summary
+      tuple val(sample_id), path("read_counts_summary.log"), emit: read_counts_summary, optional: true
 
     script:
     """
@@ -42,22 +41,17 @@ process align_raw_reads_to_hg38 {
       samtools sort -@ ${task.cpus} -o reads_all_sorted.bam
 
     samtools index reads_all_sorted.bam
-    samtools flagstat reads_all_sorted.bam > log_flagstat_all.txt
 
-    # 2. Single-Pass Routing: Sort reads into Confident (StringTie) vs Rescued (Bloom)
+    # 2. Single-Pass Routing
+    # Pass 'mode' variable to AWK
     samtools view -h reads_all_sorted.bam |
-    awk '
+    awk -v mode="${params.assembly_mode}" '
       BEGIN {
-        # Initialize counters for logging
-        n_total=0;
-        n_confident=0; n_rescued=0;
-        
-        # Rescue Reason Counters
+        n_total=0; n_confident=0; n_rescued=0;
         r_unmapped=0; r_supp=0; r_low_mapq=0; r_indel=0; r_clip=0; r_gap=0;
       }
       
       /^@/ { 
-        # Header lines go to both files
         print > "confident.sam"
         print > "rescued.sam"
         next 
@@ -65,22 +59,14 @@ process align_raw_reads_to_hg38 {
       
       {
         n_total++
-        
-        # Extract fields
         flag = \$2
         mapq = \$5
         cigar = \$6
         
-        # -- DECISION LOGIC --
-        
-        # 1. FLAG CHECKS
         is_unmapped = int(flag / 4) % 2
         is_supp = int(flag / 2048) % 2
-        
-        # 2. MAPQ CHECK
         is_low_mapq = (mapq < 20)
         
-        # 3. CIGAR CHECKS
         has_indel = 0
         has_large_gap = 0
         is_clipped = 0
@@ -88,38 +74,26 @@ process align_raw_reads_to_hg38 {
         if (!is_unmapped) {
             tmp = cigar
             clipped_bases = 0
-            
             while (match(tmp, /[0-9]+[IDNSM]/)) {
                 op = substr(tmp, RLENGTH, 1)
                 len = substr(tmp, RSTART, RLENGTH - 1) + 0
-                
-                # Check Indels (> 15bp)
                 if ((op == "I" || op == "D") && len > 15) has_indel = 1
-                
-                # Check Large Gaps (> 1000bp)
                 if (op == "N" && len > 1000) has_large_gap = 1
-                
-                # Sum Soft Clips
                 if (op == "S") clipped_bases += len
-                
                 tmp = substr(tmp, RSTART + RLENGTH)
             }
-            # Check Clip Threshold (> 50bp)
             if (clipped_bases > 50) is_clipped = 1
         }
 
-        # -- ROUTING --
         if (is_unmapped || is_supp || is_low_mapq || has_indel || has_large_gap || is_clipped) {
             print > "rescued.sam"
             n_rescued++
-            
             if (is_unmapped) r_unmapped++
             else if (is_supp) r_supp++
             else if (is_low_mapq) r_low_mapq++
             else if (has_indel) r_indel++
             else if (has_large_gap) r_gap++
             else if (is_clipped) r_clip++
-            
         } else {
             print > "confident.sam"
             n_confident++
@@ -127,18 +101,21 @@ process align_raw_reads_to_hg38 {
       }
       
       END {
-        print "Total Reads Processed: " n_total > "log_routing_stats.txt"
-        print "--------------------------------" >> "log_routing_stats.txt"
-        print "Sent to StringTie2 (Confident): " n_confident " (" (n_confident/n_total)*100 "%)" >> "log_routing_stats.txt"
-        print "Sent to RNA-Bloom2 (Rescued):   " n_rescued " (" (n_rescued/n_total)*100 "%)" >> "log_routing_stats.txt"
-        print "--------------------------------" >> "log_routing_stats.txt"
-        print "Rescue Reasons (Hierarchical):" >> "log_routing_stats.txt"
-        print "  Unmapped:        " r_unmapped >> "log_routing_stats.txt"
-        print "  Supplementary:   " r_supp >> "log_routing_stats.txt"
-        print "  Low MAPQ (<20):  " r_low_mapq >> "log_routing_stats.txt"
-        print "  Large Indel:     " r_indel >> "log_routing_stats.txt"
-        print "  Large Gap:       " r_gap >> "log_routing_stats.txt"
-        print "  Soft Clipped:    " r_clip >> "log_routing_stats.txt"
+        # Only write the log file if mode is hybrid
+        if (mode == "hybrid") {
+            print "Total Reads Processed: " n_total > "read_counts_summary.log"
+            print "--------------------------------" >> "read_counts_summary.log"
+            print "Sent to StringTie2 (Confident): " n_confident " (" (n_confident/n_total)*100 "%)" >> "read_counts_summary.log"
+            print "Sent to RNA-Bloom2 (Rescued):   " n_rescued " (" (n_rescued/n_total)*100 "%)" >> "read_counts_summary.log"
+            print "--------------------------------" >> "read_counts_summary.log"
+            print "Rescue Reasons (Hierarchical):" >> "read_counts_summary.log"
+            print "  Unmapped:        " r_unmapped >> "read_counts_summary.log"
+            print "  Supplementary:   " r_supp >> "read_counts_summary.log"
+            print "  Low MAPQ (<20):  " r_low_mapq >> "read_counts_summary.log"
+            print "  Large Indel:     " r_indel >> "read_counts_summary.log"
+            print "  Large Gap:       " r_gap >> "read_counts_summary.log"
+            print "  Soft Clipped:    " r_clip >> "read_counts_summary.log"
+        }
       }
     '
 
