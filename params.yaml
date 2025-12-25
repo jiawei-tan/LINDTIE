@@ -1,6 +1,21 @@
 # Parameters for the workflow
-RUN_DE: true                # true or false
-platform: 'ONT'             # 'ONT' or 'PacBio'
+# Assembly Mode: 'hybrid', 'denovo', or 'ref_guided'
+assembly_mode: 'hybrid'
+
+# Tool Presets
+# minimap2 presets (passed to -ax):
+#   'map-ont' : Oxford Nanopore genomic reads (default)
+#   'map-pb'  : PacBio CLR genomic reads
+#   'map-hifi': PacBio HiFi/CCS genomic reads (v2.19+)
+#   'lr:hq'   : Nanopore Q20 genomic reads (v2.27+)
+minimap2_preset: 'map-ont'
+
+# rnabloom2 presets:
+#   ''       : Leave empty for ONT (default)
+#   '-lrpb'  : For PacBio
+rnabloom2_preset: ''
+
+RUN_DE: true                # true or false (default: true)
 fdr: 0.05                   # default 0.05
 min_cpm: 0.5                # default 0.5
 min_logfc: 2                # default 2
@@ -22,3 +37,4 @@ ann_info: "${projectDir}/ref/chess3.0.info"
 tx2gene: "${projectDir}/ref/tx2gene.txt"
 hg38_fasta: "${projectDir}/ref/hg38.fa"
 hg38_splice_junctions: "${projectDir}/ref/hg38_splice_junctions.bed"
+gencode_annotation: "${projectDir}/ref/gencode.v49.primary_assembly.annotation.gtf"

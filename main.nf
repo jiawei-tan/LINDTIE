@@ -5,7 +5,6 @@ nextflow.enable.dsl = 2
                             LINDTIE
  A Nextflow pipeline to identify aberrant transcripts in cancer using 
  long-read RNA-seq data.
-
  Authors: Jia Wei Tan
  Contact: tan.j@wehi.edu.au
 ***************************************************************************/
@@ -19,14 +18,22 @@ params.hg38_splice_junctions = null
 params.ann_info = null
 params.tx_annotation = null
 params.tx2gene = null
+
+// Defaults
+params.assembly_mode = 'hybrid'     // 'hybrid', 'denovo', or 'ref_guided'
+params.minimap2_preset = 'map-ont'  // 'map-ont', 'map-pb', 'map-hifi', 'lr:hq'
+params.rnabloom2_preset = ''        // '', '-lrpb'
+params.RUN_DE = true                // true or false
 params.fdr = 0.05
-params.min_cpm = 0.1
+params.min_cpm = 0.5
 params.min_logfc = 2
 params.min_clip = 20
 params.min_gap = 7
 params.min_match = "30,0.3"
 params.splice_motif_mismatch = 1
 params.oarfish_num_bootstraps = 10
+params.gene_filter = null
+params.var_filter = null
 params.help = false
 params.version = false
 
@@ -43,19 +50,27 @@ Example usage:
     nextflow run LINDTIE/main.nf \\
     -params-file LINDTIE/params.yaml \\
     -profile singularity \\
-    --platform "PacBio" \\
-    --gene_filter "TP53,BRCA2"
+    --minimap2_preset "map-pb" \\
+    --rnabloom2_preset "lrpb" \\
+    --assembly_mode "ref_guided"
 
-Optional parameters (set via "--params" at runtime or edit the params.yaml file):
---RUN_DE                    : Run differential expression analysis (Option: true/false, default: true)
---platform                  : Platform (Option: "ONT"/ "PacBio", default: "ONT")
+Optional parameters:
+--assembly_mode             : Strategy: 'hybrid', 'denovo', 'ref_guided' (default: hybrid)
+--minimap2_preset           : Minimap2 preset (passed to -ax). Default: 'map-ont'.
+                              Options:
+                                - 'map-ont' : Oxford Nanopore genomic reads (default)
+                                - 'map-pb'  : PacBio CLR genomic reads
+                                - 'map-hifi': PacBio HiFi/CCS genomic reads
+                                - 'lr:hq'   : Nanopore Q20 genomic reads
+--rnabloom2_preset          : RNABloom2 preset. Leave empty for ONT (default). Use '-lrpb' for PacBio.
+--RUN_DE                    : Run differential expression analysis. Options: true (default) or false.
 --fdr                       : False discovery rate (FDR) threshold (default: 0.05)
 --min_cpm                   : Minimum counts per million (CPM) (default: 0.1)
 --min_logfc                 : Minimum log fold change (default: 2)
 --min_clip                  : Minimum clip length (default: 20)
 --min_gap                   : Minimum gap (default: 7)
 --min_match                 : Minimum match (default: "30,0.3")
---splice_motif_mismatch     : Maximum number of splice motif mismatches (default: 1)
+--splice_motif_mismatch     : Splice motif mismatch (default: 1)
 --oarfish_num_bootstraps    : Number of bootstraps for Oarfish (default: 10)
 --gene_filter               : List of genes to filter (default: NULL)
 --var_filter                : List of variant types to filter (default: NULL)
@@ -70,13 +85,25 @@ if (params.version) {
     exit 0
 }
 
-/************************** 
-* MODULES
-**************************/
+// Print parameters to Console for immediate verification
+log.info """
+================================================================================
+                            LINDTIE PARAMETER LOG
+================================================================================
+"""
+params.sort().each { k, v ->
+    log.info "\$k".padRight(30) + ": \$v"
+}
+log.info "================================================================================"
+
+
+/*************************** MODULES **************************/
 
 include { decompress_case_reads } from './modules/decompress'
 include { decompress_control_reads } from './modules/decompress'
-include { assembly } from './modules/assembly'
+include { align_raw_reads_to_hg38 } from './modules/assembly'
+include { ref_guided_assembly } from './modules/assembly'
+include { de_novo_assembly } from './modules/assembly'
 include { merge_refTrans_assembly } from './modules/assembly'
 include { case_align_quant } from './modules/quantification'
 include { control_align_quant } from './modules/quantification'
@@ -90,9 +117,51 @@ include { filter_refined_annotated_contigs_fasta } from './modules/annotation'
 include { estimate_vaf } from './modules/annotation'
 include { post_process } from './modules/annotation'
 
-/************************** 
-* WORKFLOW
-**************************/
+/*************************** LOCAL PROCESSES **************************/
+/*
+  Process: save_params
+  Description: Writes the run parameters to a log file.
+*/
+process save_params {
+    tag "${sample_id}"
+    label 'process_short'
+    
+    publishDir "${sample_id}_output", mode: 'copy'
+
+    input:
+    val sample_id
+
+    output:
+    path "run_parameters.log"
+
+    script:
+    """
+    cat <<EOF > run_parameters.log
+Sample ID             : ${sample_id}
+
+# Parameters for the workflow
+assembly_mode         : ${params.assembly_mode}
+RUN_DE                : ${params.RUN_DE}
+
+# Tool Presets
+minimap2_preset       : ${params.minimap2_preset}
+rnabloom2_preset      : ${params.rnabloom2_preset}
+
+fdr                   : ${params.fdr}
+min_cpm               : ${params.min_cpm}
+min_logfc             : ${params.min_logfc}
+min_clip              : ${params.min_clip}
+min_gap               : ${params.min_gap}
+min_match             : '${params.min_match}'
+splice_motif_mismatch : ${params.splice_motif_mismatch}
+oarfish_num_bootstraps: ${params.oarfish_num_bootstraps}
+gene_filter           : ${params.gene_filter}
+var_filter            : ${params.var_filter}
+EOF
+    """
+}
+
+/*************************** WORKFLOW **************************/
 workflow {
 
     // Define input channels
@@ -112,18 +181,74 @@ workflow {
             tuple(control_id, file)
         }
 
+    // Extract sample IDs and trigger the save_params process
+    save_params(ch_case_reads.map { sid, file -> sid })
+
     // Process each case sample
     // Decompress reads if needed
     ch_decompressed_case_reads = decompress_case_reads(ch_case_reads)
     ch_decompressed_control_reads = decompress_control_reads(ch_control_reads)
+
+    // =========================================================================
+    // ASSEMBLY STRATEGY
+    // =========================================================================
     
-    // Assemble
-    ch_assembled = assembly(ch_decompressed_case_reads)
+    // Initialize assembly channels as empty
+    ch_stringtie_assembly = Channel.empty()
+    ch_rnabloom_assembly  = Channel.empty()
     
-    // Merge ref
+    // --- Strategy 1: Genome Alignment Required (Hybrid OR Ref-Guided) ---
+    if (params.assembly_mode == 'hybrid' || params.assembly_mode == 'ref_guided') {
+        
+        // 1. Align to Genome
+        ch_aligned = align_raw_reads_to_hg38(
+            ch_decompressed_case_reads, 
+            Channel.fromPath(params.hg38_fasta)
+        )
+        
+        // 2. Select BAM for StringTie2
+        // IF Hybrid: use "confident_mapped_bam" (filtered)
+        // IF Ref-Guided: use "all_mapped_bam" (standard) OR "confident" depending on preference
+        def ch_bam_for_stringtie = (params.assembly_mode == 'ref_guided') 
+                                    ? ch_aligned.all_mapped_bam 
+                                    : ch_aligned.confident_mapped_bam 
+
+        // 3. Run Ref-Guided Assembly
+        ch_ref_guided_assembled = ref_guided_assembly(
+            ch_bam_for_stringtie,
+            Channel.fromPath(params.gencode_annotation),
+            Channel.fromPath(params.hg38_fasta)
+        )
+        
+        ch_stringtie_assembly = ch_ref_guided_assembled.stringtie2_assembled_fa
+    }
+
+    // --- Strategy 2: De Novo Assembly (Hybrid OR De Novo) ---
+    if (params.assembly_mode == 'hybrid' || params.assembly_mode == 'denovo') {
+        
+        // Determine input reads
+        def ch_reads_for_bloom = (params.assembly_mode == 'hybrid')
+                                 ? ch_aligned.rescued_fastq
+                                 : ch_decompressed_case_reads
+
+        // Run De Novo Assembly
+        ch_de_novo_assembled = de_novo_assembly(ch_reads_for_bloom)
+        
+        ch_rnabloom_assembly = ch_de_novo_assembled.rnabloom_assembled_fa
+    }
+
+    // --- Merge Assemblies ---
+    ch_assemblies_to_merge = ch_stringtie_assembly.mix(ch_rnabloom_assembly)
+        .groupTuple() 
+
     ch_merged_ref = merge_refTrans_assembly(
-        ch_assembled.assembled_fa.combine(Channel.fromPath(params.trans_fasta))
+        ch_assemblies_to_merge,
+        Channel.fromPath(params.trans_fasta)
     )
+
+    // =========================================================================
+    // QUANTIFICATION & DOWNSTREAM ANALYSIS
+    // =========================================================================
 
     // Case: Align + Quant
     ch_case_align_quant_result = case_align_quant(
@@ -137,7 +262,7 @@ workflow {
 
     // Group controls by case sample_id
     ch_controls_by_case = ch_control_align_quant_result.control_quant
-        .groupTuple(by: 0)  // Group by sample_id (first element)
+        .groupTuple(by: 0)  
         .map { sample_id, control_ids, control_quants ->
             tuple(sample_id, control_ids, control_quants)
         }
@@ -181,15 +306,15 @@ workflow {
         .join(ch_controls_by_case_parquet, by: 0)
         .join(ch_transcript_matrix_result.transcript_matrix, by: 0)
         .combine(Channel.fromPath(params.trans_fasta))
-        .map { sample_id, case_quant, control_quants, case_meta, control_metas, case_parquet, control_parquets, transcript_matrix, trans_fasta ->
+        .map { sample_id, case_quant, control_quants, case_meta, control_metas, case_parquet, control_parquets, trans_fasta, transcript_matrix ->
             tuple(sample_id, case_quant, control_quants, case_meta, control_metas, case_parquet, control_parquets, trans_fasta, transcript_matrix)
         }
 
     // DE analysis
     ch_de_result = compare_transcript_oarfish(ch_de_input)
-    
+     
     // Filter contigs
-    ch_filtered = filter_de_contigs(ch_assembled.assembled_fa.join(ch_de_result.de_results, by: 0))
+    ch_filtered = filter_de_contigs(ch_merged_ref.merged_ref.join(ch_de_result.de_results, by: 0))
 
     // Genome alignment
     ch_genome_align = align_contigs_to_genome(
