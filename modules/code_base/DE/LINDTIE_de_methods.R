@@ -352,12 +352,12 @@ run_edgeR <- function(case_name, oarfish_output_dir, outdir,
   res_sig <- res_sig[!grepl("CHS", rownames(res_sig)), ]
   logcat("Found ", nrow(res_sig), " significantly differentially expressed transcripts after removing reference\n")
 
-  if (nrow(res_sig) == 0) {
+if (nrow(res_sig) == 0) {
     logcat(
       "WARNING: No significant DE transcripts found after filtering ",
-      "(FDR <", qval, ", logFC >", min_logfc, ").\n"
+      "(FDR <", qval, ", logFC >", min_logfc, ").\n",
+      "Proceeding with empty results.\n"
     )
-    stop("No significant DE transcripts found.")
   }
 
   # Add contig
