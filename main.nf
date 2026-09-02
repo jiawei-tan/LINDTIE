@@ -75,6 +75,7 @@ log.info "======================================================================
 
 include { decompress_case_reads } from './modules/decompress'
 include { decompress_control_reads } from './modules/decompress'
+include { controls_exist; effective_run_de } from './modules/decompress'
 include { align_raw_reads_to_hg38 } from './modules/assembly'
 include { ref_guided_assembly } from './modules/assembly'
 include { subset_reads } from './modules/assembly'
@@ -106,13 +107,17 @@ process save_params {
     path "run_parameters.log"
 
     script:
+    // Report the values the run actually uses, not the requested ones -- they differ when
+    // no controls are present (see modules/decompress.nf).
+    def eff_run_de = effective_run_de()
+    def run_de_note = (eff_run_de.toString() == params.RUN_DE.toString()) ? '' : "  (requested ${params.RUN_DE}; no control reads found)"
     """
     cat <<EOF > run_parameters.log
 Sample ID               : ${sample_id}
 Timestamp               : ${new Date().format('yyyy-MM-dd HH:mm:ss')}
 assembly_mode           : ${params.assembly_mode}
 subset_count            : ${params.subset_count}
-RUN_DE                  : ${params.RUN_DE}
+RUN_DE                  : ${eff_run_de}${run_de_note}
 detect_viral_integration: ${params.detect_viral_integration}
 minimap2_preset         : ${params.minimap2_preset}
 rnabloom2_preset        : ${params.rnabloom2_preset}
@@ -138,19 +143,22 @@ workflow {
     // -------------------------------------------------------
     // CONFIGURATION CHECK
     // -------------------------------------------------------
-    // Check if control directory is provided and not empty
-    def controls_exist = params.controls_fastq_dir && file(params.controls_fastq_dir).exists() && !file("${params.controls_fastq_dir}").isEmpty()
+    // Effective run mode, derived from the control reads actually present.
+    // NOTE: this is derived rather than assigned back onto `params` -- Nextflow silently
+    // ignores reassignment of `params` inside a workflow, which is why the old
+    // `params.RUN_DE = false` fallback here never took effect. See modules/decompress.nf.
+    def run_de = effective_run_de()
 
-    // If no controls found, force RUN_DE to false and warn the user
-    if (!controls_exist && params.RUN_DE) {
+    // If no controls found, fall back to single sample mode and warn the user
+    if (!controls_exist() && params.RUN_DE) {
         log.warn "================================================================================"
         log.warn "  WARNING: No control samples found in '${params.controls_fastq_dir}'."
-        log.warn "  Switching 'RUN_DE' to 'false'."
+        log.warn "  'RUN_DE' is treated as 'false' for this run."
         log.warn "  Pipeline will run in SINGLE SAMPLE MODE (Novel Contig Detection only)."
         log.warn "================================================================================"
-        params.RUN_DE = false
     }
-    
+
+
     // -------------------------------------------------------
     // INPUT CHANNELS
     // -------------------------------------------------------
@@ -179,7 +187,7 @@ workflow {
     ch_controls_by_case_meta    = Channel.empty()
     ch_controls_by_case_parquet = Channel.empty()
 
-    if (params.RUN_DE) {
+    if (run_de) {
         ch_control_reads = Channel
             .fromPath("${params.controls_fastq_dir}/*.{fasta,fasta.gz,fa,fa.gz,fastq,fastq.gz,fq,fq.gz}")
             .map { file -> 
@@ -298,7 +306,7 @@ workflow {
     )
 
     // Controls: Align + Quant (ONLY IF RUN_DE = TRUE)
-    if (params.RUN_DE) {
+    if (run_de) {
         ch_control_align_quant_result = control_align_quant(
             ch_merged_ref.merged_ref.combine(ch_decompressed_control_reads)
         )
@@ -329,7 +337,7 @@ workflow {
     // =========================================================================
 
     // A. Prepare input for Transcript Matrix
-    if (params.RUN_DE) {
+    if (run_de) {
         // Standard join waiting for controls
         ch_matrix_ready = ch_case_align_quant_result.case_quant
             .join(ch_controls_by_case, by: 0)
@@ -350,7 +358,7 @@ workflow {
     ch_transcript_matrix_result = build_transcript_matrix(ch_matrix_ready)
 
     // B. Prepare input for DE / Novel Contig Detection
-    if (params.RUN_DE) {
+    if (run_de) {
         ch_de_input = ch_case_align_quant_result.case_quant
             .join(ch_controls_by_case_quant, by: 0)
             .join(ch_case_align_quant_result.case_quant_meta, by: 0)

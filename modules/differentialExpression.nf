@@ -6,6 +6,8 @@ License     : MIT
 Maintainer  : https://github.com/jiawei-tan
 */
 
+include { effective_run_de } from './decompress'
+
 /*
   Process: build_transcript_matrix
     - Gathers all .quant files (case + controls) per case sample, and runs 
@@ -78,7 +80,10 @@ process compare_transcript_oarfish {
       tuple val(sample_id), path("DE_QLDisp_plot.png"), emit: ql_disp_plot, optional: true
 
     script:
-    if (params.RUN_DE) {
+    // Derived, not read straight off params: with no controls the run falls back to
+    // single sample mode (see modules/decompress.nf).
+    def run_de = effective_run_de()
+    if (run_de) {
       """
       # Create oarfish_output directory structure
       mkdir -p oarfish_output
@@ -117,7 +122,7 @@ process compare_transcript_oarfish {
         --minLogFC=${params.min_logfc}
       """
     } else {
-      // This block runs when params.RUN_DE is false
+      // This block runs when DE is off: RUN_DE=false, or no control reads were found
       """    
       echo "Running novel contig detection (Single Sample Mode)"
       

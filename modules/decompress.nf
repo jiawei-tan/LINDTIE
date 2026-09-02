@@ -7,6 +7,33 @@ Maintainer  : https://github.com/jiawei-tan
 */
 
 /*
+  Shared configuration helpers.
+
+  These derive the pipeline's *effective* run mode from the inputs that are actually
+  present. They exist because Nextflow silently ignores reassignment of `params` inside
+  a workflow (it warns "defined multiple times"), so the old `params.RUN_DE = false`
+  fallback in main.nf never took effect. Deriving the value instead of mutating it works
+  both in the workflow body and inside process script blocks.
+*/
+
+// The files the control channel would actually read (same glob as main.nf).
+def control_read_files() {
+    params.controls_fastq_dir
+        ? file("${params.controls_fastq_dir}/*.{fasta,fasta.gz,fa,fa.gz,fastq,fastq.gz,fq,fq.gz}")
+        : []
+}
+
+// A controls directory holding only, say, a stray README does not count as having controls.
+def controls_exist() {
+    control_read_files().size() > 0
+}
+
+// DE requires controls. Coerce explicitly: the string "false" is truthy in Groovy.
+def effective_run_de() {
+    (params.RUN_DE.toString().toLowerCase() == 'true') && controls_exist()
+}
+
+/*
   Process: decompress_case_reads
     - Decompresses .gz files for case reads if they are compressed
 */

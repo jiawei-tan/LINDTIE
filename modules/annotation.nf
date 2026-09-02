@@ -6,6 +6,8 @@ License     : MIT
 Maintainer  : https://github.com/jiawei-tan
 */
 
+include { effective_run_de } from './decompress'
+
 /*
   Process: annotate_contigs
     - Performs contig annotation using custom Python script.
@@ -206,6 +208,9 @@ process post_process {
       tuple val(sample_id), path("final_post_process.log"), emit: final_post_process_log
 
     script:
+    // Derived, not read straight off params: with no controls the run falls back to
+    // single sample mode (see modules/decompress.nf).
+    def eff_run_de = effective_run_de()
     """
     python ${params.code_base}/annotate/LINDTIE_post_process.py \
       ${sample_id} \
@@ -218,7 +223,7 @@ process post_process {
       ${ params.gene_filter ? "--gene_filter ${params.gene_filter}" : "" } \
       ${ params.var_filter ? "--var_filter ${params.var_filter}" : "" } \
       --cosmic_tier_data ${params.cosmic_tier_data} \
-      --run_de ${params.RUN_DE} \
+      --run_de ${eff_run_de} \
       --single_sample_min_vaf ${params.single_sample_min_vaf} \
       --detect_viral_integration ${params.detect_viral_integration} \
       --log final_post_process.log \
