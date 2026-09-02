@@ -183,7 +183,7 @@ process estimate_vaf {
   Process: count_supporting_reads (case-only)
     - Counts, per variant, the case reads that carry the variant (supporting_read_count) and
       the reads informative at the locus (spanning_reads), directly from the genome ALIGNMENT
-      -- a read supports the variant iff its alignment reproduces the variant's signature at
+      -- a read supports the variant if its alignment reproduces the variant's signature at
       the breakpoint (aligned THROUGH the boundary into a retained intron / an exon extension;
       a splice/deletion gap pos1<->pos2 of the right size; aligned inside a novel exon; a split
       read for a fusion; a clip for unpartnered; inserted bases for INS). Matches what IGV
@@ -195,7 +195,10 @@ process estimate_vaf {
     - Informational only: no control comparison, no filtering gate. The counts are reported
       alongside the oarfish num_reads_case rather than substituted for it.
 
-    Container: pysam only (numpy/pandas). No edlib needed by this step.
+    Container:
+        - conda-forge::pandas=2.3.0
+        - conda-forge::numpy=2.3.0
+        - bioconda::pysam=0.23.3
 */
 process count_supporting_reads {
 
