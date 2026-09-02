@@ -93,6 +93,7 @@ include { annotate_contigs } from './modules/annotation'
 include { refine_annotation } from './modules/annotation'
 include { filter_refined_annotated_contigs_fasta } from './modules/annotation'
 include { estimate_vaf } from './modules/annotation'
+include { count_supporting_reads } from './modules/annotation'
 include { post_process } from './modules/annotation'
 
 /*************************** LOCAL PROCESSES **************************/
@@ -448,12 +449,37 @@ workflow {
             .combine(Channel.fromPath(params.tx2gene))
     )
 
+    // Sequence-verified supporting/spanning read counts per variant. Needs the case
+    // genome alignment, so it is skipped in pure denovo mode and an empty table is
+    // substituted -- post_process then leaves the columns blank rather than failing.
+    if (params.assembly_mode != 'denovo') {
+        ch_supporting = count_supporting_reads(
+            ch_refined.refined_annotated_contigs_info
+                .join(ch_aligned.all_mapped_bam, by: 0)
+                .join(ch_aligned.all_mapped_bam_bai, by: 0)
+                .combine(Channel.fromPath(params.tx_annotation))
+        ).supporting_reads
+    } else {
+        // Synthesize the header-only table rather than shipping an asset file, so the
+        // columns line up with LINDTIE_supporting_reads.py's OUT_COLUMNS.
+        def empty_supp = Channel.of(
+            'variant_id\tcontig_id\tvariant_type\tsupporting_read_count\tspanning_reads\t' +
+            'junction_VAF\tcandidate_depth\tcounted_locus\tsupport_signature\t' +
+            'supporting_read_count_reliability'
+        ).collectFile(name: 'empty_supporting_reads.tsv', newLine: true)
+
+        ch_supporting = ch_refined.refined_annotated_contigs_info
+            .map { sid, info -> sid }
+            .combine(empty_supp)
+    }
+
     // Final
     post_process(
         ch_refined.refined_annotated_contigs_info
             .join(ch_refined_annotated_contigs_fasta.refined_annotated_contigs_fasta, by: 0)
             .join(ch_de_result.de_results, by: 0)
             .join(ch_vaf.vaf_estimates, by: 0)
+            .join(ch_supporting, by: 0)
             .combine(Channel.fromPath(params.cosmic_tier_data))
     )
 }

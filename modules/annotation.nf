@@ -180,6 +180,66 @@ process estimate_vaf {
 
 //------------------------------------------------------------------------------
 /*
+  Process: count_supporting_reads (case-only)
+    - Counts, per variant, the case reads that carry the variant (supporting_read_count) and
+      the reads informative at the locus (spanning_reads), directly from the genome ALIGNMENT
+      -- a read supports the variant iff its alignment reproduces the variant's signature at
+      the breakpoint (aligned THROUGH the boundary into a retained intron / an exon extension;
+      a splice/deletion gap pos1<->pos2 of the right size; aligned inside a novel exon; a split
+      read for a fusion; a clip for unpartnered; inserted bases for INS). Matches what IGV
+      shows. FUS/IGR/INS/small-DEL (and any weak signal) are reported
+      supporting_read_count_reliability=low.
+    - Takes the transcriptome GTF: the reference exons say which part of a block is NOVEL
+      (the only discriminating part of an EE/RI), and the annotated junctions say whether a
+      read is really showing the canonical structure rather than the variant.
+    - Informational only: no control comparison, no filtering gate. The counts are reported
+      alongside the oarfish num_reads_case rather than substituted for it.
+
+    Container: pysam only (numpy/pandas). No edlib needed by this step.
+*/
+process count_supporting_reads {
+
+    tag "${sample_id}"
+    label 'process_medium'
+
+    publishDir "${sample_id}_output/FinalOutput", mode: 'copy', pattern: 'supporting_reads.tsv'
+    publishDir "${sample_id}_output/FinalOutput/log", mode: 'copy', pattern: '*.log'
+
+    container 'oras://community.wave.seqera.io/library/pysam_python-edlib_numpy_pandas:2037e04ee30aff23'
+
+    input:
+      tuple val(sample_id), path(refined_annotated_contigs_info), path(case_genome_bam), path(case_genome_bai), path(tx_annotation)
+
+    output:
+      tuple val(sample_id), path("supporting_reads.tsv"), emit: supporting_reads
+      tuple val(sample_id), path("supporting_reads.log"), emit: log
+
+    script:
+    """
+    python ${params.code_base}/annotate/LINDTIE_supporting_reads.py \\
+      ${refined_annotated_contigs_info} \\
+      ${case_genome_bam} \\
+      --tx_annotation ${tx_annotation} \\
+      --window ${params.supp_read_window} \\
+      --min_anchor ${params.supp_read_min_anchor} \\
+      --through_depth ${params.supp_read_through_depth} \\
+      --min_gap ${params.supp_read_min_gap} \\
+      --gap_merge ${params.supp_read_gap_merge} \\
+      --tol ${params.supp_read_tol} \\
+      --bp_tol ${params.supp_read_bp_tol} \\
+      --near_canonical ${params.supp_read_near_canonical} \\
+      --min_clip ${params.supp_read_min_clip} \\
+      --inside_window ${params.supp_read_inside_window} \\
+      --ins_tol ${params.supp_read_ins_tol} \\
+      --split_tol ${params.supp_read_split_tol} \\
+      --support_reads_out support_reads.tsv \\
+      --log supporting_reads.log \\
+      --out supporting_reads.tsv
+    """
+}
+
+//------------------------------------------------------------------------------
+/*
   Process: post_process
     - Filter and collate refined annotated contigs info to create the final TSV using custom Python script.
 
@@ -202,7 +262,7 @@ process post_process {
     container 'oras://community.wave.seqera.io/library/bio_pybedtools_pysam_intervaltree_pruned:b44948a3d69b5ec0'
 
     input:
-      tuple val(sample_id), path(refined_annotated_contigs_info), path(refined_annotated_contigs_fasta), path(transcript_de), path(vaf_estimates), path(cosmic_tier_data)
+      tuple val(sample_id), path(refined_annotated_contigs_info), path(refined_annotated_contigs_fasta), path(transcript_de), path(vaf_estimates), path(supporting_reads), path(cosmic_tier_data)
 
     output:
 		  tuple val(sample_id), path("${sample_id}_results.tsv"), emit: results, optional: true

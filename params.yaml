@@ -33,6 +33,20 @@ single_sample_min_vaf: 0.1       # default 0.1
 single_sample_cosmic_filter: true # true or false (default: true)
 max_fisher_p_val: 0.05           # default 0.05
 
+# Alignment-based supporting-read counting (count_supporting_reads)
+supp_read_window: 300            # bp either side of a breakpoint to fetch candidate reads
+supp_read_min_anchor: 20         # min aligned bp on the REFERENCE side of a boundary (THROUGH/INTERIOR/INSIDE)
+supp_read_through_depth: 100     # bp a read must stay aligned INTO the novel segment: min(segment, this)
+supp_read_min_gap: 25            # merge alignment gaps <= this (absorb ONT indel noise)
+supp_read_gap_merge: 30          # merge D/N ops separated by <= this when matching a splice/deletion gap
+supp_read_tol: 35                # max breakpoint position tolerance (tightened per gap size)
+supp_read_bp_tol: 10             # breakpoint tolerance for a clip position (UN)
+supp_read_near_canonical: 10     # variant junction within this of an annotated junction -> reliability=low
+supp_read_min_clip: 25           # min soft/hard-clip length at the breakpoint for UN support
+supp_read_inside_window: 250     # bp past the counted junction to look for spliced-in reads (NE/EE)
+supp_read_ins_tol: 100           # position tolerance for a CIGAR insertion / large soft-clip (INS/ITD/PTD)
+supp_read_split_tol: 20000       # max bp between a split read's supplementary alignment (either end) and pos2 (FUS/IGR)
+
 # Paths to the input files (note: ${projectDir} refers to the directory containing main.nf)
 code_base: "${projectDir}/modules/code_base"
 cases_fastq_dir: './cases'
