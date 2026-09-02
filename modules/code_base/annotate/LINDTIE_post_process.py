@@ -37,6 +37,18 @@ BED_COLS = ['contig', 'start', 'end', 'name', 'score', 'strand', 'tStart', 'tEnd
 SPLIT_LEN = 10 # split variants longer than this many base-pairs into two separate junctions to count reads for
 VAR_SEQ_LEN = 40 # extract this many bp for each variant (N / 2 in each direction)
 
+# Subset of vaf_estimates.txt columns to merge (align with LINDTIE_estimate_VAF.R).
+# Fisher / chi-square and read-count columns were previously dropped here.
+VAF_ESTIMATE_MERGE_COLUMNS = [
+    'contig_id',
+    'TPM', 'sum_WT_TPM',
+    'VAF_sum_WT_TPM',
+    'control_gene_count_total', 'control_gene_count_wt',
+    'control_contig_count',
+    'num_reads_case', 'case_gene_count_wt',
+    'fisher_p_val', 'odds_ratio',
+]
+
 # Global variables for minimum thresholds
 MIN_CLIP = None
 MIN_GAP = None
@@ -93,7 +105,7 @@ def calculate_variant_score(variant_row):
     try:
         size = abs(int(variant_row.get('varsize', 0)))
         reads = int(variant_row.get('num_reads_case', 0))
-        vaf = float(variant_row.get('VAF', 0))
+        vaf = float(variant_row.get('VAF_sum_WT_TPM', 0))
         contig_varsize = abs(int(variant_row.get('contig_varsize', 0)))
     except (ValueError, TypeError):
         size, reads, vaf, contig_varsize = 0, 0, 0.0, 0
@@ -222,7 +234,7 @@ def calculate_variant_score(variant_row):
     elif reads >= 20:
         score += 20
         
-    # VAF
+    # VAF (VAF_sum_WT_TPM)
     if vaf < 0.05:
         score -= 30
     elif vaf > 0.2:
@@ -379,7 +391,7 @@ def get_detailed_scoring_breakdown(variant_row):
     try:
         size = abs(int(variant_row.get('varsize', 0)))
         reads = int(variant_row.get('num_reads_case', 0))
-        vaf = float(variant_row.get('VAF', 0))
+        vaf = float(variant_row.get('VAF_sum_WT_TPM', 0))
         contig_varsize = abs(int(variant_row.get('contig_varsize', 0)))
     except:
         size, reads, vaf, contig_varsize = 0, 0, 0.0, 0
@@ -556,7 +568,8 @@ def parse_args(args):
     parser.add_argument('--single_sample_min_vaf',
                         type=float,
                         default=0.1,
-                        help='''Minimum VAF to keep a variant when RUN_DE is false (default: 0.1).''')
+                        help='''Minimum VAF_sum_WT_TPM to keep a variant when RUN_DE is false '''
+                             '''(default: 0.1).''')
     parser.add_argument(dest='de_results',
                         metavar='DE_RESULTS',
                         type=str,
@@ -813,6 +826,47 @@ def ensure_seq_columns(df):
             df[col] = ''
     return df
 
+
+def prepare_vaf_merge_table(vafs):
+    '''
+    Dedupe VAF estimates and keep all merge columns present in the file.
+    '''
+    if vafs is None or vafs.empty:
+        return vafs
+    if 'contig_id' not in vafs.columns:
+        logging.warning('VAF file has no contig_id column; using full table as-is.')
+        return vafs.drop_duplicates()
+    use_cols = ['contig_id'] + [
+        c for c in VAF_ESTIMATE_MERGE_COLUMNS
+        if c in vafs.columns and c != 'contig_id'
+    ]
+    return vafs[use_cols].drop_duplicates()
+
+
+def merge_vaf_into_contigs(contigs, vafs):
+    '''
+    Left-merge VAF columns on contig_id. For columns present in both tables
+    (e.g. num_reads_case, which exists on contigs from the DE/Oarfish path and in the
+    VAF file), prefer the VAF value but fall back to the existing contigs value where the
+    VAF table has no row for that contig. This keeps Oarfish read counts for variants that
+    are not variant_of_interest and are therefore absent from vaf_estimates.txt (which
+    would otherwise leave num_reads_case as NaN/NA in the final results).
+    '''
+    if vafs is None or vafs.empty or 'contig_id' not in vafs.columns:
+        return contigs
+    overlap = [c for c in vafs.columns if c != 'contig_id' and c in contigs.columns]
+    fallback = None
+    if overlap:
+        # These columns are constant within a contig; dedupe so the backfill index is unique.
+        fallback = contigs[['contig_id'] + overlap].drop_duplicates('contig_id').set_index('contig_id')
+        contigs = contigs.drop(columns=overlap, errors='ignore')
+    merged = contigs.merge(vafs, on='contig_id', how='left')
+    if overlap:
+        for col in overlap:
+            backfill = merged['contig_id'].map(fallback[col])
+            merged[col] = merged[col].where(merged[col].notna(), backfill)
+    return merged
+
 def filter_variants_with_chr(df, label, detect_viral_integration=False):
     '''
     Keep variants where chr1 or chr2 contains lowercase "chr".
@@ -968,46 +1022,59 @@ def reformat_fields(contigs):
 
     # Final column order when DE columns are available
     final_cols_de = [
-        'chr1', 'pos1', 'strand1',
-        'chr2', 'pos2', 'strand2',
-        'variant_type', 'other_variant_type', 'overlapping_genes', 'sample',
-        'variant_id', 'partner_id', 'vars_in_contig',
-        'varsize', 'contig_varsize', 'cpos',
-        'TPM', 'mean_WT_TPM','VAF', 'logFC', 'FDR', 'PValue', 'num_reads_case', 'total_num_reads_controls',
+        'chr1', 'pos1', 'strand1', 'site1_feature',
+        'chr2', 'pos2', 'strand2', 'site2_feature',
+        'variant_type', 'other_variant_type', 'overlapping_genes', 'sample', 'varsize',
+        'supporting_read_count', 'supporting_read_count_reliability', 'other_supporting_read_count',
+        'spanning_reads', 'junction_VAF', 'num_reads_case', 'total_num_reads_controls',
+        'VAF_sum_WT_TPM',
+        'logFC', 'FDR', 'PValue',
+        'case_gene_count_wt', 'control_gene_count_wt', 'control_contig_count', 'control_gene_count_total',
+        'TPM', 'sum_WT_TPM', 'fisher_p_val', 'odds_ratio',
         'large_varsize', 'is_contig_spliced', 'spliced_exon', 'overlaps_exon', 'overlaps_gene',
         'motif', 'valid_motif', 'COSMIC_tier', 'COSMIC_fusion',
-        'site1_feature', 'site2_feature', 'is_coding',
-        'contig_id', 'unique_contig_ID', 'contig_len', 'contig_cigar',
-        'seq_loc1', 'seq_loc2', 'seq1', 'seq2', 'variant_score'
+        'vars_in_contig', 'contig_id', 'variant_id', 'partner_id', 'contig_varsize', 'cpos',
+        'unique_contig_ID', 'contig_len', 'contig_cigar', 'seq_loc1', 'seq_loc2', 'seq1', 'seq2', 'variant_score'
     ]
 
-    # Final column order when DE columns are not available
+    # Final column order when DE columns are not available (same as final_cols_de minus logFC/FDR/PValue)
     final_cols_node = [
-        'chr1', 'pos1', 'strand1',
-        'chr2', 'pos2', 'strand2',
-        'variant_type', 'other_variant_type', 'overlapping_genes', 'sample',
-        'variant_id', 'partner_id', 'vars_in_contig',
-        'varsize', 'contig_varsize', 'cpos',  
-        'TPM', 'mean_WT_TPM', 'VAF',
+        'chr1', 'pos1', 'strand1', 'site1_feature',
+        'chr2', 'pos2', 'strand2', 'site2_feature',
+        'variant_type', 'other_variant_type', 'overlapping_genes', 'sample', 'varsize',
+        'supporting_read_count', 'supporting_read_count_reliability', 'other_supporting_read_count',
+        'spanning_reads', 'junction_VAF', 'num_reads_case', 'total_num_reads_controls',
+        'VAF_sum_WT_TPM',
+        'case_gene_count_wt', 'control_gene_count_wt', 'control_contig_count', 'control_gene_count_total',
+        'TPM', 'sum_WT_TPM', 'fisher_p_val', 'odds_ratio',
         'large_varsize', 'is_contig_spliced', 'spliced_exon', 'overlaps_exon', 'overlaps_gene',
         'motif', 'valid_motif', 'COSMIC_tier', 'COSMIC_fusion',
-        'site1_feature', 'site2_feature', 'is_coding',
-        'contig_id', 'unique_contig_ID', 'contig_len', 'contig_cigar',
-        'seq_loc1', 'seq_loc2', 'seq1', 'seq2', 'variant_score'
+        'vars_in_contig', 'contig_id', 'variant_id', 'partner_id', 'contig_varsize', 'cpos',
+        'unique_contig_ID', 'contig_len', 'contig_cigar', 'seq_loc1', 'seq_loc2', 'seq1', 'seq2', 'variant_score'
     ]
 
-    # Sort by PValue (ascending) if available, otherwise by VAF (descending)
+    # Sort by PValue (ascending) if available, otherwise by VAF_sum_WT_TPM (descending)
     if 'PValue' in contigs.columns:
         contigs['PValue'] = pd.to_numeric(contigs['PValue'], errors='coerce')
         contigs = contigs.sort_values(by='PValue', ascending=True, na_position='last')
-    elif 'VAF' in contigs.columns:
-        contigs['VAF'] = pd.to_numeric(contigs['VAF'], errors='coerce')
-        contigs = contigs.sort_values('VAF', ascending=False, na_position='last')
+    elif 'VAF_sum_WT_TPM' in contigs.columns:
+        contigs['VAF_sum_WT_TPM'] = pd.to_numeric(contigs['VAF_sum_WT_TPM'], errors='coerce')
+        contigs = contigs.sort_values('VAF_sum_WT_TPM', ascending=False, na_position='last')
 
-    # Select columns according to availability
+    # Enforce full column set: missing columns (e.g. no DE / older VAF file) become NA
     final_cols = final_cols_de if ran_de else final_cols_node
-    cols_present = [c for c in final_cols if c in contigs.columns]
-    contigs = contigs[cols_present]
+    for c in final_cols:
+        if c not in contigs.columns:
+            contigs[c] = pd.NA
+
+    # Read-count columns: emit as clean integers (no decimals). The supporting-read
+    # columns come from a left merge, so they are float-with-NaN until cast to Int64.
+    for _c in ('num_reads_case', 'case_gene_count_wt', 'supporting_read_count',
+               'spanning_reads'):
+        if _c in contigs.columns:
+            contigs[_c] = pd.to_numeric(contigs[_c], errors='coerce').round().astype('Int64')
+
+    contigs = contigs[final_cols]
 
     return contigs
 
@@ -1035,13 +1102,7 @@ def main():
 
         vafs = pd.read_csv(args.vaf_estimates, sep='\t', low_memory=False)
         logging.info(f"Loaded VAF estimates from {args.vaf_estimates}.")
-        
-        # Process VAF data to keep only necessary columns
-        if 'TPM' in vafs.columns and 'mean_WT_TPM' in vafs.columns:
-            vafs = vafs[['contig_id', 'TPM', 'mean_WT_TPM', 'VAF']].drop_duplicates()
-        else:
-            # Keep all columns if the expected ones are not present
-            vafs = vafs.drop_duplicates()
+        vafs = prepare_vaf_merge_table(vafs)
         logging.info(f"Processed VAF data: {len(vafs)} unique records.")
 
         # Load gene filter if provided
@@ -1080,12 +1141,7 @@ def main():
     # STEP 2: Apply improved variant consolidation using scoring system on remaining contigs
     logging.info("Processing %d filtered variants using improved scoring system", len(kept_contigs))
     contigs = add_other_variant_types_by_contig(kept_contigs)
-    # Persist per-row scores so they can be emitted in final output
-    contigs['variant_score'] = contigs.apply(calculate_variant_score, axis=1)
     logging.info(f"After variant consolidation: {len(contigs)} variants")
-
-    # Validate the scoring system worked correctly
-    validate_scoring_system(contigs)
 
     logging.info("Added variants per contig information.")
 
@@ -1108,7 +1164,18 @@ def main():
     # STEP 5: Add DE and VAF information
     logging.info('Adding DE and VAF info...')
     contigs = add_de_info(contigs, de_results)
-    contigs = pd.merge(contigs, vafs, on='contig_id', how='left')
+    contigs = merge_vaf_into_contigs(contigs, vafs)
+
+    # Score only once num_reads_case (from add_de_info) and VAF_sum_WT_TPM (from the VAF merge)
+    # are present. Scored any earlier, both .get() calls fall back to their 0 default and the
+    # evidence block applies a flat -80 to every row (reads < 3 and vaf < 0.05), carrying no
+    # information. varsize/contig_varsize come from the contig info file and are fine either way.
+    #
+    # select_best_variant_per_contig still scores pre-merge, because it has to pick a surviving
+    # variant before the per-contig collapse. That is harmless: both columns are per-contig, so
+    # the -80 lands equally on every candidate and cancels out of a within-contig ranking.
+    contigs['variant_score'] = contigs.apply(calculate_variant_score, axis=1)
+    validate_scoring_system(contigs)
 
     # Add COSMIC Annotation
     contigs = add_cosmic_info(contigs, args.cosmic_tier_data)
@@ -1129,11 +1196,12 @@ def main():
         
         # DEBUG: Log what values we are seeing before filtering
         logging.info(f"DEBUG: Unique COSMIC Tiers found: {contigs['COSMIC_tier'].unique()}")
-        logging.info(f"DEBUG: VAF stats: Min={contigs['VAF'].min()}, Max={contigs['VAF'].max()}")
+        logging.info(f"DEBUG: VAF_sum_WT_TPM stats: Min={contigs['VAF_sum_WT_TPM'].min()}, "
+                     f"Max={contigs['VAF_sum_WT_TPM'].max()}")
 
         # 1. Clean VAF
-        contigs['VAF'] = pd.to_numeric(contigs['VAF'], errors='coerce').fillna(0)
-        
+        contigs['VAF_sum_WT_TPM'] = pd.to_numeric(contigs['VAF_sum_WT_TPM'], errors='coerce').fillna(0)
+
         # 2. Robust Tier Check
         # Allows matching '1', 'Tier 1', '1.0', etc.
         def is_tier_valid(val):
@@ -1141,8 +1209,8 @@ def main():
             return '1' in val_str or '2' in val_str
 
         has_cosmic = contigs['COSMIC_tier'].apply(is_tier_valid)
-        high_vaf = contigs['VAF'] >= args.single_sample_min_vaf
-        
+        high_vaf = contigs['VAF_sum_WT_TPM'] >= args.single_sample_min_vaf
+
         # 3. Apply Filter
         contigs = contigs[has_cosmic & high_vaf]
         
@@ -1178,14 +1246,14 @@ def main():
             logging.info('Preparing discard output with final columns...')
             # Add DE/VAF info
             discarded_full = add_de_info(discarded_contigs.copy(), de_results)
-            discarded_full = pd.merge(discarded_full, vafs, on='contig_id', how='left')
+            discarded_full = merge_vaf_into_contigs(discarded_full, vafs)
             discarded_full = add_cosmic_info(discarded_full, args.cosmic_tier_data)
             # other_variant_type may not exist; ensure it exists for reformat
             if 'other_variant_type' not in discarded_full.columns:
                 discarded_full['other_variant_type'] = ''
-            # Ensure variant_score exists for output column ordering
-            if 'variant_score' not in discarded_full.columns:
-                discarded_full['variant_score'] = discarded_full.apply(calculate_variant_score, axis=1)
+            # Score after the merges above, unconditionally: a variant_score carried over from
+            # the pre-merge frame would have been computed without VAF_sum_WT_TPM.
+            discarded_full['variant_score'] = discarded_full.apply(calculate_variant_score, axis=1)
             # Generate unique contig IDs and sequences
             short_gnames_disc = discarded_full.overlapping_genes.map(str).apply(get_short_gene_name)
             disc_ids, disc_samples = discarded_full.contig_id, discarded_full['sample']
@@ -1206,11 +1274,12 @@ def main():
     # If requested, produce an all-variants ranked TSV with the same column order
     if getattr(args, 'all_variants_out', '') and not all_variants.empty:
         try:
+            # Add DE/VAF info to all_variants first: rank_variants_per_contig scores each row,
+            # and the VAF term of that score needs VAF_sum_WT_TPM to already be merged in.
+            ranked_all = add_de_info(all_variants, de_results)
+            ranked_all = merge_vaf_into_contigs(ranked_all, vafs)
             # Compute ranking on the filtered set (pre-consolidation copy)
-            ranked_all = rank_variants_per_contig(all_variants)
-            # Add DE/VAF info to all_variants
-            ranked_all = add_de_info(ranked_all, de_results)
-            ranked_all = pd.merge(ranked_all, vafs, on='contig_id', how='left')
+            ranked_all = rank_variants_per_contig(ranked_all)
             ranked_all = add_cosmic_info(ranked_all, args.cosmic_tier_data)
             # Generate unique contig IDs to align with main output style
             short_gnames_all = ranked_all.overlapping_genes.map(str).apply(get_short_gene_name)
@@ -1233,29 +1302,31 @@ def main():
             ranked_all = filter_variants_with_chr(
                 ranked_all, "all-variants ranked", detect_viral_integration=detect_viral
             )
+            # Sort before selecting columns, so the fallback key does not have to survive
+            # the column selection below (by PValue if available else VAF_sum_WT_TPM desc).
+            if 'PValue' in ranked_all.columns:
+                ranked_all['PValue'] = pd.to_numeric(ranked_all['PValue'], errors='coerce')
+                ranked_all = ranked_all.sort_values(by='PValue', ascending=True, na_position='last')
+            elif 'VAF_sum_WT_TPM' in ranked_all.columns:
+                ranked_all['VAF_sum_WT_TPM'] = pd.to_numeric(ranked_all['VAF_sum_WT_TPM'], errors='coerce')
+                ranked_all = ranked_all.sort_values('VAF_sum_WT_TPM', ascending=False, na_position='last')
             # Compose final ordering to strictly follow the main output's column order
             base_cols = list(contigs.columns)
             # Define ranking columns that should be preserved (avoid duplicates)
-            base_cols = list(contigs.columns)
             ranking_cols = [
                 c for c in ['variant_score', 'rank_within_contig', 'is_primary']
                 if c in ranked_all.columns and c not in base_cols
             ]
-            # Filter out extra DE columns that aren't in the original output
-            extra_de_cols = ['variant_of_interest', 'logCPM', 'F', 'len', 'Overdispersion']
             # Start with the exact column order from the main output
             final_cols = [c for c in base_cols if c in ranked_all.columns]
             # Add ranking columns at the end
             final_cols.extend(ranking_cols)
             # Select only these columns
             ranked_all = ranked_all[final_cols]
-            # Sort to match original output behavior (by PValue if available else VAF desc)
-            if 'PValue' in ranked_all.columns:
-                ranked_all['PValue'] = pd.to_numeric(ranked_all['PValue'], errors='coerce')
-                ranked_all = ranked_all.sort_values(by='PValue', ascending=True, na_position='last')
-            elif 'VAF' in ranked_all.columns:
-                ranked_all['VAF'] = pd.to_numeric(ranked_all['VAF'], errors='coerce')
-                ranked_all = ranked_all.sort_values('VAF', ascending=False, na_position='last')
+            # Oarfish read-count columns: emit as clean integers (no decimals).
+            for _c in ('num_reads_case', 'case_gene_count_wt'):
+                if _c in ranked_all.columns:
+                    ranked_all[_c] = pd.to_numeric(ranked_all[_c], errors='coerce').round().astype('Int64')
             # Write file
             ranked_all.to_csv(args.all_variants_out, index=False, sep='\t', na_rep='NA')
             logging.info(f"Wrote all-variants ranked table to {args.all_variants_out}")
