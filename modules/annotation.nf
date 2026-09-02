@@ -148,6 +148,7 @@ process filter_refined_annotated_contigs_fasta {
     Container:
     - conda-forge::r-dplyr=1.1.4
     - conda-forge::r-data.table=1.17.6
+    - conda-forge::r-tidyr=1.3.2
     - bioconda::bioconductor-tximport=1.34.0
 */
 process estimate_vaf {
@@ -155,7 +156,9 @@ process estimate_vaf {
     tag "${sample_id}"
     label 'process_short'
 
-    container 'oras://community.wave.seqera.io/library/bioconductor-tximport_r-data.table_r-dplyr:e41e296cf4f11db2'
+    publishDir "${sample_id}_output/FinalOutput", mode: 'copy', pattern: '*.txt'
+
+    container 'oras://community.wave.seqera.io/library/bioconductor-tximport_r-data.table_r-dplyr_r-tidyr:161375835f92396f'
 
     input:
       tuple val(sample_id), path(transcript_matrix), path(case_quant), path(refined_annotated_contigs_info), path(trans_fasta), path(tx2gene)
