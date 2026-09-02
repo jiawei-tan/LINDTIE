@@ -292,6 +292,7 @@ process post_process {
       --single_sample_cosmic_filter ${params.single_sample_cosmic_filter} \
       --max_fisher_p_val ${eff_max_fisher_p_val} \
       --detect_viral_integration ${params.detect_viral_integration} \
+      --supporting_reads ${supporting_reads} \
       --log final_post_process.log \
       --all_variants_out ${sample_id}_all_variants_ranked_results.tsv \
       --discard_out ${sample_id}_discarded_results.tsv \

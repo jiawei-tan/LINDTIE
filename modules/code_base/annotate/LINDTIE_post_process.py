@@ -248,24 +248,30 @@ def calculate_variant_score(variant_row):
     
     return max(0, score)
 
+# Holds the variant_ids the per-contig collapse hides, so their supporting_read_count can be
+# recovered once the counts are merged on. Dropped before the final column selection.
+OTHER_VARIANT_IDS_COLUMN = '_other_variant_ids'
+
+
 def select_best_variant_per_contig(contigs_df):
     """
     Select the best variant type for each contig using improved scoring
-    
+
     Args:
         contigs_df: DataFrame with all variants (before filtering)
-        
+
     Returns:
         DataFrame with one row per contig (best variant selected)
     """
     result_variants = []
-    
+
     # Group by contig_id to handle multiple annotations per contig
     for contig_id, group in contigs_df.groupby('contig_id'):
         if len(group) == 1:
-            # Single annotation - just add other_variant_type column
+            # Single annotation - nothing is hidden, so the other_* columns stay empty
             variant = group.iloc[0].copy()
             variant['other_variant_type'] = ''
+            variant[OTHER_VARIANT_IDS_COLUMN] = ''
             result_variants.append(variant)
         else:
             # Multiple annotations - select best one using scoring
@@ -288,10 +294,16 @@ def select_best_variant_per_contig(contigs_df):
             primary_score = group_with_scores[0][0]
             primary_interest = group_with_scores[0][2]
             
-            # Collect other variant types
-            other_types = [row['variant_type'] for score, row, interest in group_with_scores[1:]]
+            # Collect the variants this contig hides behind the primary. Types and ids come
+            # from the same slice in the same order, which is what lets
+            # add_other_supporting_read_counts line its fields up with other_variant_type.
+            other_rows = [row for score, row, interest in group_with_scores[1:]]
+            other_types = [row['variant_type'] for row in other_rows]
             primary_variant['other_variant_type'] = '|'.join(other_types)
-            
+            primary_variant[OTHER_VARIANT_IDS_COLUMN] = '|'.join(
+                str(row.get('variant_id', '')) for row in other_rows
+            )
+
             # Log selection details
             logging.info(f"Contig {contig_id}: Selected {primary_variant['variant_type']} "
                         f"(score={primary_score}, variant_of_interest={primary_interest}) "
@@ -619,6 +631,11 @@ def parse_args(args):
                         help='''Maximum Fisher exact test p-value to keep (default: 0.05). '''
                              '''Variants with fisher_p_val greater than this are removed; '''
                              '''missing values are kept.''')
+    parser.add_argument('--supporting_reads',
+                        default=None,
+                        help='''Optional supporting_reads.tsv from count_supporting_reads '''
+                             '''(variant_id, supporting_read_count, spanning_reads, ...). '''
+                             '''Merged in as extra columns.''')
     return parser.parse_args(args)
 
 def get_all_genes(overlapping_genes):
@@ -773,6 +790,8 @@ def add_other_variant_types_by_contig(contigs):
         logging.info("Input contigs dataframe is empty. Skipping consolidation.")
         contigs = contigs.copy()
         contigs['other_variant_type'] = ''
+        contigs['other_supporting_read_count'] = ''
+        contigs[OTHER_VARIANT_IDS_COLUMN] = ''
         return contigs
 
     original_count = len(contigs)
@@ -836,6 +855,87 @@ def ensure_seq_columns(df):
         if col not in df.columns:
             df[col] = ''
     return df
+
+
+SUPPORTING_READ_COLUMNS = ['supporting_read_count', 'spanning_reads',
+                           'junction_VAF', 'candidate_depth', 'counted_locus',
+                           'support_signature', 'supporting_read_count_reliability']
+
+
+def merge_supporting_reads(df, supporting_reads_path):
+    '''
+    Left-merge the sequence-verified read counts onto `df` by variant_id.
+
+    Keyed on variant_id rather than contig_id because a contig routinely carries several
+    variants with different breakpoints, and because _results.tsv holds duplicate rows per
+    variant_id -- merging on a key that is non-unique on both sides would multiply them.
+    No-op when the file is missing or `df` has no variant_id.
+    '''
+    if (not supporting_reads_path or not os.path.exists(supporting_reads_path)
+            or df is None or df.empty or 'variant_id' not in df.columns):
+        return df
+    sup = pd.read_csv(supporting_reads_path, sep='\t', low_memory=False)
+    if sup.empty or 'variant_id' not in sup.columns:
+        return df
+    use_cols = ['variant_id'] + [c for c in SUPPORTING_READ_COLUMNS if c in sup.columns]
+    dup = [c for c in use_cols if c != 'variant_id' and c in df.columns]
+    if dup:
+        df = df.drop(columns=dup, errors='ignore')
+    return df.merge(sup[use_cols].drop_duplicates('variant_id'), on='variant_id',
+                    how='left', validate='m:1')
+
+
+def _format_supporting_count(value):
+    '''
+    Render one supporting_read_count for the pipe-joined other_supporting_read_count string.
+
+    Rounds like the Int64 cast in reformat_fields so a stored 12.0 prints as 12, and falls
+    back to 'NA' -- the na_rep every writer here uses -- when the count is missing, so the
+    field count never drifts out of step with other_variant_type.
+    '''
+    try:
+        if value is None or pd.isna(value):
+            return 'NA'
+        return str(int(round(float(value))))
+    except (TypeError, ValueError):
+        return 'NA'
+
+
+def add_other_supporting_read_counts(df, supporting_reads_path):
+    '''
+    Fill other_supporting_read_count from the variant_ids the per-contig collapse hid.
+
+    Runs after merge_supporting_reads because the counts are keyed by variant_id and the
+    collapse keeps only the primary row -- the hidden variants' counts are not on `df` at
+    all. Field i of the result is the count for field i of other_variant_type; missing
+    counts become 'NA' so the two stay positionally aligned. Left empty when there are no
+    counts to report (denovo mode ships a header-only supporting-reads file).
+    '''
+    if df is None or df.empty:
+        return df
+    df = df.copy()
+    ids = df.get(OTHER_VARIANT_IDS_COLUMN)
+    if ids is None or 'supporting_read_count' not in df.columns:
+        df['other_supporting_read_count'] = ''
+        return df.drop(columns=[OTHER_VARIANT_IDS_COLUMN], errors='ignore')
+
+    counts = {}
+    if supporting_reads_path and os.path.exists(supporting_reads_path):
+        sup = pd.read_csv(supporting_reads_path, sep='\t', low_memory=False)
+        if not sup.empty and {'variant_id', 'supporting_read_count'} <= set(sup.columns):
+            sup = sup.drop_duplicates('variant_id')
+            counts = dict(zip(sup['variant_id'].astype(str), sup['supporting_read_count']))
+
+    def resolve(joined):
+        if not isinstance(joined, str) or joined == '':
+            return ''
+        return '|'.join(_format_supporting_count(counts.get(vid)) for vid in joined.split('|'))
+
+    df['other_supporting_read_count'] = ids.map(resolve)
+    n = int((df['other_supporting_read_count'] != '').sum())
+    logging.info('Resolved other_supporting_read_count for %d of %d collapsed contigs.',
+                 n, len(df))
+    return df.drop(columns=[OTHER_VARIANT_IDS_COLUMN], errors='ignore')
 
 
 def prepare_vaf_merge_table(vafs):
@@ -1193,6 +1293,8 @@ def main():
 
     if len(contigs) == 0:
         logging.warning('No variants found after filtering. Generating empty output and exiting.')
+        # Bail out before the counts are merged, so drop the internal helper column here
+        contigs = contigs.drop(columns=[OTHER_VARIANT_IDS_COLUMN], errors='ignore')
         contigs.to_csv(sys.stdout, index=False, sep='\t', na_rep='NA')
         logging.info("Post-processing completed successfully (no variants found).")
         sys.exit()
@@ -1201,6 +1303,8 @@ def main():
     logging.info('Adding DE and VAF info...')
     contigs = add_de_info(contigs, de_results)
     contigs = merge_vaf_into_contigs(contigs, vafs)
+    contigs = merge_supporting_reads(contigs, args.supporting_reads)
+    contigs = add_other_supporting_read_counts(contigs, args.supporting_reads)
 
     # Score only once num_reads_case (from add_de_info) and VAF_sum_WT_TPM (from the VAF merge)
     # are present. Scored any earlier, both .get() calls fall back to their 0 default and the
@@ -1315,10 +1419,13 @@ def main():
             # Add DE/VAF info
             discarded_full = add_de_info(discarded_contigs.copy(), de_results)
             discarded_full = merge_vaf_into_contigs(discarded_full, vafs)
+            discarded_full = merge_supporting_reads(discarded_full, args.supporting_reads)
             discarded_full = add_cosmic_info(discarded_full, args.cosmic_tier_data)
             # other_variant_type may not exist; ensure it exists for reformat
             if 'other_variant_type' not in discarded_full.columns:
                 discarded_full['other_variant_type'] = ''
+            if 'other_supporting_read_count' not in discarded_full.columns:
+                discarded_full['other_supporting_read_count'] = ''
             # Score after the merges above, unconditionally: a variant_score carried over from
             # the pre-merge frame would have been computed without VAF_sum_WT_TPM.
             discarded_full['variant_score'] = discarded_full.apply(calculate_variant_score, axis=1)
@@ -1346,6 +1453,7 @@ def main():
             # and the VAF term of that score needs VAF_sum_WT_TPM to already be merged in.
             ranked_all = add_de_info(all_variants, de_results)
             ranked_all = merge_vaf_into_contigs(ranked_all, vafs)
+            ranked_all = merge_supporting_reads(ranked_all, args.supporting_reads)
             # Compute ranking on the filtered set (pre-consolidation copy)
             ranked_all = rank_variants_per_contig(ranked_all)
             ranked_all = filter_by_fisher_p_val(
@@ -1359,9 +1467,13 @@ def main():
             ranked_all['unique_contig_ID'] = con_names_all
             # Sequences already present from filtering step; ensure columns exist
             ranked_all = ensure_seq_columns(ranked_all)
-            # Ensure 'other_variant_type' exists even though we didn't consolidate
+            # Ensure the other_* columns exist even though we didn't consolidate; the
+            # column selection below keeps only columns present here, so without this
+            # the header would diverge from the main output.
             if 'other_variant_type' not in ranked_all.columns:
                 ranked_all['other_variant_type'] = ''
+            if 'other_supporting_read_count' not in ranked_all.columns:
+                ranked_all['other_supporting_read_count'] = ''
             # Recompute positional fields for ordering compatibility
             ranked_all = ranked_all.copy()
             pos1_all = ranked_all.pos1.apply(get_pos_parts).values
