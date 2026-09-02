@@ -326,23 +326,28 @@ run_edgeR <- function(case_name, oarfish_output_dir, outdir,
     stop("All transcripts filtered out by cpm.")
   }
 
-  # MDS plot
-  # Open a PNG device
-  png(filename = paste0(outdir, "/DE_MDS_plot.png"),
-    width    = 800,
-    height   = 600,
-    res      = 150)
-  plotMDS(dge_filt,
-          col = as.numeric(dge_filt$samples$Group),
-          main = "MDS Plot: Cases vs Controls",
-          labels = dge_filt$samples$SampleID)
-  legend("topright",  # Better position that won't overlap with plot
-         legend = levels(dge_filt$samples$Group),
-         col = 1:length(levels(dge_filt$samples$Group)),
-         pch = 15)
-  # Close the device
-  dev.off()
-  logcat("MDS plot written to DE_MDS_plot.png\n")
+  # MDS plot (requires at least 3 samples)
+  if (ncol(dge_filt$counts) < 3) {
+    logcat("Skipping MDS plot: need at least 3 samples, found ",
+           ncol(dge_filt$counts), "\n")
+  } else {
+    # Open a PNG device
+    png(filename = paste0(outdir, "/DE_MDS_plot.png"),
+      width    = 800,
+      height   = 600,
+      res      = 150)
+    plotMDS(dge_filt,
+            col = as.numeric(dge_filt$samples$Group),
+            main = "MDS Plot: Cases vs Controls",
+            labels = dge_filt$samples$SampleID)
+    legend("topright",  # Better position that won't overlap with plot
+           legend = levels(dge_filt$samples$Group),
+           col = 1:length(levels(dge_filt$samples$Group)),
+           pch = 15)
+    # Close the device
+    dev.off()
+    logcat("MDS plot written to DE_MDS_plot.png\n")
+  }
 
   # MD plot
   # Open a PNG device
@@ -394,15 +399,19 @@ run_edgeR <- function(case_name, oarfish_output_dir, outdir,
     "Found ", nrow(res_all), " differentially expressed transcripts\n"
   )
 
-  # QL dispersion plot
-  # Open a PNG device
-  png(filename = paste0(outdir, "/DE_QLDisp_plot.png"),
-    width    = 800,
-    height   = 600,
-    res      = 150)
-  plotQLDisp(qlf_fit)
-  dev.off()
-  logcat("QL dispersion plot written to DE_QLDisp_plot.png\n")
+  # QL dispersion plot (only available for QLFit branch)
+  if (exists("qlf_fit", inherits = FALSE)) {
+    # Open a PNG device
+    png(filename = paste0(outdir, "/DE_QLDisp_plot.png"),
+      width    = 800,
+      height   = 600,
+      res      = 150)
+    plotQLDisp(qlf_fit)
+    dev.off()
+    logcat("QL dispersion plot written to DE_QLDisp_plot.png\n")
+  } else {
+    logcat("Skipping QL dispersion plot: qlf_fit not available\n")
+  }
 
   # Log FDR and logFC summaries BEFORE filtering
   logcat("FDR summary (before filtering):\n")
@@ -465,7 +474,7 @@ if (nrow(res_sig) == 0) {
   } else {
     logcat("WARNING: No control samples found for total_num_reads_controls.\n")
   }
-
+  
   # Add TPM for all samples (case + controls) if available
   if (!is.null(tpm_df)) {
     res_sig <- left_join(res_sig, tpm_df, by = "transcript_id")
