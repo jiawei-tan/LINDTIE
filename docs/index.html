@@ -1758,6 +1758,17 @@
                         </div>
                         <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
 
+                        <!-- Step 5 -->
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="background: var(--primary-gold); color: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">5</div>
+                            <div style="flex: 1; background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid var(--primary-gold);">
+                                <div style="color: var(--text-primary); font-weight: 600;">Read Support &amp; Enrichment</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Estimate VAF with Fisher enrichment testing, and count variant-supporting reads directly from the genome alignment</div>
+                                <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Tools: tximport, pysam, custom scripts</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
+
                         <!-- Output -->
                         <div style="text-align: center;">
                             <div style="display: inline-block; background: var(--success-bg); border: 2px solid var(--success-border); border-radius: 8px; padding: 12px 24px;">
@@ -2151,8 +2162,15 @@ nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile
                                 <td><span class="category-badge">Quantification</span></td>
                             </tr>
                             <tr>
+                                <td><code>oarfish_growth_rate</code></td>
+                                <td>Oarfish EM growth rate (passed to Oarfish's <code>--growth-rate</code>)</td>
+                                <td><code>0.5</code></td>
+                                <td>numeric (e.g., <code>0.5</code>)</td>
+                                <td><span class="category-badge">Quantification</span></td>
+                            </tr>
+                            <tr>
                                 <td><code>RUN_DE</code></td>
-                                <td>Toggle to enable/disable the Differential Expression module</td>
+                                <td>Toggle to enable/disable the Differential Expression module. Requires control samples: if the controls directory holds no read files, the run automatically falls back to single-sample mode (a warning is logged, and <code>run_parameters.log</code> records the effective value)</td>
                                 <td><code>true</code></td>
                                 <td><code>true</code> or <code>false</code></td>
                                 <td><span class="category-badge">DE Analysis</span></td>
@@ -2215,10 +2233,24 @@ nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile
                             </tr>
                             <tr>
                                 <td><code>single_sample_min_vaf</code></td>
-                                <td>Minimum variant allele frequency (VAF) threshold for retaining variants when <code>RUN_DE</code> is <code>false</code></td>
+                                <td>Minimum <code>VAF_sum_WT_TPM</code> threshold for retaining variants when <code>RUN_DE</code> is <code>false</code></td>
                                 <td><code>0.1</code></td>
                                 <td>numeric (e.g., <code>0.1</code>)</td>
                                 <td><span class="category-badge">Detection</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>single_sample_cosmic_filter</code></td>
+                                <td>Require a COSMIC tier 1/2 gene to retain a variant when <code>RUN_DE</code> is <code>false</code>. Set to <code>false</code> to keep variants outside the Cancer Gene Census</td>
+                                <td><code>true</code></td>
+                                <td><code>true</code> or <code>false</code></td>
+                                <td><span class="category-badge">Filtering</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>max_fisher_p_val</code></td>
+                                <td>Maximum Fisher's exact test p-value to retain a variant; variants with a larger <code>fisher_p_val</code> are discarded. Automatically treated as <code>1</code> (filter disabled) when no controls are present, since the test is not meaningful without them</td>
+                                <td><code>0.05</code></td>
+                                <td>numeric (e.g., <code>0.05</code>)</td>
+                                <td><span class="category-badge">Filtering</span></td>
                             </tr>
                             <tr>
                                 <td><code>gene_filter</code></td>
@@ -2233,6 +2265,97 @@ nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile
                                 <td><code>NULL</code></td>
                                 <td>comma-separated or <code>NULL</code> (e.g., <code>"DEL,INS"</code>)</td>
                                 <td><span class="category-badge">Filtering</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 id="supp-read-params">Supporting-Read Counting Parameters</h3>
+
+                <p>These control <code>count_supporting_reads</code>, which counts variant-supporting reads directly from the genome alignment (see <a href="#supporting-reads" onclick="event.preventDefault(); document.getElementById('supporting-reads').scrollIntoView({behavior: 'smooth'});">Supporting-read counting</a>). The defaults were tuned against simulated and real ONT data and <strong>most users should not need to change them</strong>. The reference GTF used is the existing <code>tx_annotation</code> parameter.</p>
+
+                <div style="overflow-x: auto;">
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Description</th>
+                                <th>Default</th>
+                                <th>Affects</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>supp_read_window</code></td>
+                                <td>Base pairs either side of a breakpoint in which to fetch candidate reads</td>
+                                <td><code>300</code></td>
+                                <td>all signatures</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_min_anchor</code></td>
+                                <td>Minimum aligned base pairs on the <em>reference</em> side of a boundary, so a read is genuinely anchored before it crosses</td>
+                                <td><code>20</code></td>
+                                <td>RI, EE, NE</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_through_depth</code></td>
+                                <td>Base pairs a read must stay aligned <em>into</em> the novel segment: <code>min(segment length, this)</code></td>
+                                <td><code>100</code></td>
+                                <td>RI, EE</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_min_gap</code></td>
+                                <td>Merge alignment gaps at or below this length, to absorb ONT indel noise</td>
+                                <td><code>25</code></td>
+                                <td>RI, EE, NE</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_gap_merge</code></td>
+                                <td>Merge D/N CIGAR operations separated by at most this distance when matching a splice or deletion gap</td>
+                                <td><code>30</code></td>
+                                <td>AS, NEJ, PNJ, DEL</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_tol</code></td>
+                                <td>Maximum breakpoint position tolerance (tightened automatically for smaller gaps)</td>
+                                <td><code>35</code></td>
+                                <td>NE, AS, NEJ, PNJ, DEL</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_bp_tol</code></td>
+                                <td>Breakpoint tolerance for a clip position</td>
+                                <td><code>10</code></td>
+                                <td>UN (fallback for FUS, IGR)</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_near_canonical</code></td>
+                                <td>A variant junction within this distance of an annotated junction is reported <code>reliability=low</code> — it is probably that junction shifted by a few base pairs</td>
+                                <td><code>10</code></td>
+                                <td>AS, NEJ, PNJ, DEL</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_min_clip</code></td>
+                                <td>Minimum soft/hard-clip length at the breakpoint to count as support</td>
+                                <td><code>25</code></td>
+                                <td>UN</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_inside_window</code></td>
+                                <td>Base pairs past the counted junction in which to look for spliced-in reads</td>
+                                <td><code>250</code></td>
+                                <td>NE, EE</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_ins_tol</code></td>
+                                <td>Position tolerance for a CIGAR insertion or large soft-clip</td>
+                                <td><code>100</code></td>
+                                <td>INS, ITD, PTD</td>
+                            </tr>
+                            <tr>
+                                <td><code>supp_read_split_tol</code></td>
+                                <td>Maximum distance between a split read's supplementary alignment (either end) and <code>pos2</code></td>
+                                <td><code>20000</code></td>
+                                <td>FUS, IGR</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2296,9 +2419,26 @@ min_gap: 7                       # default 7
 min_match: '30,0.3'              # default '30,0.3'
 splice_motif_mismatch: 1         # default 1
 oarfish_num_bootstraps: 10       # default 10
+oarfish_growth_rate: 0.5         # oarfish -k; default 0.5
 gene_filter: NULL                # default NULL (e.g. "TP53,BRCA2")
 var_filter: NULL                 # default NULL (e.g. "DEL,INS")
 single_sample_min_vaf: 0.1       # default 0.1
+single_sample_cosmic_filter: true # true or false (default: true)
+max_fisher_p_val: 0.05           # default 0.05
+
+# Alignment-based supporting-read counting (count_supporting_reads)
+supp_read_window: 300            # bp either side of a breakpoint to fetch candidate reads
+supp_read_min_anchor: 20         # min aligned bp on the REFERENCE side of a boundary
+supp_read_through_depth: 100     # bp a read must stay aligned INTO the novel segment
+supp_read_min_gap: 25            # merge alignment gaps &lt;= this (absorb ONT indel noise)
+supp_read_gap_merge: 30          # merge D/N ops separated by &lt;= this
+supp_read_tol: 35                # max breakpoint position tolerance
+supp_read_bp_tol: 10             # breakpoint tolerance for a clip position (UN)
+supp_read_near_canonical: 10     # near an annotated junction -&gt; reliability=low
+supp_read_min_clip: 25           # min soft/hard-clip length for UN support
+supp_read_inside_window: 250     # bp past the counted junction (NE/EE)
+supp_read_ins_tol: 100           # position tolerance for insertions (INS/ITD/PTD)
+supp_read_split_tol: 20000       # max split-read supplementary distance (FUS/IGR)
                             </code></pre>
                     </div>
                 </div>
@@ -2372,6 +2512,8 @@ single_sample_min_vaf: 0.1       # default 0.1
 ├── refined_annotated_contigs.bam.bai
 ├── refined_annotated_contigs.fasta
 ├── refined_annotated_contigs.vcf
+├── supporting_reads.tsv
+├── vaf_estimates.txt
 ├── &lt;caseName&gt;_all_variants_ranked_results.tsv
 ├── &lt;caseName&gt;_discarded_results.tsv
 └── &lt;caseName&gt;_results.tsv</code></pre>
@@ -2410,212 +2552,261 @@ single_sample_min_vaf: 0.1       # default 0.1
                         </tr>
                         <tr>
                             <td>4</td>
-                            <td>chr2</td>
-                            <td>Chromosome for end 2 of the variant.</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>pos2</td>
-                            <td>Genomic position for end 2 of the variant.</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>strand2</td>
-                            <td>Strand (+/–) for end 2 of the variant.</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>variant_type</td>
-                            <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules" onclick="event.preventDefault(); document.getElementById('classification-rules').scrollIntoView({behavior: 'smooth'});">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
-                        </tr>
-
-                        <tr>
-                            <td>8</td>
-                            <td>other_variant_type</td>
-                            <td>Consolidated variant annotations for the contig. Multiple types are separated by "|"</td>
-                        </tr>
-                        <tr>
-                            <td>9</td>
-                            <td>overlapping_genes</td>
-                            <td>Genes overlapped by the contig. If separated by colons (":"), each gene corresponds to a different soft/hard-clipped segment.</td>
-                        </tr>
-                        <tr>
-                            <td>10</td>
-                            <td>sample</td>
-                            <td>Sample to which this variant belongs.</td>
-                        </tr>
-                        <tr>
-                            <td>11</td>
-                            <td>variant_id</td>
-                            <td>Assigned variant ID (matches the VCF file).</td>
-                        </tr>
-                        <tr>
-                            <td>12</td>
-                            <td>partner_id</td>
-                            <td>For fusions or junctions with two breakpoints, this identifies the paired variant.</td>
-                        </tr>
-                        <tr>
-                            <td>13</td>
-                            <td>vars_in_contig</td>
-                            <td>Number of variants detected on the aligned contig.</td>
-                        </tr>
-                        <tr>
-                            <td>14</td>
-                            <td>varsize</td>
-                            <td>Size of the variant on the reference genome.</td>
-                        </tr>
-                        <tr>
-                            <td>15</td>
-                            <td>contig_varsize</td>
-                            <td>Size of the variant on the contig sequence.</td>
-                        </tr>
-                        <tr>
-                            <td>16</td>
-                            <td>cpos</td>
-                            <td>Position of the variant on the contig (independent of alignment direction).</td>
-                        </tr>
-                        <tr>
-                            <td>17</td>
-                            <td>TPM</td>
-                            <td>Length-corrected transcript-per-million estimate for the variant contig.</td>
-                        </tr>
-                        <tr>
-                            <td>18</td>
-                            <td>mean_WT_TPM</td>
-                            <td>Mean length-corrected TPM of all wild-type genes associated with this transcript.</td>
-                        </tr>
-                        <tr>
-                            <td>19</td>
-                            <td>VAF</td>
-                            <td>Approximate variant allele frequency estimate.</td>
-                        </tr>
-                        <tr>
-                            <td>20</td>
-                            <td>logFC</td>
-                            <td>Maximum log fold change of associated transcript(s) in the case sample vs. controls.</td>
-                        </tr>
-                        <tr>
-                            <td>21</td>
-                            <td>FDR</td>
-                            <td>Adjusted (multiple-testing corrected) p-value.</td>
-                        </tr>
-                        <tr>
-                            <td>22</td>
-                            <td>PValue</td>
-                            <td>Minimum p-value for transcripts associated with this variant vs. controls.</td>
-                        </tr>
-                        <tr>
-                            <td>23</td>
-                            <td>num_reads_case</td>
-                            <td>Total read counts for all transcripts associated with the contig in the case sample.</td>
-                        </tr>
-                        <tr>
-                            <td>24</td>
-                            <td>total_num_reads_controls</td>
-                            <td>Total read counts for all associated transcripts across control samples.</td>
-                        </tr>
-                        <tr>
-                            <td>25</td>
-                            <td>large_varsize</td>
-                            <td>Indicates whether the variant size exceeds the <em>min_clip</em> threshold (default: 30 bp).</td>
-                        </tr>
-                        <tr>
-                            <td>26</td>
-                            <td>is_contig_spliced</td>
-                            <td>Indicates whether the contig is spliced (i.e., contains alignment gaps).</td>
-                        </tr>
-                        <tr>
-                            <td>27</td>
-                            <td>spliced_exon</td>
-                            <td>Indicates a novel or extended exon variant with a corresponding junction.</td>
-                        </tr>
-                        <tr>
-                            <td>28</td>
-                            <td>overlaps_exon</td>
-                            <td>Indicates whether the variant overlaps any annotated reference exon.</td>
-                        </tr>
-                        <tr>
-                            <td>29</td>
-                            <td>overlaps_gene</td>
-                            <td>Indicates whether the variant overlaps any annotated reference gene.</td>
-                        </tr>
-                        <tr>
-                            <td>30</td>
-                            <td>motif</td>
-                            <td>Splice motif sequence.</td>
-                        </tr>
-                        <tr>
-                            <td>31</td>
-                            <td>valid_motif</td>
-                            <td>Indicates whether the variant contains a valid splice motif. Some variant types (e.g., TSVs or splice events at known boundaries) are not tested.</td>
-                        </tr>
-                        <tr>
-                            <td>32</td>
-                            <td>COSMIC_tier</td>
-                            <td>The Cancer Gene Census assessment for the genes involved. Tier 1 denotes genes with documented activity relevant to cancer; Tier 2 denotes genes with strong evidence of a role in cancer but less extensive documentation.</td>
-                        </tr>
-                        <tr>
-                            <td>33</td>
-                            <td>COSMIC_fusion</td>
-                            <td>Indicates whether any gene involved in the event is listed in COSMIC Fusion. Yes means at least one overlapping gene is reported as a fusion partner in COSMIC; No means none are listed.</td>
-                        </tr>
-                        <tr>
-                            <td>34</td>
                             <td>site1_feature</td>
                             <td>The genomic feature annotation at the exact position of end 1 (e.g., CDS, UTR, intron, intergenic).</td>
                         </tr>
                         <tr>
-                            <td>35</td>
+                            <td>5</td>
+                            <td>chr2</td>
+                            <td>Chromosome for end 2 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>pos2</td>
+                            <td>Genomic position for end 2 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>strand2</td>
+                            <td>Strand (+/–) for end 2 of the variant.</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
                             <td>site2_feature</td>
                             <td>The genomic feature annotation at the exact position of end 2 (e.g., CDS, UTR, intron, intergenic).</td>
                         </tr>
                         <tr>
+                            <td>9</td>
+                            <td>variant_type</td>
+                            <td>LINDTIE's estimated classification of the variant type. Refer to <a href="#classification-rules" onclick="event.preventDefault(); document.getElementById('classification-rules').scrollIntoView({behavior: 'smooth'});">LINDTIE's Variant Classification</a> for the full list of variant types.</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>other_variant_type</td>
+                            <td>Consolidated variant annotations for the contig. Multiple types are separated by "|"</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>overlapping_genes</td>
+                            <td>Genes overlapped by the contig. If separated by colons (":"), each gene corresponds to a different soft/hard-clipped segment.</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>sample</td>
+                            <td>Sample to which this variant belongs.</td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td>varsize</td>
+                            <td>Size of the variant on the reference genome.</td>
+                        </tr>
+                        <tr>
+                            <td>14</td>
+                            <td>supporting_read_count</td>
+                            <td>Number of case reads whose <strong>alignment</strong> carries this variant's signature at the breakpoint (the same evidence IGV displays). Counted by <code>count_supporting_reads</code> directly from the genome alignment, independently of Oarfish. Blank for a single-point extended exon, where there is no novel extension to measure. See <a href="#supporting-reads" onclick="event.preventDefault(); document.getElementById('supporting-reads').scrollIntoView({behavior: 'smooth'});">Supporting-read counting</a>.</td>
+                        </tr>
+                        <tr>
+                            <td>15</td>
+                            <td>supporting_read_count_reliability</td>
+                            <td><code>high</code> or <code>low</code> confidence in <code>supporting_read_count</code>. <code>low</code> for FUS/IGR/INS/ITD/PTD (split-read and insertion evidence warrants manual review), deletions under 15 bp, non-discriminating extended exons, junctions within <em>supp_read_near_canonical</em> bp of an annotated junction, and anything counted without a reference GTF. A <code>low</code> count is a lead to inspect in IGV, not a measurement to trust blindly.</td>
+                        </tr>
+                        <tr>
+                            <td>16</td>
+                            <td>other_supporting_read_count</td>
+                            <td>Pipe-separated <code>supporting_read_count</code> of the <em>other</em> variants on this contig — the ones collapsed away into <code>other_variant_type</code>. Field <em>i</em> corresponds to field <em>i</em> of <code>other_variant_type</code>, so <code>NE|NEJ|EE</code> pairs with <code>209|190|0</code>. <code>NA</code> where that variant has no count; blank when the contig carries only one variant. <strong>This is a delimited string, not a number — do not cast it</strong>, and read it as character: a lone <code>NA</code> would otherwise parse as missing.</td>
+                        </tr>
+                        <tr>
+                            <td>17</td>
+                            <td>spanning_reads</td>
+                            <td>Number of case reads whose alignment envelope covers the counted junction — the denominator for <code>junction_VAF</code>, and what IGV shows as coverage at the locus. <code>supporting_read_count</code> &le; <code>spanning_reads</code> holds by construction.</td>
+                        </tr>
+                        <tr>
+                            <td>18</td>
+                            <td>junction_VAF</td>
+                            <td><code>supporting_read_count / spanning_reads</code>: an alignment-verified, junction-local variant allele frequency. Complements <code>VAF_sum_WT_TPM</code>, which is gene-relative and expression-based.</td>
+                        </tr>
+                        <tr>
+                            <td>19</td>
+                            <td>num_reads_case</td>
+                            <td>Total read counts for all transcripts associated with the contig in the case sample.</td>
+                        </tr>
+                        <tr>
+                            <td>20</td>
+                            <td>total_num_reads_controls</td>
+                            <td>Total read counts for all associated transcripts across control samples.</td>
+                        </tr>
+                        <tr>
+                            <td>21</td>
+                            <td>VAF_sum_WT_TPM</td>
+                            <td>Approximate variant allele frequency: <code>TPM / (TPM + sum_WT_TPM)</code>. For variants spanning multiple genes (e.g. fusions) the wild-type denominator is the <strong>sum</strong> of the partner genes' wild-type TPM.</td>
+                        </tr>
+                        <tr>
+                            <td>22</td>
+                            <td>logFC</td>
+                            <td>Maximum log fold change of associated transcript(s) in the case sample vs. controls.</td>
+                        </tr>
+                        <tr>
+                            <td>23</td>
+                            <td>FDR</td>
+                            <td>Adjusted (multiple-testing corrected) p-value.</td>
+                        </tr>
+                        <tr>
+                            <td>24</td>
+                            <td>PValue</td>
+                            <td>Minimum p-value for transcripts associated with this variant vs. controls.</td>
+                        </tr>
+                        <tr>
+                            <td>25</td>
+                            <td>case_gene_count_wt</td>
+                            <td>Total case reads assigned to wild-type (non-novel) transcripts of the gene(s) this contig overlaps. The case wild-type cell of the Fisher contingency table.</td>
+                        </tr>
+                        <tr>
+                            <td>26</td>
+                            <td>control_gene_count_wt</td>
+                            <td>Total control reads assigned to wild-type (non-novel) transcripts of the same gene(s). The control wild-type cell of the Fisher contingency table.</td>
+                        </tr>
+                        <tr>
+                            <td>27</td>
+                            <td>control_contig_count</td>
+                            <td>Total control reads assigned to this contig itself. A non-zero value means the variant contig is also expressed in the controls.</td>
+                        </tr>
+                        <tr>
+                            <td>28</td>
+                            <td>control_gene_count_total</td>
+                            <td>Total control reads across all transcripts of the gene(s), wild-type and novel combined.</td>
+                        </tr>
+                        <tr>
+                            <td>29</td>
+                            <td>TPM</td>
+                            <td>Length-corrected transcript-per-million estimate for the variant contig.</td>
+                        </tr>
+                        <tr>
+                            <td>30</td>
+                            <td>sum_WT_TPM</td>
+                            <td>Sum of the length-corrected TPM of all wild-type transcripts of the gene(s) associated with this contig. The denominator of <code>VAF_sum_WT_TPM</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>31</td>
+                            <td>fisher_p_val</td>
+                            <td>One-sided Fisher's exact test p-value for enrichment of this variant in the case relative to the controls, computed from the read counts above. Variants with p greater than <em>max_fisher_p_val</em> are filtered out. Not meaningful without controls — in single-sample mode the filter is disabled automatically.</td>
+                        </tr>
+                        <tr>
+                            <td>32</td>
+                            <td>odds_ratio</td>
+                            <td>Odds ratio from the same Fisher's exact test: how much more enriched the variant is in the case than in the controls.</td>
+                        </tr>
+                        <tr>
+                            <td>33</td>
+                            <td>large_varsize</td>
+                            <td>Indicates whether the variant size exceeds the <em>min_clip</em> threshold (default: 30 bp).</td>
+                        </tr>
+                        <tr>
+                            <td>34</td>
+                            <td>is_contig_spliced</td>
+                            <td>Indicates whether the contig is spliced (i.e., contains alignment gaps).</td>
+                        </tr>
+                        <tr>
+                            <td>35</td>
+                            <td>spliced_exon</td>
+                            <td>Indicates a novel or extended exon variant with a corresponding junction.</td>
+                        </tr>
+                        <tr>
                             <td>36</td>
-                            <td>is_coding</td>
-                            <td>Indicates whether the variant involves coding regions. This is determined by evaluating whether site1_feature and site2_feature are annotated as coding sequences (i.e., CDS).</td>
+                            <td>overlaps_exon</td>
+                            <td>Indicates whether the variant overlaps any annotated reference exon.</td>
                         </tr>
                         <tr>
                             <td>37</td>
+                            <td>overlaps_gene</td>
+                            <td>Indicates whether the variant overlaps any annotated reference gene.</td>
+                        </tr>
+                        <tr>
+                            <td>38</td>
+                            <td>motif</td>
+                            <td>Splice motif sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>39</td>
+                            <td>valid_motif</td>
+                            <td>Indicates whether the variant contains a valid splice motif. Some variant types (e.g., TSVs or splice events at known boundaries) are not tested.</td>
+                        </tr>
+                        <tr>
+                            <td>40</td>
+                            <td>COSMIC_tier</td>
+                            <td>The Cancer Gene Census assessment for the genes involved. Tier 1 denotes genes with documented activity relevant to cancer; Tier 2 denotes genes with strong evidence of a role in cancer but less extensive documentation.</td>
+                        </tr>
+                        <tr>
+                            <td>41</td>
+                            <td>COSMIC_fusion</td>
+                            <td>Indicates whether any gene involved in the event is listed in COSMIC Fusion. Yes means at least one overlapping gene is reported as a fusion partner in COSMIC; No means none are listed.</td>
+                        </tr>
+                        <tr>
+                            <td>42</td>
+                            <td>vars_in_contig</td>
+                            <td>Number of variants detected on the aligned contig.</td>
+                        </tr>
+                        <tr>
+                            <td>43</td>
                             <td>contig_id</td>
                             <td>Contig name from the de novo assembly.</td>
                         </tr>
                         <tr>
-                            <td>38</td>
+                            <td>44</td>
+                            <td>variant_id</td>
+                            <td>Assigned variant ID (matches the VCF file).</td>
+                        </tr>
+                        <tr>
+                            <td>45</td>
+                            <td>partner_id</td>
+                            <td>For fusions or junctions with two breakpoints, this identifies the paired variant.</td>
+                        </tr>
+                        <tr>
+                            <td>46</td>
+                            <td>contig_varsize</td>
+                            <td>Size of the variant on the contig sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>47</td>
+                            <td>cpos</td>
+                            <td>Position of the variant on the contig (independent of alignment direction).</td>
+                        </tr>
+                        <tr>
+                            <td>48</td>
                             <td>unique_contig_ID</td>
                             <td>ID of the modified SuperTranscript used in visualization outputs.</td>
                         </tr>
                         <tr>
-                            <td>39</td>
+                            <td>49</td>
                             <td>contig_len</td>
                             <td>Length of the contig sequence.</td>
                         </tr>
                         <tr>
-                            <td>40</td>
+                            <td>50</td>
                             <td>contig_cigar</td>
                             <td>CIGAR string representing the contig's genome alignment (may contain two strings if soft/hard-clipped).</td>
                         </tr>
                         <tr>
-                            <td>41</td>
+                            <td>51</td>
                             <td>seq_loc1</td>
                             <td>Location string for the first sequence region (e.g., contig123:100–140).</td>
                         </tr>
                         <tr>
-                            <td>42</td>
+                            <td>52</td>
                             <td>seq_loc2</td>
                             <td>Location string for the second sequence region, if applicable.</td>
                         </tr>
                         <tr>
-                            <td>43</td>
+                            <td>53</td>
                             <td>seq1</td>
                             <td>20 bp sequence around the main variant site.</td>
                         </tr>
                         <tr>
-                            <td>44</td>
+                            <td>54</td>
                             <td>seq2</td>
                             <td>20 bp sequence around the second variant site (if applicable).</td>
                         </tr>
                         <tr>
-                            <td>45</td>
+                            <td>55</td>
                             <td>variant_score</td>
                             <td>Score used for variant prioritization.</td>
                         </tr>
@@ -2623,9 +2814,77 @@ single_sample_min_vaf: 0.1       # default 0.1
                 </table>
             </div>
 
+            <h3 id="supporting-reads">Supporting-Read Counting</h3>
+
+            <p>LINDTIE reports two independent measures of how much read evidence a variant has, and <strong>neither replaces the other</strong>:</p>
+
+            <ul>
+                <li><code>num_reads_case</code> comes from <strong>Oarfish</strong> and is a <em>whole-contig</em> abundance estimate. Because it describes the entire contig rather than the breakpoint, it can overstate support for the specific variant.</li>
+                <li><code>supporting_read_count</code>, <code>spanning_reads</code> and <code>junction_VAF</code> come from the <code>count_supporting_reads</code> step, which reads the <strong>genome alignment directly</strong> — the same alignment IGV displays. A read counts as supporting only if its alignment reproduces the variant's signature at the breakpoint, so these numbers match what you see when you open the BAM in IGV.</li>
+            </ul>
+
+            <p>Reconciling the two is left to the analyst. The per-variant table is also written out in full as <code>FinalOutput/supporting_reads.tsv</code>, with a log at <code>FinalOutput/log/supporting_reads.log</code>. Because <code>&lt;caseName&gt;_results.tsv</code> keeps one row per contig, the complete per-variant counts live in <code>&lt;caseName&gt;_all_variants_ranked_results.tsv</code>; the counts the collapse would otherwise hide are preserved in <code>other_supporting_read_count</code>.</p>
+
+            <p>This step requires a genome alignment, so it is <strong>skipped in <code>denovo</code> assembly mode</strong>, where the supporting-read columns are left blank.</p>
+
+            <h4>How a read is counted, by variant type</h4>
+
+            <p>The <code>support_signature</code> column records which rule was applied:</p>
+
+            <div style="overflow-x: auto;">
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th><code>support_signature</code></th>
+                            <th>Variant types</th>
+                            <th>A read supports the variant if it&hellip;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>THROUGH</code></td>
+                            <td>RI</td>
+                            <td>aligns <em>through</em> the exon&rarr;intron boundary, staying aligned <code>min(intron length, supp_read_through_depth)</code> bp into the retained intron</td>
+                        </tr>
+                        <tr>
+                            <td><code>INTERIOR</code></td>
+                            <td>EE</td>
+                            <td>aligns through the boundary between the reference exon and the <em>novel</em> part of the extension, and into that extension</td>
+                        </tr>
+                        <tr>
+                            <td><code>INSIDE</code></td>
+                            <td>NE</td>
+                            <td>splices <em>into</em> the novel exon at the junction</td>
+                        </tr>
+                        <tr>
+                            <td><code>GAP</code></td>
+                            <td>AS, NEJ, PNJ, DEL</td>
+                            <td>has a gap starting near <code>pos1</code> and ending near <code>pos2</code> whose deleted length matches the variant, and that is not better explained by an annotated junction</td>
+                        </tr>
+                        <tr>
+                            <td><code>SPLIT</code></td>
+                            <td>FUS, IGR</td>
+                            <td>is a split read whose supplementary alignment bridges <code>pos1</code> and <code>pos2</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>CLIP</code></td>
+                            <td>UN</td>
+                            <td>soft- or hard-clips at approximately the breakpoint</td>
+                        </tr>
+                        <tr>
+                            <td><code>INSERTION</code></td>
+                            <td>INS, ITD, PTD</td>
+                            <td>carries approximately <code>varsize</code> inserted bases near <code>pos1</code>. Always <code>reliability=low</code>, because ONT insertions align unreliably</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Accuracy rests on three structural requirements rather than on threshold tuning: the read's feature must be in the right <strong>place</strong> (position tolerance), be the right <strong>size</strong> (a 17 bp deletion is not a 1 bp ONT indel), and <strong>not be better explained</strong> by a competing reference structure — an annotated intron or a reference exon. The last two need the reference GTF (<code>tx_annotation</code>); without it the step falls back to position-only matching and marks the affected rows <code>reliability=low</code>.</p>
+
             <h3 id="all-variants-ranked">&lt;caseName&gt;_all_variants_ranked_results.tsv</h3>
         
-            <p>This file is an expanded version of the <code>&lt;caseName&gt;_results.tsv</code> file. This table lists <strong>all</strong> variant annotations individually, without collapsing (i.e., a contig may appear in multiple rows if it has multiple annotations). It includes all columns present in <code>&lt;caseName&gt;_results.tsv</code>, plus <strong>three additional columns</strong>:</p>
+            <p>This file is an expanded version of the <code>&lt;caseName&gt;_results.tsv</code> file. This table lists <strong>all</strong> variant annotations individually, without collapsing (i.e., a contig may appear in multiple rows if it has multiple annotations). It includes all 55 columns present in <code>&lt;caseName&gt;_results.tsv</code> — including the supporting-read and Fisher enrichment columns, so this is where the <strong>complete per-variant</strong> <code>supporting_read_count</code> values live — plus <strong>two additional columns</strong>:</p>
 
             <div style="overflow-x: auto;">
                 <table class="params-table">
@@ -2638,12 +2897,12 @@ single_sample_min_vaf: 0.1       # default 0.1
                     </thead>
                     <tbody>
                         <tr>
-                            <td>46</td>
+                            <td>56</td>
                             <td>rank_within_contig</td>
                             <td>Rank of each annotation for a given contig based on its score; <strong>1 = highest-scoring annotation</strong>.</td>
                         </tr>
                         <tr>
-                            <td>47</td>
+                            <td>57</td>
                             <td>is_primary</td>
                             <td>Indicates whether this annotation was selected as the <em>primary</em> variant for that contig (i.e., the entry included in <code>&lt;caseName&gt;_results.tsv</code>).</td>
                         </tr>
@@ -2654,13 +2913,13 @@ single_sample_min_vaf: 0.1       # default 0.1
             <div class="info-box info">
                 <div class="info-box-title">Note</div>
                 <div class="info-box-content">
-                    <p>The <code>other_variant_type</code> column (col 8) is empty in this file because <em>each annotation is shown separately</em> rather than consolidated.</p>
+                    <p>The <code>other_variant_type</code> and <code>other_supporting_read_count</code> columns are empty in this file because <em>each annotation is shown separately</em> rather than consolidated.</p>
                 </div>
             </div>
 
             <h3 id="discarded-results">&lt;caseName&gt;_discarded_results.tsv</h3>
         
-            <p>This file contains variants filtered out due to low-complexity sequences. Specifically, variants are placed in this table if the seq1 or seq2 columns contain:</p>
+            <p>This file contains variants filtered out due to low-complexity sequences, using the same column layout as the primary results table (supporting-read and Fisher enrichment columns included). Specifically, variants are placed in this table if the seq1 or seq2 columns contain:</p>
             <ul>
                 <li>a polyA or polyT stretch of <strong>≥ 10 bp</strong>, or</li>
                 <li>a perfect dinucleotide repeat of <strong>≥ 10 repeats</strong> (i.e., <strong>20 bp total</strong>).</li>
@@ -2761,7 +3020,10 @@ single_sample_min_vaf: 0.1       # default 0.1
                 <li><strong><code>annotated_contigs_info.tsv</code></strong>: A tab-separated file that contains metadata and functional annotations for each transcript.</li>
                 <li><strong><code>annotated_contigs.vcf</code></strong>: A VCF file that contains variant calls identified during the annotation process.</li>
                 <li><strong><code>annotation.log</code></strong>: A log file that contains log messages from the annotation workflow.</li>
-            </ul>        
+            </ul>
+
+            <p>The annotation stage also produces two tables that are published straight to <code>FinalOutput/</code>: <strong><code>vaf_estimates.txt</code></strong> (per-contig TPM, wild-type expression, VAF and the Fisher enrichment statistics) from the <code>estimate_vaf</code> step, and <strong><code>supporting_reads.tsv</code></strong> (per-variant alignment-verified read counts) from the <code>count_supporting_reads</code> step.</p>
+
 
 
 
@@ -3087,6 +3349,8 @@ single_sample_min_vaf: 0.1       # default 0.1
                 <img src="figure/scoring-diagram.png" alt="LINDTIE Scoring System">
                 <!-- <div class="figure-caption">Figure 2: LINDTIE Scoring System</div> -->
             </div>
+
+            <p>The evidence component of the score uses <code>num_reads_case</code> and <code>VAF_sum_WT_TPM</code>, so scoring is applied only <em>after</em> the differential expression and VAF tables have been merged in — before that, both values would be unavailable and the term would contribute nothing.</p>
 
                 <div class="next-steps">
                     <a href="#resume" class="next-step-card">
@@ -3475,7 +3739,7 @@ bioconda::stringtie=2.2.3
 bioconda::minimap2=2.30
 bioconda::samtools=1.22
 bioconda::bbmap=39.52
-bioconda::oarfish=0.8.1
+bioconda::oarfish=0.10.1
 bioconda::bio=1.8.0
 bioconda::pysam=0.23.3
 bioconda::pybedtools=0.12.0
@@ -3486,6 +3750,7 @@ conda-forge::numpy=2.3.0
 conda-forge::intervaltree=3.1.0
 conda-forge::r-dplyr=1.1.4
 conda-forge::r-data.table=1.17.6
+conda-forge::r-tidyr=1.3.2
 conda-forge::r-jsonlite=2.0.0 
 conda-forge::r-readr=2.1.5 
 conda-forge::r-arrow=19.0.1</code></pre>
@@ -3861,6 +4126,51 @@ conda-forge::r-arrow=19.0.1</code></pre>
 
                 <p>This page documents all notable changes to LINDTIE. The format is based on <a href="https://keepachangelog.com/" target="_blank">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/" target="_blank">Semantic Versioning</a>.</p>
 
+                <!-- Version 0.2.0 -->
+                <h2 id="v0.2.0">v0.2.0</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Released: 2026</p>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">Breaking change to the output format</div>
+                    <div class="info-box-content">
+                        <p>The columns of <code>&lt;caseName&gt;_results.tsv</code> have changed, in both names and order. If you have downstream scripts that read this table, note in particular that <code>VAF</code> is now <code>VAF_sum_WT_TPM</code> (and is computed against a different denominator), <code>mean_WT_TPM</code> is now <code>sum_WT_TPM</code>, and <code>is_coding</code> has been removed — it is derived from <code>site1_feature</code>/<code>site2_feature</code>, so use <code>site1_feature == "CDS" || site2_feature == "CDS"</code> instead. Select columns by name rather than by position.</p>
+                    </div>
+                </div>
+
+                <h3 id="v0.2.0-added">Added</h3>
+                <ul>
+                    <li><strong>Alignment-based supporting-read counting</strong> (<code>count_supporting_reads</code>): counts, per variant, the case reads whose alignment carries the variant's signature at the breakpoint — the same evidence IGV displays — independently of Oarfish's whole-contig abundance. Adds the <code>supporting_read_count</code>, <code>supporting_read_count_reliability</code>, <code>other_supporting_read_count</code>, <code>spanning_reads</code> and <code>junction_VAF</code> columns, and publishes <code>FinalOutput/supporting_reads.tsv</code>. Skipped in <code>denovo</code> assembly mode, which has no genome alignment.</li>
+                    <li><strong>Fisher's exact enrichment test</strong> for each variant, comparing case and control read counts per gene. Adds the <code>fisher_p_val</code>, <code>odds_ratio</code>, <code>case_gene_count_wt</code>, <code>control_gene_count_wt</code>, <code>control_contig_count</code> and <code>control_gene_count_total</code> columns, and the <code>max_fisher_p_val</code> parameter (default <code>0.05</code>).</li>
+                    <li><code>VAF_sum_WT_TPM</code> and <code>sum_WT_TPM</code>: a variant allele frequency whose wild-type denominator is the <em>sum</em> of the partner genes' expression, which matters for multi-gene events such as fusions.</li>
+                    <li><code>single_sample_cosmic_filter</code> parameter (default <code>true</code>): the COSMIC tier 1/2 requirement in single-sample mode can now be switched off to retain variants outside the Cancer Gene Census.</li>
+                    <li><code>oarfish_growth_rate</code> parameter (default <code>0.5</code>), exposing Oarfish's <code>--growth-rate</code>.</li>
+                    <li>Twelve <code>supp_read_*</code> parameters controlling supporting-read counting.</li>
+                    <li>Per-sample TPM in the differential expression step (via tximport), plus a case-vs-control TPM-ratio filter requiring a fold change of at least <code>2^min_logfc</code> against <em>every</em> control. Adds <code>TPM_&lt;sample&gt;</code> and <code>TPM_ratio_*</code> columns to the DE result tables.</li>
+                    <li><code>vaf_estimates.txt</code> is now published to <code>FinalOutput/</code>.</li>
+                </ul>
+
+                <h3 id="v0.2.0-changed">Changed</h3>
+                <ul>
+                    <li>Oarfish upgraded from 0.8.1 to 0.10.1. The case quantification container no longer bundles qualimap, which was never invoked.</li>
+                    <li>Results column order reorganised: breakpoint and genomic-feature columns are grouped together, read-support and statistical columns follow, and identifier and sequence columns move to the end.</li>
+                    <li>VAF is now computed for <strong>all</strong> annotated contigs rather than only those flagged as variants of interest, so read counts and VAF are no longer missing for lower-ranked variants.</li>
+                    <li>Variant scoring now runs <em>after</em> the differential expression and VAF tables are merged in. Previously the read-count and VAF terms always saw their zero defaults, applying a constant penalty to every row and contributing no information to the ranking.</li>
+                    <li>An empty result set now emits the same header as a populated run, instead of a bare empty file.</li>
+                </ul>
+
+                <h3 id="v0.2.0-removed">Removed</h3>
+                <ul>
+                    <li><code>VAF</code>, <code>mean_WT_TPM</code> and <code>is_coding</code> columns from the results tables (see the note above).</li>
+                </ul>
+
+                <h3 id="v0.2.0-fixed">Fixed</h3>
+                <ul>
+                    <li><strong><code>RUN_DE</code> fallback never took effect.</strong> When no control reads were present the pipeline logged that it was switching to single-sample mode but then ran the DE path anyway, because Nextflow silently ignores reassignment of <code>params</code> inside a workflow. The effective run mode is now derived from the control reads actually found, and <code>run_parameters.log</code> records the value the run actually used.</li>
+                    <li><strong>COSMIC tier matching silently failed</strong> when the tier column contained any missing values: pandas then inferred it as floating point, so tiers arrived as <code>"1.0"</code> and never matched the expected <code>"1"</code>. Tier values are now normalised.</li>
+                    <li>The Fisher filter is now disabled automatically in single-sample mode. Without controls every p-value is 1, so any threshold below 1 would have discarded every variant.</li>
+                    <li>The MDS plot is skipped below three samples, and the QL dispersion plot when the quasi-likelihood fit is unavailable, instead of failing the differential expression step.</li>
+                </ul>
+
                 <!-- Version 0.1.0 -->
                 <h2 id="v0.1.0">v0.1.0 - Initial Release</h2>
                 <p style="color: var(--text-muted); font-size: 14px;">Released: 2025</p>
@@ -3885,7 +4195,7 @@ conda-forge::r-arrow=19.0.1</code></pre>
                     <li>RNA-Bloom2: 2.0.1</li>
                     <li>minimap2: 2.30</li>
                     <li>samtools: 1.22</li>
-                    <li>Oarfish: 0.8.1</li>
+                    <li>Oarfish: 0.10.1</li>
                     <li>pandas: 2.3.0</li>
                     <li>bio: 1.8.0</li>
                     <li>pysam: 0.23.3</li>
