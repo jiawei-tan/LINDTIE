@@ -570,12 +570,9 @@ def get_contigs_to_keep(args):
         chr2, p2, _ = get_pos_parts(row['pos2'])
         feat2 = get_detailed_feature_type(chr2, p2, cds_trees, ex_trees, gene_tree, tx_map)
         
-        # Determine if coding
-        is_coding = (feat1 == "CDS") or (feat2 == "CDS")
-        
-        return pd.Series([feat1, feat2, is_coding])
+        return pd.Series([feat1, feat2])
 
-    contigs[['site1_feature', 'site2_feature', 'is_coding']] = contigs.apply(annotate_row, axis=1)
+    contigs[['site1_feature', 'site2_feature']] = contigs.apply(annotate_row, axis=1)
 
     output_file = '%s_info.tsv' % args.out_prefix
     contigs.to_csv(output_file, sep='\t', index=None)

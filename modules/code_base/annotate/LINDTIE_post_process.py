@@ -99,9 +99,9 @@ def calculate_variant_score(variant_row):
         size, reads, vaf, contig_varsize = 0, 0, 0.0, 0
 
     # Genomic Context fields
-    is_coding = bool(variant_row.get('is_coding', False))
     feat1 = variant_row.get('site1_feature', 'Intergenic')
     feat2 = variant_row.get('site2_feature', 'Intergenic')
+    is_coding = (feat1 == 'CDS') or (feat2 == 'CDS')
 
     # --- 2. BASE SCORES (User Optimized) ---
     base_scores = {
@@ -384,9 +384,9 @@ def get_detailed_scoring_breakdown(variant_row):
     except:
         size, reads, vaf, contig_varsize = 0, 0, 0.0, 0
 
-    is_coding = bool(variant_row.get('is_coding', False))
     feat1 = variant_row.get('site1_feature', 'Intergenic')
     feat2 = variant_row.get('site2_feature', 'Intergenic')
+    is_coding = (feat1 == 'CDS') or (feat2 == 'CDS')
 
     # --- 2. BASE SCORE ---
     base_scores = {
@@ -643,13 +643,27 @@ def load_cosmic_tiers(filepath):
         if 'GENE_SYMBOL' not in df.columns or 'TIER' not in df.columns:
             logging.warning("COSMIC file missing 'GENE_SYMBOL' or 'TIER' columns.")
             return {}, {}
-        
-        tier_map = dict(zip(df['GENE_SYMBOL'], df['TIER']))
-        
+
+        # Normalize TIER values to canonical strings (e.g. '1', '2') so the
+        # downstream `'1' in tiers_found` / `'2' in tiers_found` comparisons
+        # in get_contig_tier() work. If TIER has any NaN values pandas infers
+        # the column as float64, which would otherwise yield '1.0' / '2.0'.
+        def _normalize_tier(v):
+            if pd.isna(v):
+                return None
+            try:
+                return str(int(float(v)))
+            except (ValueError, TypeError):
+                return str(v).strip()
+
+        tier_series = df['TIER'].apply(_normalize_tier)
+        tier_mask = tier_series.notna()
+        tier_map = dict(zip(df.loc[tier_mask, 'GENE_SYMBOL'], tier_series[tier_mask]))
+
         fusion_map = {}
         if 'COSMIC_FUSION' in df.columns:
             fusion_map = dict(zip(df['GENE_SYMBOL'], df['COSMIC_FUSION']))
-        
+
         return tier_map, fusion_map
     except Exception as e:
         logging.warning(f"Failed to load COSMIC file: {e}")
