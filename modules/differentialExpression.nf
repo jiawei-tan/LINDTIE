@@ -51,6 +51,7 @@ process build_transcript_matrix {
       - conda-forge::r-dplyr=1.1.4
       - conda-forge::r-data.table=1.17.6
       - bioconda::bioconductor-edger=4.4.0
+      - bioconda::bioconductor-tximport=1.34.0
       - conda-forge:r-jsonlite=2.0.0 
       - conda-forge:r-readr=2.1.5 
       - conda-forge::r-arrow=19.0.1
@@ -66,7 +67,7 @@ process compare_transcript_oarfish {
 
     publishDir "${sample_id}_output/03-DifferentialExpression", mode: 'copy'
 
-    container 'oras://community.wave.seqera.io/library/bio_bioconductor-edger_numpy_pandas_pruned:a36eb08f5f4b4b2c'
+    container 'oras://community.wave.seqera.io/library/bio_bioconductor-edger_bioconductor-tximport_numpy_pruned:f298a8abef4e656c'
 
     input:
       tuple val(sample_id), path(case_quant), path(control_quants), path(case_meta), path(control_metas), path(case_parquet), path(control_parquets), path(trans_fasta), path(transcript_matrix), path(novel_fasta)

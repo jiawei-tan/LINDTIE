@@ -12,6 +12,7 @@
 library(dplyr)
 library(data.table)
 library(edgeR)
+library(tximport)
 
 # catchOarfish function (edgeR v4.8.0)
 ################################################################################
@@ -191,6 +192,72 @@ run_edgeR <- function(case_name, oarfish_output_dir, outdir,
   sample_names <- basename(colnames(divided_counts))
   print(sample_names)
   logcat("Sample names: ", paste(sample_names, collapse = ", "), "\n")
+
+  # TPM per sample from Oarfish using tximport (match VAF method)
+  # Use the same settings as LINDTIE_estimate_VAF.R: type="oarfish",
+  # countsFromAbundance="lengthScaledTPM", txOut=TRUE, dropInfReps=TRUE.
+  tpm_df <- NULL
+  tryCatch({
+    sample_ids <- basename(sub("\\.quant(\\.gz)?$", "", quant_files))
+    files <- quant_files
+    names(files) <- sample_ids
+
+    txi_tpm <- tximport(
+      files,
+      type = "oarfish",
+      countsFromAbundance = "lengthScaledTPM",
+      txOut = TRUE,
+      dropInfReps = TRUE
+    )
+
+    tpm_mat <- txi_tpm$abundance
+
+    # Build base TPM table
+    tpm_df <- data.frame(
+      transcript_id = rownames(tpm_mat),
+      as.data.frame(tpm_mat, check.names = FALSE),
+      stringsAsFactors = FALSE
+    )
+
+    # Name TPM columns as TPM_<sample>
+    tpm_col_names <- paste0("TPM_", make.names(colnames(tpm_mat), unique = TRUE))
+    names(tpm_df)[-1] <- tpm_col_names
+
+    # Derive TPM ratios: case vs each control
+    # Case id should match case_name; controls are the remaining samples.
+    case_id <- case_name
+    control_ids <- setdiff(colnames(tpm_mat), case_id)
+    case_tpm_col <- paste0("TPM_", make.names(case_id, unique = TRUE))
+    if (case_tpm_col %in% names(tpm_df) && length(control_ids) > 0) {
+      for (ctl in control_ids) {
+        ctl_tpm_col <- paste0("TPM_", make.names(ctl, unique = TRUE))
+        if (!(ctl_tpm_col %in% names(tpm_df))) {
+          next
+        }
+        ratio_name <- paste0(
+          "TPM_ratio_",
+          make.names(case_id, unique = TRUE),
+          "_vs_",
+          make.names(ctl, unique = TRUE)
+        )
+        # Prior count of 1 added to case and control TPMs to avoid zeros
+        # and stabilise ratios when one side has very low expression.
+        tpm_df[[ratio_name]] <- (tpm_df[[case_tpm_col]] + 1) /
+                                (tpm_df[[ctl_tpm_col]] + 1)
+      }
+    }
+    logcat(
+      "Computed per-transcript TPM via tximport (lengthScaledTPM) for ",
+      ncol(tpm_mat), " sample(s).\n"
+    )
+  }, error = function(e) {
+    logcat(
+      "WARNING: Failed to compute TPM via tximport: ",
+      e$message,
+      "\n"
+    )
+    tpm_df <<- NULL
+  })
 
   # Assign groups
   group <- rep("control", ncol(divided_counts))
@@ -398,12 +465,50 @@ if (nrow(res_sig) == 0) {
   } else {
     logcat("WARNING: No control samples found for total_num_reads_controls.\n")
   }
-  
+
+  # Add TPM for all samples (case + controls) if available
+  if (!is.null(tpm_df)) {
+    res_sig <- left_join(res_sig, tpm_df, by = "transcript_id")
+  }
+
+  # Filter res_sig so that case-vs-control TPM ratios pass the cutoff (FC = 2^logFC)
+  # across ALL controls. Skip gracefully if ratio columns are unavailable.
+  # TPM ratio cutoff derived from min_logfc (log2 scale): FC = 2^logFC.
+  # Floor at 1 so a non-positive min_logfc does not invert the filter.
+  tpm_ratio_cutoff <- max(2^min_logfc, 1)
+  tpm_ratio_cols <- grep("^TPM_ratio_", names(res_sig), value = TRUE)
+  if (length(tpm_ratio_cols) > 0 && nrow(res_sig) > 0) {
+    ratio_mat <- as.matrix(res_sig[, tpm_ratio_cols, drop = FALSE])
+    min_ratio <- suppressWarnings(apply(ratio_mat, 1, function(x) {
+      x <- as.numeric(x)
+      if (all(is.na(x))) NA_real_ else min(x, na.rm = TRUE)
+    }))
+    keep_ratio <- !is.na(min_ratio) & min_ratio >= tpm_ratio_cutoff
+    n_before <- nrow(res_sig)
+    n_removed <- sum(!keep_ratio)
+    logcat(
+      "TPM_ratio filter (>= ", tpm_ratio_cutoff,
+      " [2^min_logfc=", min_logfc, "] vs all ", length(tpm_ratio_cols),
+      " control(s)): removed ", n_removed, " of ", n_before,
+      " transcripts, ", sum(keep_ratio), " retained\n"
+    )
+    res_sig <- res_sig[keep_ratio, , drop = FALSE]
+  } else {
+    logcat(
+      "WARNING: Skipping TPM_ratio >= ", tpm_ratio_cutoff, " filter ",
+      "(no TPM_ratio columns available or empty res_sig).\n"
+    )
+  }
+
   # Round selected numeric columns to 2 significant figures
   cols_to_round <- c("logFC", "logCPM", "F", "PValue", "FDR")
   round_cols <- intersect(cols_to_round, names(res_sig))
   if (length(round_cols) > 0) {
     res_sig[round_cols] <- lapply(res_sig[round_cols], function(x) signif(as.numeric(x), 2))
+  }
+  tpm_cols_sig <- grep("^TPM_", names(res_sig), value = TRUE)
+  if (length(tpm_cols_sig) > 0) {
+    res_sig[tpm_cols_sig] <- lapply(res_sig[tpm_cols_sig], function(x) signif(as.numeric(x), 2))
   }
   logcat("Final results have", nrow(res_sig), " rows and ", ncol(res_sig), " columns\n")
 
@@ -427,10 +532,18 @@ if (nrow(res_sig) == 0) {
     res_all <- left_join(res_all, control_reads_df, by = "transcript_id")
   }
 
+  if (!is.null(tpm_df)) {
+    res_all <- left_join(res_all, tpm_df, by = "transcript_id")
+  }
+
   # Round selected numeric columns in full results to 2 significant figures
   round_cols_full <- intersect(cols_to_round, names(res_all))
   if (length(round_cols_full) > 0) {
     res_all[round_cols_full] <- lapply(res_all[round_cols_full], function(x) signif(as.numeric(x), 2))
+  }
+  tpm_cols_full <- grep("^TPM_", names(res_all), value = TRUE)
+  if (length(tpm_cols_full) > 0) {
+    res_all[tpm_cols_full] <- lapply(res_all[tpm_cols_full], function(x) signif(as.numeric(x), 2))
   }
 
   out_file_full <- file.path(outdir, "DE_transcript_full_results.txt")
