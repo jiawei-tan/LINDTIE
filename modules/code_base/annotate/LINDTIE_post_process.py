@@ -570,6 +570,11 @@ def parse_args(args):
                         default=0.1,
                         help='''Minimum VAF_sum_WT_TPM to keep a variant when RUN_DE is false '''
                              '''(default: 0.1).''')
+    parser.add_argument('--single_sample_cosmic_filter',
+                        type=str,
+                        default='true',
+                        help='''Whether to require a COSMIC tier 1/2 gene to keep a variant '''
+                             '''when RUN_DE is false (true/false). Default: true.''')
     parser.add_argument(dest='de_results',
                         metavar='DE_RESULTS',
                         type=str,
@@ -608,6 +613,12 @@ def parse_args(args):
                         type=str,
                         default='false',
                         help='''Whether to keep viral integration variants (true/false). Default: false.''')
+    parser.add_argument('--max_fisher_p_val',
+                        type=float,
+                        default=0.05,
+                        help='''Maximum Fisher exact test p-value to keep (default: 0.05). '''
+                             '''Variants with fisher_p_val greater than this are removed; '''
+                             '''missing values are kept.''')
     return parser.parse_args(args)
 
 def get_all_genes(overlapping_genes):
@@ -866,6 +877,31 @@ def merge_vaf_into_contigs(contigs, vafs):
             backfill = merged['contig_id'].map(fallback[col])
             merged[col] = merged[col].where(merged[col].notna(), backfill)
     return merged
+
+def filter_by_fisher_p_val(contigs, max_p, log_suffix=''):
+    '''
+    Remove variants with fisher_p_val strictly greater than max_p.
+    Rows with missing or non-numeric fisher_p_val are kept.
+    '''
+    if contigs.empty or max_p is None:
+        return contigs
+    if 'fisher_p_val' not in contigs.columns:
+        logging.info(
+            'fisher_p_val column absent; skipping Fisher p-value filter%s.',
+            log_suffix,
+        )
+        return contigs
+    fp = pd.to_numeric(contigs['fisher_p_val'], errors='coerce')
+    keep = fp.isna() | (fp <= float(max_p))
+    n_drop = int((~keep).sum())
+    if n_drop > 0:
+        logging.info(
+            'Filtered %d variants%s with fisher_p_val > %s.',
+            n_drop,
+            log_suffix,
+            max_p,
+        )
+    return contigs.loc[keep].copy()
 
 def filter_variants_with_chr(df, label, detect_viral_integration=False):
     '''
@@ -1177,6 +1213,18 @@ def main():
     contigs['variant_score'] = contigs.apply(calculate_variant_score, axis=1)
     validate_scoring_system(contigs)
 
+    contigs = filter_by_fisher_p_val(contigs, args.max_fisher_p_val)
+
+    if len(contigs) == 0:
+        logging.warning(
+            'No variants found after Fisher p-value filtering (max_fisher_p_val=%s). '
+            'Generating empty output and exiting.',
+            args.max_fisher_p_val,
+        )
+        reformat_fields(contigs).to_csv(sys.stdout, index=False, sep='\t', na_rep='NA')
+        logging.info('Post-processing completed successfully (no variants found).')
+        sys.exit()
+
     # Add COSMIC Annotation
     contigs = add_cosmic_info(contigs, args.cosmic_tier_data)
 
@@ -1190,10 +1238,16 @@ def main():
     # NEW: Conditional Filtering for Single Sample Mode
     # ---------------------------------------------------------
     if str(args.run_de).lower() == 'false':
-        logging.info("Single Sample Mode detected (RUN_DE=false). Applying strict COSMIC & VAF filtering.")
-        
+        cosmic_filter_on = str(args.single_sample_cosmic_filter).lower() == 'true'
+        logging.info(
+            "Single Sample Mode detected (RUN_DE=false). Applying VAF filtering "
+            "(min_vaf=%s); COSMIC tier filtering %s.",
+            args.single_sample_min_vaf,
+            'ON' if cosmic_filter_on else 'OFF (single_sample_cosmic_filter=false)',
+        )
+
         initial_count = len(contigs)
-        
+
         # DEBUG: Log what values we are seeing before filtering
         logging.info(f"DEBUG: Unique COSMIC Tiers found: {contigs['COSMIC_tier'].unique()}")
         logging.info(f"DEBUG: VAF_sum_WT_TPM stats: Min={contigs['VAF_sum_WT_TPM'].min()}, "
@@ -1208,17 +1262,31 @@ def main():
             val_str = str(val).upper()
             return '1' in val_str or '2' in val_str
 
-        has_cosmic = contigs['COSMIC_tier'].apply(is_tier_valid)
+        if cosmic_filter_on:
+            has_cosmic = contigs['COSMIC_tier'].apply(is_tier_valid)
+        else:
+            # Keep an element-wise mask so the '&' below works on any frame size.
+            has_cosmic = pd.Series(True, index=contigs.index)
         high_vaf = contigs['VAF_sum_WT_TPM'] >= args.single_sample_min_vaf
 
         # 3. Apply Filter
         contigs = contigs[has_cosmic & high_vaf]
-        
+
         filtered_count = len(contigs)
         logging.info(f"Filtered {initial_count - filtered_count} variants. Remaining: {filtered_count}")
-        
+
         if filtered_count == 0:
-            logging.warning("No variants passed the Single Sample filters. Check if COSMIC file matched any genes.")
+            if cosmic_filter_on:
+                logging.warning(
+                    "No variants passed the Single Sample filters. Check if the COSMIC file "
+                    "matched any genes, or set --single_sample_cosmic_filter false to keep "
+                    "variants outside COSMIC tier 1/2."
+                )
+            else:
+                logging.warning(
+                    "No variants passed the Single Sample VAF filter "
+                    f"(--single_sample_min_vaf {args.single_sample_min_vaf})."
+                )
     # ---------------------------------------------------------
 
     logging.info("DE, VAF and COSMIC information added and filtered.")
@@ -1280,6 +1348,9 @@ def main():
             ranked_all = merge_vaf_into_contigs(ranked_all, vafs)
             # Compute ranking on the filtered set (pre-consolidation copy)
             ranked_all = rank_variants_per_contig(ranked_all)
+            ranked_all = filter_by_fisher_p_val(
+                ranked_all, args.max_fisher_p_val, log_suffix=' (all-variants ranked)'
+            )
             ranked_all = add_cosmic_info(ranked_all, args.cosmic_tier_data)
             # Generate unique contig IDs to align with main output style
             short_gnames_all = ranked_all.overlapping_genes.map(str).apply(get_short_gene_name)

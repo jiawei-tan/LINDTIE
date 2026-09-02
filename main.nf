@@ -47,7 +47,9 @@ Optional parameters:
 --oarfish_growth_rate       : Growth rate for Oarfish (passed to --growth-rate) (default: 0.5)
 --gene_filter               : List of genes to filter (default: NULL)
 --var_filter                : List of variant types to filter (default: NULL)
---single_sample_min_vaf     : Minimum VAF to keep a variant when RUN_DE is false (default: 0.1)
+--single_sample_min_vaf     : Minimum VAF_sum_WT_TPM to keep a variant when RUN_DE is false (default: 0.1)
+--single_sample_cosmic_filter: Require COSMIC tier 1/2 to keep a variant when RUN_DE is false (default: true)
+--max_fisher_p_val          : Maximum Fisher exact test p-value to keep; variants with larger p are dropped (default: 0.05)
 --help                      : Show this help message
 --version                   : Show the version of LINDTIE
     """
@@ -75,7 +77,7 @@ log.info "======================================================================
 
 include { decompress_case_reads } from './modules/decompress'
 include { decompress_control_reads } from './modules/decompress'
-include { controls_exist; effective_run_de } from './modules/decompress'
+include { controls_exist; effective_run_de; effective_max_fisher_p_val } from './modules/decompress'
 include { align_raw_reads_to_hg38 } from './modules/assembly'
 include { ref_guided_assembly } from './modules/assembly'
 include { subset_reads } from './modules/assembly'
@@ -110,7 +112,9 @@ process save_params {
     // Report the values the run actually uses, not the requested ones -- they differ when
     // no controls are present (see modules/decompress.nf).
     def eff_run_de = effective_run_de()
+    def eff_max_fisher_p_val = effective_max_fisher_p_val()
     def run_de_note = (eff_run_de.toString() == params.RUN_DE.toString()) ? '' : "  (requested ${params.RUN_DE}; no control reads found)"
+    def fisher_note = (eff_max_fisher_p_val == params.max_fisher_p_val) ? '' : "  (requested ${params.max_fisher_p_val}; filter disabled without controls)"
     """
     cat <<EOF > run_parameters.log
 Sample ID               : ${sample_id}
@@ -133,6 +137,8 @@ oarfish_growth_rate     : ${params.oarfish_growth_rate}
 gene_filter             : ${params.gene_filter}
 var_filter              : ${params.var_filter}
 single_sample_min_vaf   : ${params.single_sample_min_vaf}
+single_sample_cosmic_filter: ${params.single_sample_cosmic_filter}
+max_fisher_p_val        : ${eff_max_fisher_p_val}${fisher_note}
 EOF
     """
 }
@@ -155,6 +161,17 @@ workflow {
         log.warn "  WARNING: No control samples found in '${params.controls_fastq_dir}'."
         log.warn "  'RUN_DE' is treated as 'false' for this run."
         log.warn "  Pipeline will run in SINGLE SAMPLE MODE (Novel Contig Detection only)."
+        log.warn "================================================================================"
+    }
+
+    // Fisher's exact test compares case vs control counts. Control counts are only
+    // produced when DE runs, so without them the contingency table is degenerate and
+    // every variant gets p = 1 -- any max_fisher_p_val < 1 would discard everything.
+    if (!run_de && params.max_fisher_p_val < 1) {
+        log.warn "================================================================================"
+        log.warn "  WARNING: Running without controls (single sample mode)."
+        log.warn "  Fisher's exact test is not meaningful without controls (all p-values = 1)."
+        log.warn "  Treating 'max_fisher_p_val' ${params.max_fisher_p_val} as 1 (filter disabled)."
         log.warn "================================================================================"
     }
 

@@ -33,6 +33,13 @@ def effective_run_de() {
     (params.RUN_DE.toString().toLowerCase() == 'true') && controls_exist()
 }
 
+// Control counts are only produced when DE runs. Without them Fisher's exact test is
+// degenerate and returns p = 1 for every variant, so any threshold < 1 would discard the
+// entire result set -- disable the filter rather than filter everything away.
+def effective_max_fisher_p_val() {
+    effective_run_de() ? params.max_fisher_p_val : 1
+}
+
 /*
   Process: decompress_case_reads
     - Decompresses .gz files for case reads if they are compressed

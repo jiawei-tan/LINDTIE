@@ -6,7 +6,7 @@ License     : MIT
 Maintainer  : https://github.com/jiawei-tan
 */
 
-include { effective_run_de } from './decompress'
+include { effective_run_de; effective_max_fisher_p_val } from './decompress'
 
 /*
   Process: annotate_contigs
@@ -212,8 +212,9 @@ process post_process {
 
     script:
     // Derived, not read straight off params: with no controls the run falls back to
-    // single sample mode (see modules/decompress.nf).
+    // single sample mode and the Fisher filter is disabled (see modules/decompress.nf).
     def eff_run_de = effective_run_de()
+    def eff_max_fisher_p_val = effective_max_fisher_p_val()
     """
     python ${params.code_base}/annotate/LINDTIE_post_process.py \
       ${sample_id} \
@@ -228,6 +229,8 @@ process post_process {
       --cosmic_tier_data ${params.cosmic_tier_data} \
       --run_de ${eff_run_de} \
       --single_sample_min_vaf ${params.single_sample_min_vaf} \
+      --single_sample_cosmic_filter ${params.single_sample_cosmic_filter} \
+      --max_fisher_p_val ${eff_max_fisher_p_val} \
       --detect_viral_integration ${params.detect_viral_integration} \
       --log final_post_process.log \
       --all_variants_out ${sample_id}_all_variants_ranked_results.tsv \
