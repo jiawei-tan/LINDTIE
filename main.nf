@@ -44,6 +44,7 @@ Optional parameters:
 --min_match                 : Minimum match (default: "30,0.3")
 --splice_motif_mismatch     : Splice motif mismatch (default: 1)
 --oarfish_num_bootstraps    : Number of bootstraps for Oarfish (default: 10)
+--oarfish_growth_rate       : Growth rate for Oarfish (passed to --growth-rate) (default: 0.5)
 --gene_filter               : List of genes to filter (default: NULL)
 --var_filter                : List of variant types to filter (default: NULL)
 --single_sample_min_vaf     : Minimum VAF to keep a variant when RUN_DE is false (default: 0.1)
@@ -123,6 +124,7 @@ min_gap                 : ${params.min_gap}
 min_match               : '${params.min_match}'
 splice_motif_mismatch   : ${params.splice_motif_mismatch}
 oarfish_num_bootstraps  : ${params.oarfish_num_bootstraps}
+oarfish_growth_rate     : ${params.oarfish_growth_rate}
 gene_filter             : ${params.gene_filter}
 var_filter              : ${params.var_filter}
 single_sample_min_vaf   : ${params.single_sample_min_vaf}

@@ -14,8 +14,7 @@ Maintainer  : https://github.com/jiawei-tan
     Container:
       - bioconda::minimap2=2.30
       - bioconda::samtools=1.22
-      - bioconda::qualimap=2.3
-      - bioconda::oarfish=0.8.1
+      - bioconda::oarfish=0.10.1
 */
 process case_align_quant {
 
@@ -24,8 +23,8 @@ process case_align_quant {
 
     publishDir "${sample_id}_output/02-Quantification/cases", mode: 'copy', pattern: "${sample_id}.{quant,infreps.pq,meta_info.json}"
     
-    container 'oras://community.wave.seqera.io/library/minimap2_oarfish_qualimap_samtools:90c13d0a92fc925a'
-    
+    container 'oras://community.wave.seqera.io/library/minimap2_oarfish_samtools:9a115e83de898d44'
+
     input:
       tuple val(sample_id), path(merged_ref), path(reads)
 
@@ -56,7 +55,8 @@ process case_align_quant {
       -o oarfish_output/${sample_id} \\
       --num-bootstraps ${params.oarfish_num_bootstraps} \\
       --filter-group no-filters \\
-      --model-coverage
+      --model-coverage \\
+      --growth-rate ${params.oarfish_growth_rate}
 
     ## 3) Prepare declared outputs at process root so Nextflow tracks them
     cp -f oarfish_output/${sample_id}.quant ${sample_id}.quant
@@ -74,7 +74,7 @@ process case_align_quant {
       Container:
     - bioconda::minimap2=2.30
     - bioconda::samtools=1.22
-    - bioconda::oarfish=0.8.1
+    - bioconda::oarfish=0.10.1
 */
 process control_align_quant {
 
@@ -83,7 +83,7 @@ process control_align_quant {
 
     publishDir "${sample_id}_output/02-Quantification/controls", mode: 'copy', pattern: "${control_id}.{quant,infreps.pq,meta_info.json}"
 
-    container 'oras://community.wave.seqera.io/library/minimap2_oarfish_samtools:7a3485aa349f407d'
+    container 'oras://community.wave.seqera.io/library/minimap2_oarfish_samtools:9a115e83de898d44'
 
     input:
       tuple val(sample_id), path(merged_ref), val(control_id), path(control_fastq)
@@ -110,7 +110,8 @@ process control_align_quant {
       -o ${control_id} \\
       --num-bootstraps ${params.oarfish_num_bootstraps} \\
       --filter-group no-filters \\
-      --model-coverage
+      --model-coverage \\
+      --growth-rate ${params.oarfish_growth_rate}
 
     echo "Generated files:"
     ls -la ${control_id}.*

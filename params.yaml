@@ -26,6 +26,7 @@ min_gap: 7                       # default 7
 min_match: '30,0.3'              # default '30,0.3'
 splice_motif_mismatch: 1         # default 1
 oarfish_num_bootstraps: 10       # default 10
+oarfish_growth_rate: 0.5         # oarfish -k; default 0.5
 gene_filter: NULL                # default NULL (e.g. "TP53,BRCA2")
 var_filter: NULL                 # default NULL (e.g. "DEL,INS")
 single_sample_min_vaf: 0.1       # default 0.1
