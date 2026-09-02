@@ -303,7 +303,7 @@ def select_best_variant_per_contig(contigs_df):
             primary_variant[OTHER_VARIANT_IDS_COLUMN] = '|'.join(
                 str(row.get('variant_id', '')) for row in other_rows
             )
-
+            
             # Log selection details
             logging.info(f"Contig {contig_id}: Selected {primary_variant['variant_type']} "
                         f"(score={primary_score}, variant_of_interest={primary_interest}) "
@@ -1148,12 +1148,18 @@ def reformat_fields(contigs):
     Reorder fields for clarity.
     Sort by p value.
     '''
-    pos1 = contigs.pos1.apply(get_pos_parts).values
-    pos2 = contigs.pos2.apply(get_pos_parts).values
-    chr1, pos1, str1 = zip(*pos1)
-    chr2, pos2, str2 = zip(*pos2)
-    contigs['chr1'], contigs['pos1'], contigs['strand1'] = chr1, pos1, str1
-    contigs['chr2'], contigs['pos2'], contigs['strand2'] = chr2, pos2, str2
+    if contigs.empty:
+        # zip(*[]) yields nothing to unpack; assign the columns directly so an
+        # empty result set still produces a correctly-shaped (header-only) table.
+        for col in ('chr1', 'pos1', 'strand1', 'chr2', 'pos2', 'strand2'):
+            contigs[col] = pd.NA
+    else:
+        pos1 = contigs.pos1.apply(get_pos_parts).values
+        pos2 = contigs.pos2.apply(get_pos_parts).values
+        chr1, pos1, str1 = zip(*pos1)
+        chr2, pos2, str2 = zip(*pos2)
+        contigs['chr1'], contigs['pos1'], contigs['strand1'] = chr1, pos1, str1
+        contigs['chr2'], contigs['pos2'], contigs['strand2'] = chr2, pos2, str2
     ran_de = 'logFC' in contigs.columns.values
 
     # Final column order when DE columns are available
@@ -1295,7 +1301,14 @@ def main():
         logging.warning('No variants found after filtering. Generating empty output and exiting.')
         # Bail out before the counts are merged, so drop the internal helper column here
         contigs = contigs.drop(columns=[OTHER_VARIANT_IDS_COLUMN], errors='ignore')
-        contigs.to_csv(sys.stdout, index=False, sep='\t', na_rep='NA')
+        # This bail-out skips add_de_info, which is what would put the DE columns on the frame,
+        # and reformat_fields picks the DE vs no-DE header off logFC. Seed whichever DE columns
+        # the DE table actually carries so the empty header matches a populated run's.
+        for _c in ('logFC', 'FDR', 'PValue'):
+            if _c in de_results.columns and _c not in contigs.columns:
+                contigs[_c] = pd.NA
+        # Route through reformat_fields so an empty run emits the same header as a populated one
+        reformat_fields(contigs).to_csv(sys.stdout, index=False, sep='\t', na_rep='NA')
         logging.info("Post-processing completed successfully (no variants found).")
         sys.exit()
 
@@ -1460,59 +1473,67 @@ def main():
                 ranked_all, args.max_fisher_p_val, log_suffix=' (all-variants ranked)'
             )
             ranked_all = add_cosmic_info(ranked_all, args.cosmic_tier_data)
-            # Generate unique contig IDs to align with main output style
-            short_gnames_all = ranked_all.overlapping_genes.map(str).apply(get_short_gene_name)
-            contig_ids_all, samples_all = ranked_all.contig_id, ranked_all['sample']
-            con_names_all = ['|'.join([s, cid, sg]) for cid, s, sg in zip(contig_ids_all, samples_all, short_gnames_all)]
-            ranked_all['unique_contig_ID'] = con_names_all
-            # Sequences already present from filtering step; ensure columns exist
-            ranked_all = ensure_seq_columns(ranked_all)
-            # Ensure the other_* columns exist even though we didn't consolidate; the
-            # column selection below keeps only columns present here, so without this
-            # the header would diverge from the main output.
-            if 'other_variant_type' not in ranked_all.columns:
-                ranked_all['other_variant_type'] = ''
-            if 'other_supporting_read_count' not in ranked_all.columns:
-                ranked_all['other_supporting_read_count'] = ''
-            # Recompute positional fields for ordering compatibility
-            ranked_all = ranked_all.copy()
-            pos1_all = ranked_all.pos1.apply(get_pos_parts).values
-            pos2_all = ranked_all.pos2.apply(get_pos_parts).values
-            chr1_all, pos1_vals_all, str1_all = zip(*pos1_all)
-            chr2_all, pos2_vals_all, str2_all = zip(*pos2_all)
-            ranked_all['chr1'], ranked_all['pos1'], ranked_all['strand1'] = chr1_all, pos1_vals_all, str1_all
-            ranked_all['chr2'], ranked_all['pos2'], ranked_all['strand2'] = chr2_all, pos2_vals_all, str2_all
-            ranked_all = filter_variants_with_chr(
-                ranked_all, "all-variants ranked", detect_viral_integration=detect_viral
-            )
-            # Sort before selecting columns, so the fallback key does not have to survive
-            # the column selection below (by PValue if available else VAF_sum_WT_TPM desc).
-            if 'PValue' in ranked_all.columns:
-                ranked_all['PValue'] = pd.to_numeric(ranked_all['PValue'], errors='coerce')
-                ranked_all = ranked_all.sort_values(by='PValue', ascending=True, na_position='last')
-            elif 'VAF_sum_WT_TPM' in ranked_all.columns:
-                ranked_all['VAF_sum_WT_TPM'] = pd.to_numeric(ranked_all['VAF_sum_WT_TPM'], errors='coerce')
-                ranked_all = ranked_all.sort_values('VAF_sum_WT_TPM', ascending=False, na_position='last')
-            # Compose final ordering to strictly follow the main output's column order
-            base_cols = list(contigs.columns)
-            # Define ranking columns that should be preserved (avoid duplicates)
-            ranking_cols = [
-                c for c in ['variant_score', 'rank_within_contig', 'is_primary']
-                if c in ranked_all.columns and c not in base_cols
-            ]
-            # Start with the exact column order from the main output
-            final_cols = [c for c in base_cols if c in ranked_all.columns]
-            # Add ranking columns at the end
-            final_cols.extend(ranking_cols)
-            # Select only these columns
-            ranked_all = ranked_all[final_cols]
-            # Oarfish read-count columns: emit as clean integers (no decimals).
-            for _c in ('num_reads_case', 'case_gene_count_wt'):
-                if _c in ranked_all.columns:
-                    ranked_all[_c] = pd.to_numeric(ranked_all[_c], errors='coerce').round().astype('Int64')
-            # Write file
-            ranked_all.to_csv(args.all_variants_out, index=False, sep='\t', na_rep='NA')
-            logging.info(f"Wrote all-variants ranked table to {args.all_variants_out}")
+            if ranked_all.empty:
+                logging.warning(
+                    'No rows left for all-variants ranked output after Fisher p-value filter; '
+                    'writing empty TSV.'
+                )
+                pd.DataFrame().to_csv(args.all_variants_out, index=False, sep='\t', na_rep='NA')
+                logging.info(f"Wrote empty all-variants ranked table to {args.all_variants_out}")
+            else:
+                # Generate unique contig IDs to align with main output style
+                short_gnames_all = ranked_all.overlapping_genes.map(str).apply(get_short_gene_name)
+                contig_ids_all, samples_all = ranked_all.contig_id, ranked_all['sample']
+                con_names_all = ['|'.join([s, cid, sg]) for cid, s, sg in zip(contig_ids_all, samples_all, short_gnames_all)]
+                ranked_all['unique_contig_ID'] = con_names_all
+                # Sequences already present from filtering step; ensure columns exist
+                ranked_all = ensure_seq_columns(ranked_all)
+                # Ensure the other_* columns exist even though we didn't consolidate; the
+                # column selection below keeps only columns present here, so without this
+                # the header would diverge from the main output.
+                if 'other_variant_type' not in ranked_all.columns:
+                    ranked_all['other_variant_type'] = ''
+                if 'other_supporting_read_count' not in ranked_all.columns:
+                    ranked_all['other_supporting_read_count'] = ''
+                # Recompute positional fields for ordering compatibility
+                ranked_all = ranked_all.copy()
+                pos1_all = ranked_all.pos1.apply(get_pos_parts).values
+                pos2_all = ranked_all.pos2.apply(get_pos_parts).values
+                chr1_all, pos1_vals_all, str1_all = zip(*pos1_all)
+                chr2_all, pos2_vals_all, str2_all = zip(*pos2_all)
+                ranked_all['chr1'], ranked_all['pos1'], ranked_all['strand1'] = chr1_all, pos1_vals_all, str1_all
+                ranked_all['chr2'], ranked_all['pos2'], ranked_all['strand2'] = chr2_all, pos2_vals_all, str2_all
+                ranked_all = filter_variants_with_chr(
+                    ranked_all, "all-variants ranked", detect_viral_integration=detect_viral
+                )
+                # Sort before selecting columns, so the fallback key does not have to survive
+                # the column selection below (by PValue if available else VAF_sum_WT_TPM desc).
+                if 'PValue' in ranked_all.columns:
+                    ranked_all['PValue'] = pd.to_numeric(ranked_all['PValue'], errors='coerce')
+                    ranked_all = ranked_all.sort_values(by='PValue', ascending=True, na_position='last')
+                elif 'VAF_sum_WT_TPM' in ranked_all.columns:
+                    ranked_all['VAF_sum_WT_TPM'] = pd.to_numeric(ranked_all['VAF_sum_WT_TPM'], errors='coerce')
+                    ranked_all = ranked_all.sort_values('VAF_sum_WT_TPM', ascending=False, na_position='last')
+                # Compose final ordering to strictly follow the main output's column order
+                base_cols = list(contigs.columns)
+                # Define ranking columns that should be preserved (avoid duplicates)
+                ranking_cols = [
+                    c for c in ['variant_score', 'rank_within_contig', 'is_primary']
+                    if c in ranked_all.columns and c not in base_cols
+                ]
+                # Start with the exact column order from the main output
+                final_cols = [c for c in base_cols if c in ranked_all.columns]
+                # Add ranking columns at the end
+                final_cols.extend(ranking_cols)
+                # Select only these columns
+                ranked_all = ranked_all[final_cols]
+                # Oarfish read-count columns: emit as clean integers (no decimals).
+                for _c in ('num_reads_case', 'case_gene_count_wt'):
+                    if _c in ranked_all.columns:
+                        ranked_all[_c] = pd.to_numeric(ranked_all[_c], errors='coerce').round().astype('Int64')
+                # Write file
+                ranked_all.to_csv(args.all_variants_out, index=False, sep='\t', na_rep='NA')
+                logging.info(f"Wrote all-variants ranked table to {args.all_variants_out}")
         except Exception as e:
             logging.warning(f"Failed to write all-variants ranked output: {str(e)}")
     
