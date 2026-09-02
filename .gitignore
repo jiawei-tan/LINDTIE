@@ -1,3 +1,25 @@
-modules/code_base/annotate/__pycache__/*
+# Python caches (anywhere in the tree)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# R session/cache files
+.Rhistory
+.RData
+.Rproj.user/
+
+# Nextflow working state, logs and reports
+.nextflow/
+.nextflow.log*
+work/
+runInfo/
+report.html*
+timeline.html*
+trace.txt*
+dag.dot*
+
+# Reference data (user-supplied, too large to track)
 ref/*
+
+# Site-specific execution config
 nextflow.config
