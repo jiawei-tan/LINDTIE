@@ -23,6 +23,29 @@ source /etc/profile.d/modules.sh
 
 module load nextflow/25.04.2 singularity/4.1.5
 
+# ----------------------------------------------------------------------------
+# Where container images are downloaded
+#
+# LINDTIE runs each step inside a container, so the first run downloads 13
+# container images (roughly 3 GB in total). Two separate caches are involved:
+#
+#   1. The finished images. On this cluster the `nextflow` module already
+#      places these on scratch for you (via NXF_SINGULARITY_CACHEDIR), so
+#      there is nothing to do. On other systems, set that variable yourself.
+#
+#   2. A temporary staging area that Singularity uses *while* downloading.
+#      This one defaults to your home directory (~/.singularity/cache), which
+#      usually has a small disk quota. Once it fills up, downloads fail
+#      part-way through with "disk quota exceeded".
+#
+# The lines below move that staging area onto scratch, where there is room.
+# Change the path to somewhere with plenty of free space on your own system.
+# It is only needed while downloading, so it is safe to delete afterwards.
+# ----------------------------------------------------------------------------
+export SINGULARITY_CACHEDIR=/vast/scratch/users/$USER/nextflow/singularity_stage
+export APPTAINER_CACHEDIR="$SINGULARITY_CACHEDIR"  # for clusters that use Apptainer
+mkdir -p "$SINGULARITY_CACHEDIR"
+
 # modify the path to the LINDTIE base directory
 LINDTIE_dir=/path/to/your/LINDTIE
 
