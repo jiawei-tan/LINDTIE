@@ -1618,7 +1618,7 @@
 
                 <p>LINDTIE uses a hybrid strategy that integrates reference-free de novo assembly with reference-guided assembly, combined with differential transcript expression analysis, to uncover previously uncharacterised transcripts. The workflow consists of four core procedures: assembly, quantification, differential expression analysis, and annotation.</p>
 
-                <p>LINDTIE is implemented in <a href="https://www.nextflow.io/docs/latest/index.html" target="_blank">Nextflow</a>, providing users with enhanced control over pipeline execution, including the ability to interrupt runs, adjust parameters from the command line, and resume analyses from previous checkpoints.</p>
+                <p>LINDTIE is implemented in <a href="https://docs.seqera.io/nextflow/" target="_blank">Nextflow</a>, providing users with enhanced control over pipeline execution, including the ability to interrupt runs, adjust parameters from the command line, and resume analyses from previous checkpoints.</p>
 
                 <!-- Quick Start Card -->
                 <div class="quick-start">
@@ -1758,17 +1758,6 @@
                         </div>
                         <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
 
-                        <!-- Step 5 -->
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <div style="background: var(--primary-gold); color: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">5</div>
-                            <div style="flex: 1; background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid var(--primary-gold);">
-                                <div style="color: var(--text-primary); font-weight: 600;">Read Support &amp; Enrichment</div>
-                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Estimate VAF with Fisher enrichment testing, and count variant-supporting reads directly from the genome alignment</div>
-                                <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Tools: tximport, pysam, custom scripts</div>
-                            </div>
-                        </div>
-                        <div style="text-align: center; color: var(--primary-gold);">&#x2193;</div>
-
                         <!-- Output -->
                         <div style="text-align: center;">
                             <div style="display: inline-block; background: var(--success-bg); border: 2px solid var(--success-border); border-radius: 8px; padding: 12px 24px;">
@@ -1796,7 +1785,7 @@
                 <h1>Installation + Configuration</h1>
 
                 <h2 id="prerequisites">Prerequisites</h2>
-                <p>LINDTIE is built using <a href="https://www.nextflow.io/docs/latest/index.html" target="_blank">Nextflow</a>.</p>
+                <p>LINDTIE is built using <a href="https://docs.seqera.io/nextflow/" target="_blank">Nextflow</a>.</p>
                 <p>Before running the pipeline, ensure that the following are installed or available on your Linux-based system:</p>
                 <ul>
                     <li><strong>Nextflow</strong></li>
@@ -1831,7 +1820,7 @@
 
                 <h4 id="executor-queue">Select an HPC executor and queue: </h4>
                 <p>Choose an appropriate Nextflow executor (e.g., slurm, pbs, sge, lsf, local, etc.) supported by your compute environment. The default configuration supplied with LINDTIE is optimized for WEHI's Milton HPC, which uses the SLURM workload manager. 
-                    Refer to the <a href="https://www.nextflow.io/docs/latest/executor.html" target="_blank">Nextflow documentation </a> for the full list of available executors.</p>
+                    Refer to the <a href="https://docs.seqera.io/nextflow/executor" target="_blank">Nextflow documentation </a> for the full list of available executors.</p>
                 <p>Example (default SLURM configuration):</p>
 
                 <div class="code-block">
@@ -1845,7 +1834,7 @@ process {
 }</code></pre>
                 </div>
 
-                <p>For further details on customizing Nextflow configuration files, see the <a href="https://www.nextflow.io/docs/latest/config.html" target="_blank">official documentation</a>.</p>
+                <p>For further details on customizing Nextflow configuration files, see the <a href="https://docs.seqera.io/nextflow/config" target="_blank">official documentation</a>.</p>
 
                 <h4 id="resource-profiles">Resource Profiles with Labels: </h4>
                 <p>LINDTIE assigns resource requirements to tasks using Nextflow labels. The default settings allocate resources appropriate for typical HPC environments, but you may reduce or increase these values depending on your system’s available resources.</p>
