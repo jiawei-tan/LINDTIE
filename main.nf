@@ -462,15 +462,17 @@ workflow {
     } else {
         // Synthesize the header-only table rather than shipping an asset file, so the
         // columns line up with LINDTIE_supporting_reads.py's OUT_COLUMNS.
-        def empty_supp = Channel.of(
-            'variant_id\tcontig_id\tvariant_type\tsupporting_read_count\tspanning_reads\t' +
-            'junction_VAF\tcandidate_depth\tcounted_locus\tsupport_signature\t' +
-            'supporting_read_count_reliability'
-        ).collectFile(name: 'empty_supporting_reads.tsv', newLine: true)
-
+        // NOTE: inlined deliberately -- assigning this to a `def` local inside the branch
+        // fails to compile on Nextflow <= 24.10.5 ("Variable `Channel` already defined").
         ch_supporting = ch_refined.refined_annotated_contigs_info
             .map { sid, info -> sid }
-            .combine(empty_supp)
+            .combine(
+                Channel.of(
+                    'variant_id\tcontig_id\tvariant_type\tsupporting_read_count\tspanning_reads\t' +
+                    'junction_VAF\tcandidate_depth\tcounted_locus\tsupport_signature\t' +
+                    'supporting_read_count_reliability'
+                ).collectFile(name: 'empty_supporting_reads.tsv', newLine: true)
+            )
     }
 
     // Final
