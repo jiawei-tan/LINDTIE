@@ -3644,9 +3644,9 @@ cases/*.fastq.gz controls/*.fastq.gz</code></pre>
 
                 <!-- <h3 id="control-number">Number of Controls</h3>
                 <ul>
-                    <li><strong>Minimum:</strong> 5 control samples (statistical baseline)</li>
-                    <li><strong>Recommended:</strong> 10-15 control samples (robust statistics)</li>
-                    <li><strong>Optimal:</strong> Match or exceed the number of case samples</li>
+                    <li><strong>Minimum:</strong> 1 control sample (required for differential expression)</li>
+                    <li><strong>Optimal:</strong> 2-5 control samples (increased statistical power)</li>
+                    <li><strong>Without controls:</strong> LINDTIE falls back to single sample mode (novel contig detection only)</li>
                 </ul> -->
 
                 <!-- <h3 id="control-type">Control Type Selection</h3>
