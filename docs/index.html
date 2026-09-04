@@ -1889,6 +1889,76 @@ withLabel: 'process_long' {
                     </ul>
                 </div>
 
+                <h3 id="container-cache">iii. Container Download Locations</h3>
+
+                <p>LINDTIE runs every step inside a container, so the first time you run it Nextflow downloads <strong>13 container images</strong> — roughly <strong>3 GB</strong> in total. You only pay this cost once; later runs reuse the downloaded images.</p>
+
+                <p>Two <em>separate</em> caches are involved, and they are easy to confuse:</p>
+
+                <div style="overflow-x: auto;">
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Cache</th>
+                                <th>What it holds</th>
+                                <th>Set with</th>
+                                <th>Default location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nextflow image store</td>
+                                <td>The finished, reusable container images</td>
+                                <td><code>NXF_SINGULARITY_CACHEDIR</code></td>
+                                <td>A <code>singularity</code> folder inside the Nextflow work directory</td>
+                            </tr>
+                            <tr>
+                                <td>Singularity staging cache</td>
+                                <td>Temporary files written <em>while</em> each image downloads</td>
+                                <td><code>SINGULARITY_CACHEDIR</code></td>
+                                <td><code>$HOME/.singularity/cache</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p>The second one is the common cause of a failed first run. It defaults to your <strong>home directory</strong>, which on most HPC systems has a much smaller disk quota than scratch. Downloading 13 images can exhaust that quota part-way through, and the run stops with an error like:</p>
+
+                <div class="code-block">
+                    <pre><code>FATAL: While pulling image from oci registry: error fetching image:
+       unable to Download Image: write /home/users/&lt;user&gt;/.singularity/cache/oras/tmp_383209531:
+       disk quota exceeded</code></pre>
+                </div>
+
+                <p>Setting <code>NXF_SINGULARITY_CACHEDIR</code> alone does <strong>not</strong> prevent this, because it controls only the first cache. To avoid it, point both at a filesystem with plenty of space (scratch is usually the right choice) before launching the pipeline:</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code># Where the finished images are kept, so later runs do not download them again.
+# Some HPC modules already set this for you -- check with: echo $NXF_SINGULARITY_CACHEDIR
+export NXF_SINGULARITY_CACHEDIR=/path/to/scratch/nextflow/singularity_cache
+
+# Where Singularity writes temporary files while downloading.
+# This is the one that defaults to your home directory.
+export SINGULARITY_CACHEDIR=/path/to/scratch/nextflow/singularity_stage
+export APPTAINER_CACHEDIR="$SINGULARITY_CACHEDIR"  # for clusters that use Apptainer
+
+mkdir -p "$NXF_SINGULARITY_CACHEDIR" "$SINGULARITY_CACHEDIR"</code></pre>
+                </div>
+
+                <p>Replace <code>/path/to/scratch</code> with a directory you can write to that has several GB free. The included <code>test_case/run_LINDTIE.sh</code> script already contains these lines as an example.</p>
+
+                <div class="info-box info">
+                    <div class="info-box-title">Notes</div>
+                    <ul>
+                        <li>Some HPC sites set <code>NXF_SINGULARITY_CACHEDIR</code> for you as part of their Nextflow module. Run <code>echo $NXF_SINGULARITY_CACHEDIR</code> after loading the module — if it already points at scratch, you only need to set <code>SINGULARITY_CACHEDIR</code>.</li>
+                        <li>If <code>NXF_SINGULARITY_CACHEDIR</code> is not set, Nextflow says so at the start of the run: <code>WARN: Singularity cache directory has not been defined</code>, along with the path it will use instead.</li>
+                        <li>These are environment variables, so they must be exported in the shell or job script that launches Nextflow. Putting them in <code>nextflow.config</code> will not work.</li>
+                        <li><code>APPTAINER_CACHEDIR</code> is included because some clusters provide Apptainer (a rename of Singularity) under the <code>singularity</code> command. Setting both covers either case.</li>
+                        <li>The staging cache is only used while downloading, so it is safe to delete once a run has completed successfully. The image store is worth keeping.</li>
+                    </ul>
+                </div>
+
                 <div class="next-steps">
                     <a href="#references" class="next-step-card">
                         <h4>Setting Up References</h4>
