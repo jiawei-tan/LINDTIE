@@ -3415,7 +3415,7 @@ nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile
 cases/*.fastq.gz controls/*.fastq.gz</code></pre>
                 </div>
 
-                <p>Approximate run time: 8-10 minutes</p>
+                <p>Approximate run time: 12 minutes, once the containers have been downloaded. Allow extra time on the first run, when Singularity or Docker must pull the images.</p>
 
                 <p>Once LINDTIE has finished running, you should see output on the terminal similar to the following:</p>
                     
@@ -3440,17 +3440,17 @@ cases/*.fastq.gz controls/*.fastq.gz</code></pre>
                                 <td>AS</td>
                                 <td>5</td>
                             </tr>
-                            <tr>    
+                            <tr>
                                 <td>DEL</td>
                                 <td>6</td>
                             </tr>
                             <tr>
                                 <td>EE</td>
-                                <td>6</td>
+                                <td>5</td>
                             </tr>
                             <tr>
                                 <td>FUS</td>
-                                <td>15</td>
+                                <td>30</td>
                             </tr>
                             <tr>
                                 <td>IGR</td>
@@ -3458,7 +3458,7 @@ cases/*.fastq.gz controls/*.fastq.gz</code></pre>
                             </tr>
                             <tr>
                                 <td>INS</td>
-                                <td>15</td>
+                                <td>19</td>
                             </tr>
                             <tr>
                                 <td>NE</td>
@@ -3470,7 +3470,7 @@ cases/*.fastq.gz controls/*.fastq.gz</code></pre>
                             </tr>
                             <tr>
                                 <td>PNJ</td>
-                                <td>9</td>
+                                <td>11</td>
                             </tr>
                             <tr>
                                 <td>RI</td>
@@ -3478,11 +3478,11 @@ cases/*.fastq.gz controls/*.fastq.gz</code></pre>
                             </tr>
                             <tr>
                                 <td>UN</td>
-                                <td>4</td>
+                                <td>3</td>
                             </tr>
                             <tr>
                                 <td><strong>TOTAL</strong></td>
-                                <td><strong>70</strong></td>
+                                <td><strong>89</strong></td>
                             </tr>
                         </tbody>
                     </table>    
