@@ -20,6 +20,3 @@ dag.dot*
 
 # Reference data (user-supplied, too large to track)
 ref/*
-
-# Site-specific execution config
-nextflow.config
