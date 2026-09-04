@@ -3411,8 +3411,7 @@ supp_read_split_tol: 20000       # max split-read supplementary distance (FUS/IG
                     <pre><code># modify the path to the LINDTIE base directory
 LINDTIE_dir=/path/to/your/LINDTIE
 
-nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile singularity
-cases/*.fastq.gz controls/*.fastq.gz</code></pre>
+nextflow run $LINDTIE_dir/main.nf -params-file $LINDTIE_dir/params.yaml -profile singularity</code></pre>
                 </div>
 
                 <p>Approximate run time: 12 minutes, once the containers have been downloaded. Allow extra time on the first run, when Singularity or Docker must pull the images.</p>
