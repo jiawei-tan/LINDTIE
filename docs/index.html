@@ -1864,22 +1864,6 @@ withLabel: 'process_long' {
 }</code></pre>
                 </div>
 
-                <h3 id="env-config">ii. Environment Configuration (JVM Memory Limits)</h3>
-                <p>Under the <code>env</code> block, you can adjust the Java Virtual Machine (JVM) heap size for Nextflow:</p>
-
-                <h4 id="jvm-memory-limits">Limit the JVM heap size:</h4>
-    
-                <p>The default setting allocates <strong>100 GB</strong> of heap memory, which you may reduce or increase depending on your system’s available resources.</p>
-                <p>Adjusting this value ensures that Nextflow does not exceed the memory limits enforced by your HPC scheduler.</p>
-                <p>Example (default JVM heap size):</p>
-                <div class="code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                    <pre><code>env {
-  // JVM heap size (-Xmx sets the maximum heap memory) - default 100GB
-  NXF_JVM_ARGS = '-Xmx100g'
-}</code></pre>
-                </div>
-
                 <div class="info-box info">
                     <div class="info-box-title">Compute Requirements</div>
                     <p><strong>Recommended requirements:</strong></p>
@@ -1889,7 +1873,7 @@ withLabel: 'process_long' {
                     </ul>
                 </div>
 
-                <h3 id="container-cache">iii. Container Download Locations</h3>
+                <h3 id="container-cache">ii. Container Download Locations</h3>
 
                 <p>LINDTIE runs every step inside a container, so the first time you run it Nextflow downloads <strong>13 container images</strong> — roughly <strong>3 GB</strong> in total. You only pay this cost once; later runs reuse the downloaded images.</p>
 
