@@ -388,9 +388,9 @@ run_edgeR <- function(case_name, oarfish_output_dir, outdir,
     logcat("Only one control sample detected. ",
            "Using exact test with fixed dispersion.\n"
     )
-    logcat("DGEList dimensions for exact test: ", nrow(dge$counts),
-           " transcripts x ", ncol(dge$counts), " samples\n")
-    et <- exactTest(dge, dispersion = 0.1)
+    logcat("DGEList dimensions for exact test: ", nrow(dge_filt$counts),
+           " transcripts x ", ncol(dge_filt$counts), " samples\n")
+    et <- exactTest(dge_filt, dispersion = 0.1)
     res_all <- as.data.frame(topTags(et, n = Inf))
     logcat("Exact test completed successfully\n")
   }
