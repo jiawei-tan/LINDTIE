@@ -1500,7 +1500,7 @@
             </button>
             <a href="#changelog" class="header-link" onclick="event.preventDefault(); showSection('changelog'); history.pushState(null, null, '#changelog');">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                <span>v0.2.0</span>
+                <span>v0.2.1</span>
             </a>
             <!-- Dark/Light Mode Toggle -->
             <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">
@@ -4199,6 +4199,34 @@ conda-forge::r-arrow=19.0.1</code></pre>
                 <h1>Changelog</h1>
 
                 <p>This page documents all notable changes to LINDTIE. The format is based on <a href="https://keepachangelog.com/" target="_blank">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/" target="_blank">Semantic Versioning</a>.</p>
+
+                <!-- Version 0.2.1 -->
+                <h2 id="v0.2.1">v0.2.1</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Released: 2026</p>
+
+                <p>A patch release fixing problems that prevented LINDTIE from starting, or from running correctly, outside the environment it was developed in. No analysis logic changed, with one exception noted below.</p>
+
+                <h3 id="v0.2.1-fixed">Fixed</h3>
+                <ul>
+                    <li><strong>The pipeline failed to compile on Nextflow 24.10.5 and earlier</strong>, including the version many sites load by default, with <code>Variable `Channel` already defined in the process scope</code>. The <code>denovo</code> supporting-reads fallback declared a local variable in a way older Nextflow parsers reject; it is now written inline. Verified working on 22.10.4 through 25.10.0.</li>
+                    <li><strong>Container steps could not find the pipeline's own helper scripts.</strong> The scripts under <code>modules/code_base</code> are referenced by host path rather than staged as task inputs, so Singularity's <code>autoMounts</code> never bound them, and steps whose inputs all lived in the work directory failed with <code>No such file or directory</code>. Both the Singularity and Docker profiles now bind the project directory explicitly, so <code>nextflow.config</code> no longer depends on a site-wide configuration to work.</li>
+                    <li><strong>Differential expression with a single control ignored the <code>min_cpm</code> filter.</strong> The exact-test branch used the unfiltered count matrix while the quasi-likelihood branch used the filtered one, so single-control runs tested every transcript — including those below the CPM cutoff — which also inflated the multiple-testing correction. Single-control results from earlier versions are not comparable with those from this release.</li>
+                    <li><strong><code>test_case/run_LINDTIE.sh</code> called <code>module load</code> without initialising the module system</strong>, which fails whenever the submitting shell has not exported the <code>module</code> function. It now initialises the module system explicitly and aborts on the first error instead of continuing with an unusable environment.</li>
+                    <li><strong>Container downloads could exhaust the home disk quota.</strong> Singularity stages downloads in its own cache, which is separate from <code>NXF_SINGULARITY_CACHEDIR</code> and defaults to the home directory, so fetching LINDTIE's 13 images could fill the quota part-way through. The example job script now redirects that staging cache, and the documentation explains both caches.</li>
+                </ul>
+
+                <h3 id="v0.2.1-removed">Removed</h3>
+                <ul>
+                    <li>The <code>env { NXF_JVM_ARGS }</code> block from <code>nextflow.config</code>, and the documentation describing it. Nextflow's own environment variables are read by the launcher before the JVM starts, so setting them in a configuration file that the JVM parses afterwards has no effect. Export them in the shell or job script instead.</li>
+                </ul>
+
+                <h3 id="v0.2.1-docs">Documentation</h3>
+                <ul>
+                    <li>Repository links updated to <a href="https://github.com/DavidsonGroup/LINDTIE" target="_blank">DavidsonGroup/LINDTIE</a>, and Nextflow links to the current documentation site.</li>
+                    <li>Control-sample guidance revised: a minimum of 1 control, with 2-5 being optimal.</li>
+                    <li>Test-case variant counts and expected run time refreshed against a current run.</li>
+                    <li>New section on container download locations, and the job-script template synchronised with the shipped script.</li>
+                </ul>
 
                 <!-- Version 0.2.0 -->
                 <h2 id="v0.2.0">v0.2.0</h2>

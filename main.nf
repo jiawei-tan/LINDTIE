@@ -15,7 +15,7 @@ params.version = false
 if (params.help) {
     log.info """
 ========================================
-            LINDTIE v0.2.0
+            LINDTIE v0.2.1
 ========================================
 
 General usage:
@@ -57,7 +57,7 @@ Optional parameters:
 }
 
 if (params.version) {
-    log.info "LINDTIE v0.2.0"
+    log.info "LINDTIE v0.2.1"
     exit 0
 }
 
